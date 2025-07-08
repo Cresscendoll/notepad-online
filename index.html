@@ -16,14 +16,21 @@
       font-family: monospace;
     }
 
+    .notepad-section {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .wrapper {
       display: flex;
-      align-items: flex-end;
+      align-items: flex-end; /* Картинки по нижней границе блокнота */
       justify-content: center;
       width: 100%;
       max-width: 1200px;
-      margin: 50px auto;
       gap: 20px;
+      padding: 20px;
     }
 
     .side-image {
@@ -44,7 +51,6 @@
       background-color: #ffffff;
       display: flex;
       flex-direction: column;
-      margin-bottom: 100px; /* чтобы не слиплось с видео */
     }
 
     textarea {
@@ -59,7 +65,7 @@
     }
 
     .filler {
-      height: 200vh; /* Удлиняет страницу в 3 раза (примерно) */
+      height: 150vh; /* Просто удлиняет страницу для прокрутки */
     }
 
     .video-section {
@@ -69,11 +75,55 @@
       background-color: #333333;
     }
 
-    video {
+    .video-section video {
       width: 80%;
       max-width: 700px;
       border-radius: 12px;
       box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+
+    .easter-button {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background-color: #555;
+      color: #ddd;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      opacity: 0.6;
+      z-index: 1000;
+      transition: background-color 0.3s, opacity 0.3s;
+    }
+
+    .easter-button:hover {
+      background-color: #777;
+      opacity: 1;
+    }
+
+    .video-wrapper {
+      position: fixed;
+      bottom: -500px; /* спрятано */
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      max-width: 700px;
+      transition: bottom 0.6s ease;
+      z-index: 999;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .video-wrapper.active {
+      bottom: 70px; /* появляется над кнопкой */
+    }
+
+    .video-wrapper video {
+      width: 100%;
+      display: block;
     }
 
     @media (max-width: 900px) {
@@ -86,30 +136,45 @@
         height: 90vh;
       }
 
-      video {
-        width: 100%;
+      .video-wrapper {
+        width: 95%;
+      }
+
+      .easter-button {
+        font-size: 10px;
+        padding: 5px 10px;
       }
     }
   </style>
 </head>
 <body>
 
-  <div class="wrapper">
-    <img src="images/left.png" alt="Левое изображение" class="side-image">
+  <div class="notepad-section">
+    <div class="wrapper">
+      <img src="images/left.png" alt="Левое изображение" class="side-image">
 
-    <div class="container">
-      <textarea id="notepad" placeholder="Пиши, товарищ... всё сохранится!"></textarea>
+      <div class="container">
+        <textarea id="notepad" placeholder="Пиши, товарищ... всё сохранится!"></textarea>
+      </div>
+
+      <img src="images/right.png" alt="Правое изображение" class="side-image">
     </div>
-
-    <img src="images/right.png" alt="Правое изображение" class="side-image">
   </div>
 
   <div class="filler"></div>
 
   <div class="video-section">
+    <!-- Можно тут вставить открытое видео, если не хочешь использовать кнопку -->
+    <!-- Или оставить этот блок пустым -->
+  </div>
+
+  <!-- Пасхалка: кнопка и выезжающее видео -->
+  <button class="easter-button" onclick="toggleVideo()">?</button>
+
+  <div class="video-wrapper" id="videoWrapper">
     <video controls>
       <source src="video/easteregg.mp4" type="video/mp4">
-      Ваш браузер не поддерживает видео. Установите Chrome или Firefox, душа моя!
+      Ваш браузер не поддерживает видео. Установите Chrome, товарищ!
     </video>
   </div>
 
@@ -119,6 +184,11 @@
     textarea.addEventListener('input', () => {
       localStorage.setItem('savedText', textarea.value);
     });
+
+    function toggleVideo() {
+      const videoBox = document.getElementById('videoWrapper');
+      videoBox.classList.toggle('active');
+    }
   </script>
 </body>
 </html>
