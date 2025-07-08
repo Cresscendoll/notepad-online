@@ -104,17 +104,17 @@
     }
 
     .video-wrapper {
-      position: fixed;
-      bottom: -500px; /* спрятано */
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80%;
-      max-width: 700px;
-      transition: bottom 0.6s ease;
-      z-index: 999;
-      box-shadow: 0 0 15px rgba(0,0,0,0.5);
-      border-radius: 12px;
-      overflow: hidden;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%); /* полностью спрятан вниз */
+  width: 80%;
+  max-width: 700px;
+  transition: transform 0.6s ease;
+  z-index: 999;
+  box-shadow: 0 0 15px rgba(0,0,0,0.5);
+  border-radius: 12px;
+  overflow: hidden;
     }
 
     .video-wrapper.active {
