@@ -15,16 +15,32 @@
       margin: 0;
       height: 100vh;
       background-color: #333333; 
+      font-family: monospace;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: monospace;
+    }
+
+    .wrapper {
+      display: flex;
+      align-items: flex-end; /* ВАЖНО: по нижнему краю */
+      justify-content: center;
+      width: 100%;
+      max-width: 1200px;
+      padding: 20px;
+      gap: 20px;
+    }
+
+    .side-image {
+      height: 100px; /* Изменяй по вкусу */
+      object-fit: contain;
+      opacity: 0.95;
     }
 
     .container {
-      width: 80%;
+      flex: 1;
       max-width: 800px;
-      height: 80%;
+      height: 80vh;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
       border: 1px solid #ccc;
       border-radius: 8px;
@@ -44,11 +60,28 @@
       outline: none;
       background-color: transparent;
     }
+
+    @media (max-width: 900px) {
+      .side-image {
+        display: none;
+      }
+
+      .container {
+        max-width: 90%;
+        height: 90vh;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <textarea id="notepad" placeholder="..."></textarea>
+  <div class="wrapper">
+    <img src="images/left.png" alt="Левое изображение" class="side-image">
+
+    <div class="container">
+      <textarea id="notepad" placeholder="..."></textarea>
+    </div>
+
+    <img src="images/right.png" alt="Правое изображение" class="side-image">
   </div>
 
   <script>
