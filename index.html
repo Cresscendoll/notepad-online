@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Центральный народный блокнот</title>
-  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="icon" type="image/png" href="favicon.png" />
 
   <style>
     * {
@@ -25,7 +25,7 @@
 
     .wrapper {
       display: flex;
-      align-items: flex-end; /* Картинки по нижней границе блокнота */
+      align-items: flex-end;
       justify-content: center;
       width: 100%;
       max-width: 1200px;
@@ -65,7 +65,7 @@
     }
 
     .filler {
-      height: 150vh; /* Просто удлиняет страницу для прокрутки */
+      height: 150vh;
     }
 
     .video-section {
@@ -84,7 +84,7 @@
 
     .easter-button {
       position: fixed;
-      bottom: 10px;
+      bottom: 80px; /* Подняли кнопку над видео */
       right: 10px;
       background-color: #555;
       color: #ddd;
@@ -103,21 +103,22 @@
       opacity: 1;
     }
 
-.video-wrapper {
-  position: fixed;
-  bottom: 70px; /* видео над кнопкой */
-  left: 50%;
-  transform: translateX(-50%) translateY(100%);
-  /* остальное без изменений */
-  transition: transform 0.6s ease;
-  z-index: 999;
-  box-shadow: 0 0 15px rgba(0,0,0,0.5);
-  border-radius: 12px;
-  overflow: hidden;
-}
+    .video-wrapper {
+      position: fixed;
+      bottom: 0; /* ровно по низу */
+      left: 50%;
+      transform: translateX(-50%) translateY(100%); /* спрятан вниз */
+      width: 80%;
+      max-width: 700px;
+      transition: transform 0.6s ease;
+      z-index: 999;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      border-radius: 12px;
+      overflow: hidden;
+    }
 
-.video-wrapper.active {
-  transform: translateX(-50%) translateY(0);
+    .video-wrapper.active {
+      transform: translateX(-50%) translateY(0); /* выезжает вверх */
     }
 
     .video-wrapper video {
@@ -147,16 +148,15 @@
   </style>
 </head>
 <body>
-
   <div class="notepad-section">
     <div class="wrapper">
-      <img src="images/left.png" alt="Левое изображение" class="side-image">
+      <img src="images/left.png" alt="Левое изображение" class="side-image" />
 
       <div class="container">
         <textarea id="notepad" placeholder="Пиши, товарищ... всё сохранится!"></textarea>
       </div>
 
-      <img src="images/right.png" alt="Правое изображение" class="side-image">
+      <img src="images/right.png" alt="Правое изображение" class="side-image" />
     </div>
   </div>
 
@@ -164,7 +164,6 @@
 
   <div class="video-section">
     <!-- Можно тут вставить открытое видео, если не хочешь использовать кнопку -->
-    <!-- Или оставить этот блок пустым -->
   </div>
 
   <!-- Пасхалка: кнопка и выезжающее видео -->
@@ -172,7 +171,7 @@
 
   <div class="video-wrapper" id="videoWrapper">
     <video controls>
-      <source src="video/easteregg.mp4" type="video/mp4">
+      <source src="video/easteregg.mp4" type="video/mp4" />
       Ваш браузер не поддерживает видео. Установите Chrome, товарищ!
     </video>
   </div>
