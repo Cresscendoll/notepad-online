@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>Центральный народный блокнот</title>
+  
+  <link rel="icon" type="image/png" href="favicon.png">
+
   <style>
     * {
       box-sizing: border-box;
@@ -11,7 +14,6 @@
     body {
       margin: 0;
       height: 100vh;
-      /* Фон страницы сделан темно-серым */
       background-color: #333333; 
       display: flex;
       align-items: center;
@@ -23,12 +25,10 @@
       width: 80%;
       max-width: 800px;
       height: 80%;
-      /* Стандартные тень и рамка для белого окна */
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
       border: 1px solid #ccc;
       border-radius: 8px;
       padding: 10px;
-      /* Окно для текста оставлено белым */
       background-color: #ffffff; 
       display: flex;
       flex-direction: column;
@@ -40,11 +40,9 @@
       height: 100%;
       font-size: 16px;
       border: none;
-      /* Запрещаем изменение размера вручную, чтобы размер был как раньше */
       resize: none; 
       outline: none;
       background-color: transparent;
-      /* Цвет текста по умолчанию черный, подходит для белого фона */
     }
   </style>
 </head>
@@ -55,11 +53,7 @@
 
   <script>
     const textarea = document.getElementById('notepad');
-
-    // Загружаем текст из localStorage
     textarea.value = localStorage.getItem('savedText') || '';
-
-    // Сохраняем при каждом изменении
     textarea.addEventListener('input', () => {
       localStorage.setItem('savedText', textarea.value);
     });
