@@ -103,22 +103,21 @@
       opacity: 1;
     }
 
-    .video-wrapper {
+.video-wrapper {
   position: fixed;
-  bottom: 0;
+  bottom: 70px; /* видео над кнопкой */
   left: 50%;
-  transform: translateX(-50%) translateY(100%); /* полностью спрятан вниз */
-  width: 80%;
-  max-width: 700px;
+  transform: translateX(-50%) translateY(100%);
+  /* остальное без изменений */
   transition: transform 0.6s ease;
   z-index: 999;
   box-shadow: 0 0 15px rgba(0,0,0,0.5);
   border-radius: 12px;
   overflow: hidden;
-    }
+}
 
-    .video-wrapper.active {
-      bottom: 70px; /* появляется над кнопкой */
+.video-wrapper.active {
+  transform: translateX(-50%) translateY(0);
     }
 
     .video-wrapper video {
