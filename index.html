@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <title>Центральный народный блокнот</title>
-  
+
   <meta name="description" content="Простой и удобный онлайн-блокнот Центрального народного блокнота для быстрого и надёжного ведения заметок. Пиши, сохраняй и возвращайся, товарищ!" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  
+
   <meta property="og:title" content="Центральный народный блокнот" />
   <meta property="og:description" content="Простой и удобный онлайн-блокнот Центрального народного блокнота для быстрого и надёжного ведения заметок." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://zmtk.my" />
   <meta property="og:image" content="https://zmtk.my/images/preview.png" />
-  
+
   <link rel="icon" type="image/png" href="favicon.png" />
 
   <style>
@@ -32,14 +32,6 @@
       align-items: center;
     }
 
-    .notepad-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      height: 100%;
-      justify-content: flex-start;
-    }
-
     .notepad-section {
       display: flex;
       align-items: flex-end;
@@ -49,7 +41,6 @@
       gap: 20px;
       padding: 20px;
       height: 80vh;
-      background-color: #333333;
     }
 
     .side-image {
@@ -59,9 +50,25 @@
       opacity: 0.95;
     }
 
-    .container {
-      flex: 1;
+    .container-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
       max-width: 800px;
+      flex: 1;
+    }
+
+    .banner-image {
+      width: 100%;
+      max-width: 800px;
+      height: auto;
+      margin-bottom: 5px;
+      border-radius: 4px;
+    }
+
+    .container {
+      width: 100%;
       height: 100%;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
       border: 1px solid #ccc;
@@ -72,16 +79,9 @@
       flex-direction: column;
     }
 
-    .header-image {
-      width: 100%;
-      margin-bottom: 10px;
-      border-radius: 4px;
-    }
-
     .header-text {
       flex: none;
       margin-bottom: 10px;
-      color: #222;
     }
 
     textarea {
@@ -175,8 +175,11 @@
       }
 
       .container {
-        max-width: 90%;
         height: 90vh;
+      }
+
+      .container-wrapper {
+        max-width: 90%;
       }
 
       .video-wrapper {
@@ -196,11 +199,11 @@
   </style>
 </head>
 <body>
-  <div class="notepad-wrapper">
-    <img src="images/up.png" alt="Пролетарии всех стран пишите" class="header-image" />
+  <div class="notepad-section">
+    <img src="images/left.png" alt="Левое изображение" class="side-image" />
 
-    <div class="notepad-section">
-      <img src="images/left.png" alt="Левое изображение" class="side-image" />
+    <div class="container-wrapper">
+      <img src="images/up.png" alt="Пролетарии всех стран, пишите!" class="banner-image" />
 
       <div class="container">
         <div class="header-text">
@@ -212,12 +215,11 @@
           <button class="download-button" id="downloadBtn" title="Скачать файл с заметками">Скачать</button>
         </div>
       </div>
-
-      <img src="images/right.png" alt="Правое изображение" class="side-image" />
     </div>
+
+    <img src="images/right.png" alt="Правое изображение" class="side-image" />
   </div>
 
-  <!-- Пасхалка: кнопка и выезжающее видео -->
   <button class="easter-button" onclick="toggleVideo()">?</button>
 
   <div class="video-wrapper" id="videoWrapper">
