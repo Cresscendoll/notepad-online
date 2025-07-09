@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <title>О проекте — Центральный народный блокнот</title>
   <meta name="description" content="Что это за сайт, кто его сделал и зачем он нужен. Описание Центрального народного блокнота." />
+
+  <!-- 🔧 Добавлено для PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#b22222" />
+
   <style>
     body {
       background-color: #fefdf9;
@@ -40,9 +45,8 @@
       font-size: 2em;
       margin-top: 40px;
     }
-    /* Основной контент с пожелтевшей бумагой внутри рамки */
     .content-wrapper {
-      background: #f4e1b6; /* Светло-желтый оттенок старой бумаги */
+      background: #f4e1b6;
       padding: 25px 40px;
       border-radius: 8px;
       box-shadow:
@@ -93,7 +97,6 @@
       text-align: center;
       font-size: 1.1em;
     }
-    /* Агитационные лозунги */
     .slogan {
       margin: 40px auto;
       max-width: 700px;
