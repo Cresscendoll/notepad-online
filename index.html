@@ -51,25 +51,31 @@
       opacity: 0.95;
     }
 
+    .notepad-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .top-banner {
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: 0;
+      display: block;
+      border-radius: 4px 4px 0 0;
+    }
+
     .container {
       flex: 1;
       max-width: 800px;
       height: 100%;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
       border: 1px solid #ccc;
-      border-radius: 8px;
+      border-radius: 0 0 8px 8px;
       padding: 10px;
       background-color: #ffffff;
       display: flex;
       flex-direction: column;
-    }
-
-    .top-banner {
-      width: 100%;
-      max-width: 100%;
-      margin-bottom: 5px;
-      display: block;
-      border-radius: 4px;
     }
 
     .header-text {
@@ -191,6 +197,10 @@
         padding: 5px 15px;
         font-size: 11px;
       }
+
+      .top-banner {
+        max-width: 90%;
+      }
     }
   </style>
 </head>
@@ -198,15 +208,18 @@
   <div class="notepad-section">
     <img src="images/left.png" alt="Левое изображение" class="side-image" />
 
-    <div class="container">
+    <div class="notepad-wrapper">
       <img src="images/up.png" alt="Орнамент: Пролетарии всех стран, пишите" class="top-banner" />
-      <div class="header-text">
-        <h1>Центральный народный блокнот</h1>
-        <p>Простой и удобный онлайн-блокнот для быстрого и надёжного ведения заметок. Пиши, сохраняй и возвращайся, товарищ!</p>
-      </div>
-      <textarea id="notepad" placeholder="Пиши, товарищ... всё сохранится!"></textarea>
-      <div class="button-row">
-        <button class="download-button" id="downloadBtn" title="Скачать файл с заметками">Скачать</button>
+      
+      <div class="container">
+        <div class="header-text">
+          <h1>Центральный народный блокнот</h1>
+          <p>Простой и удобный онлайн-блокнот для быстрого и надёжного ведения заметок. Пиши, сохраняй и возвращайся, товарищ!</p>
+        </div>
+        <textarea id="notepad" placeholder="Пиши, товарищ... всё сохранится!"></textarea>
+        <div class="button-row">
+          <button class="download-button" id="downloadBtn" title="Скачать файл с заметками">Скачать</button>
+        </div>
       </div>
     </div>
 
