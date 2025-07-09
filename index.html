@@ -40,7 +40,7 @@
       max-width: 1200px;
       gap: 20px;
       padding: 20px;
-      height: 95vh; /* ещё выше */
+      height: 95vh;
     }
 
     .side-image {
@@ -59,11 +59,9 @@
       flex: 1;
     }
 
-    /* Картинку up.png убираем - стиля для неё больше нет */
-
     .container {
       width: 100%;
-      height: 100%; /* занять всю высоту родителя */
+      height: 100%;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
       border: 1px solid #ccc;
       border-radius: 8px;
@@ -164,6 +162,18 @@
       display: block;
     }
 
+    /* 🌟 Картинка в левом верхнем углу */
+    .corner-image {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 80px;
+      height: auto;
+      z-index: 1001;
+      user-select: none;
+      pointer-events: none;
+    }
+
     @media (max-width: 900px) {
       .side-image {
         display: none;
@@ -190,15 +200,21 @@
         padding: 5px 15px;
         font-size: 11px;
       }
+
+      .corner-image {
+        width: 60px;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- 🌟 Левый верхний угол -->
+  <img src="images/upleft.png" alt="Орнамент в левом углу" class="corner-image" />
+
   <div class="notepad-section">
     <img src="images/left.png" alt="Левое изображение" class="side-image" />
 
     <div class="container-wrapper">
-
       <div class="container">
         <div class="header-text">
           <h1>Центральный народный блокнот</h1>
