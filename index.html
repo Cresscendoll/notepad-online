@@ -4,13 +4,9 @@
   <meta charset="UTF-8" />
   <title>Центральный народный блокнот</title>
   
-  <!-- Метаописание для поисковиков -->
   <meta name="description" content="Простой и удобный онлайн-блокнот Центрального народного блокнота для быстрого и надёжного ведения заметок. Пиши, сохраняй и возвращайся, товарищ!" />
-  
-  <!-- Мобильная адаптивность -->
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   
-  <!-- Open Graph для соцсетей -->
   <meta property="og:title" content="Центральный народный блокнот" />
   <meta property="og:description" content="Простой и удобный онлайн-блокнот Центрального народного блокнота для быстрого и надёжного ведения заметок." />
   <meta property="og:type" content="website" />
@@ -29,23 +25,23 @@
       background-color: #333333;
       font-family: monospace;
       color: #222;
+      overflow-y: hidden; /* Убираем вертикальный скролл */
+      height: 100vh; /* Заставляем тело занимать всю высоту окна */
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .notepad-section {
-      height: 100vh;
       display: flex;
-      align-items: center;
+      align-items: flex-end; /* Картинки по низу */
       justify-content: center;
-    }
-
-   .wrapper {
-  display: flex;
-  align-items: flex-end; /* Возвращаем выравнивание по низу */
-  justify-content: center;
-  width: 100%;
-  max-width: 1200px;
-  gap: 20px;
-  padding: 20px;
+      width: 100%;
+      max-width: 1200px;
+      gap: 20px;
+      padding: 20px;
+      height: 80vh;
+      background-color: #333333;
     }
 
     .side-image {
@@ -58,7 +54,7 @@
     .container {
       flex: 1;
       max-width: 800px;
-      height: 80vh;
+      height: 100%;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
       border: 1px solid #ccc;
       border-radius: 8px;
@@ -84,22 +80,8 @@
       background-color: transparent;
     }
 
-    .filler {
-      height: 150vh;
-    }
-
     .video-section {
-      display: flex;
-      justify-content: center;
-      padding: 40px 20px;
-      background-color: #333333;
-    }
-
-    .video-section video {
-      width: 80%;
-      max-width: 700px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      display: none; /* Убираем видео-секцию если не нужна */
     }
 
     .easter-button {
@@ -169,25 +151,17 @@
 </head>
 <body>
   <div class="notepad-section">
-    <div class="wrapper">
-      <img src="images/left.png" alt="Левое изображение" class="side-image" />
+    <img src="images/left.png" alt="Левое изображение" class="side-image" />
 
-      <div class="container">
-        <div class="header-text">
-          <h1>Центральный народный блокнот</h1>
-          <p>Простой и удобный онлайн-блокнот для быстрого и надёжного ведения заметок. Пиши, сохраняй и возвращайся, товарищ!</p>
-        </div>
-        <textarea id="notepad" placeholder="Пиши, товарищ... всё сохранится!"></textarea>
+    <div class="container">
+      <div class="header-text">
+        <h1>Центральный народный блокнот</h1>
+        <p>Простой и удобный онлайн-блокнот для быстрого и надёжного ведения заметок. Пиши, сохраняй и возвращайся, товарищ!</p>
       </div>
-
-      <img src="images/right.png" alt="Правое изображение" class="side-image" />
+      <textarea id="notepad" placeholder="Пиши, товарищ... всё сохранится!"></textarea>
     </div>
-  </div>
 
-  <div class="filler"></div>
-
-  <div class="video-section">
-    <!-- Можно тут вставить открытое видео, если не хочешь использовать кнопку -->
+    <img src="images/right.png" alt="Правое изображение" class="side-image" />
   </div>
 
   <!-- Пасхалка: кнопка и выезжающее видео -->
