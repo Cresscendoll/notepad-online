@@ -21,20 +21,51 @@
 
   <style>
     * { box-sizing: border-box; }
-    body {
+    html, body {
       margin: 0;
-      background-color: #333333;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
       font-family: monospace;
       color: #222;
-      overflow-y: hidden;
-      height: 100vh;
+      transition: background-color 0.5s ease;
+    }
+
+    body {
+      position: relative;
       display: flex;
       justify-content: center;
       align-items: center;
-      transition: background-color 0.5s ease;
+      height: 100vh;
+      /* Убираем старый фон */
+      background-color: transparent;
+      color: #222;
+      overflow-y: hidden;
     }
-    body.dark-mode { background-color: #111111; }
 
+    /* Наш революционный фон - карта 1922 */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-image: url('images/background.jpg');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      filter: brightness(1);
+      z-index: -1;
+      transition: filter 0.5s ease;
+      pointer-events: none; /* чтобы не мешать кликам */
+    }
+
+    /* Тёмный режим затемняет фон */
+    body.dark-mode::before {
+      filter: brightness(0.4);
+    }
+
+    /* Остальной код как и был */
     .notepad-section {
       display: flex;
       align-items: flex-end;
@@ -44,6 +75,8 @@
       gap: 20px;
       padding: 20px;
       height: 95vh;
+      position: relative;
+      z-index: 1; /* чтобы быть поверх фона */
     }
 
     .side-image {
