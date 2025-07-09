@@ -5,7 +5,7 @@
   <title>Центральный народный блокнот</title>
   
   <!-- Метаописание для поисковиков -->
-  <meta name="description" content="Простой и удобный онлайн-блокнот Центрального народного блокнота для быстрого и надёжного ведения заметок. Пиши, сохрани и возвращайся, товарищ!" />
+  <meta name="description" content="Простой и удобный онлайн-блокнот Центрального народного блокнота для быстрого и надёжного ведения заметок. Пиши, сохраняй и возвращайся, товарищ!" />
   
   <!-- Мобильная адаптивность -->
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -28,6 +28,7 @@
       margin: 0;
       background-color: #333333;
       font-family: monospace;
+      color: #222;
     }
 
     .notepad-section {
@@ -39,7 +40,7 @@
 
     .wrapper {
       display: flex;
-      align-items: flex-end;
+      align-items: flex-start;
       justify-content: center;
       width: 100%;
       max-width: 1200px;
@@ -67,10 +68,15 @@
       flex-direction: column;
     }
 
+    .header-text {
+      flex: none;
+      margin-bottom: 10px;
+      color: #222;
+    }
+
     textarea {
       flex: 1;
       width: 100%;
-      height: 100%;
       font-size: 21px;
       border: none;
       resize: none;
@@ -98,7 +104,7 @@
 
     .easter-button {
       position: fixed;
-      bottom: 80px; /* Подняли кнопку над видео */
+      bottom: 80px;
       right: 10px;
       background-color: #555;
       color: #ddd;
@@ -119,9 +125,9 @@
 
     .video-wrapper {
       position: fixed;
-      bottom: 0; /* ровно по низу */
+      bottom: 0;
       left: 50%;
-      transform: translateX(-50%) translateY(100%); /* спрятан вниз */
+      transform: translateX(-50%) translateY(100%);
       width: 80%;
       max-width: 700px;
       transition: transform 0.6s ease;
@@ -132,9 +138,79 @@
     }
 
     .video-wrapper.active {
-      transform: translateX(-50%) translateY(0); /* выезжает вверх */
+      transform: translateX(-50%) translateY(0);
     }
 
     .video-wrapper video {
       width: 100%;
       display: block;
+    }
+
+    @media (max-width: 900px) {
+      .side-image {
+        display: none;
+      }
+
+      .container {
+        max-width: 90%;
+        height: 90vh;
+      }
+
+      .video-wrapper {
+        width: 95%;
+      }
+
+      .easter-button {
+        font-size: 10px;
+        padding: 5px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="notepad-section">
+    <div class="wrapper">
+      <img src="images/left.png" alt="Левое изображение" class="side-image" />
+
+      <div class="container">
+        <div class="header-text">
+          <h1>Центральный народный блокнот</h1>
+          <p>Простой и удобный онлайн-блокнот для быстрого и надёжного ведения заметок. Пиши, сохраняй и возвращайся, товарищ!</p>
+        </div>
+        <textarea id="notepad" placeholder="Пиши, товарищ... всё сохранится!"></textarea>
+      </div>
+
+      <img src="images/right.png" alt="Правое изображение" class="side-image" />
+    </div>
+  </div>
+
+  <div class="filler"></div>
+
+  <div class="video-section">
+    <!-- Можно тут вставить открытое видео, если не хочешь использовать кнопку -->
+  </div>
+
+  <!-- Пасхалка: кнопка и выезжающее видео -->
+  <button class="easter-button" onclick="toggleVideo()">?</button>
+
+  <div class="video-wrapper" id="videoWrapper">
+    <video controls>
+      <source src="video/easteregg.mp4" type="video/mp4" />
+      Ваш браузер не поддерживает видео. Установите Chrome, товарищ!
+    </video>
+  </div>
+
+  <script>
+    const textarea = document.getElementById('notepad');
+    textarea.value = localStorage.getItem('savedText') || '';
+    textarea.addEventListener('input', () => {
+      localStorage.setItem('savedText', textarea.value);
+    });
+
+    function toggleVideo() {
+      const videoBox = document.getElementById('videoWrapper');
+      videoBox.classList.toggle('active');
+    }
+  </script>
+</body>
+</html>
