@@ -243,6 +243,7 @@
   <!-- 🌟 Орнамент и выключатель -->
   <img src="images/upleft.png" alt="Орнамент в левом углу" class="corner-image" />
   <img src="images/switcher.png" alt="Выключатель света" class="switcher-image" id="switcher" />
+  <audio id="switchSound" src="sound/click.mp3" preload="auto"></audio>
 
   <div class="notepad-section">
     <img src="images/left.png" alt="Левое изображение" class="side-image" />
@@ -278,6 +279,7 @@
     const switcher = document.getElementById('switcher');
     const body = document.body;
     const container = document.getElementById('notepadContainer');
+    const switchSound = document.getElementById('switchSound');
 
     let isDark = false;
 
@@ -291,7 +293,6 @@
       const text = textarea.value;
       const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
       const url = URL.createObjectURL(blob);
-
       const a = document.createElement('a');
       a.href = url;
       a.download = 'central_narodny_blocknot.txt';
@@ -306,13 +307,17 @@
       videoBox.classList.toggle('active');
     }
 
-    // 🪢 Имитация дёргания и переключения темы
     switcher.addEventListener('click', () => {
       switcher.classList.add('pulled');
       setTimeout(() => {
         switcher.classList.remove('pulled');
       }, 200);
 
+      // 🎵 Щелчок
+      switchSound.currentTime = 0;
+      switchSound.play();
+
+      // 🌒 Переключение темы
       isDark = !isDark;
       body.classList.toggle('dark-mode', isDark);
       container.classList.toggle('dark-paper', isDark);
