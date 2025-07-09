@@ -32,6 +32,14 @@
       align-items: center;
     }
 
+    .notepad-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-start;
+    }
+
     .notepad-section {
       display: flex;
       align-items: flex-end;
@@ -51,31 +59,23 @@
       opacity: 0.95;
     }
 
-    .notepad-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .top-banner {
-      width: 100%;
-      max-width: 800px;
-      margin-bottom: 0;
-      display: block;
-      border-radius: 4px 4px 0 0;
-    }
-
     .container {
       flex: 1;
       max-width: 800px;
       height: 100%;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
       border: 1px solid #ccc;
-      border-radius: 0 0 8px 8px;
+      border-radius: 8px;
       padding: 10px;
       background-color: #ffffff;
       display: flex;
       flex-direction: column;
+    }
+
+    .header-image {
+      width: 100%;
+      margin-bottom: 10px;
+      border-radius: 4px;
     }
 
     .header-text {
@@ -117,10 +117,6 @@
     button.download-button:hover {
       background-color: #777;
       opacity: 1;
-    }
-
-    .video-section {
-      display: none;
     }
 
     .easter-button {
@@ -189,28 +185,23 @@
 
       .easter-button {
         font-size: 10px;
-        width: 28px;
-        height: 28px;
+        padding: 5px 10px;
       }
 
       button.download-button {
         padding: 5px 15px;
         font-size: 11px;
       }
-
-      .top-banner {
-        max-width: 90%;
-      }
     }
   </style>
 </head>
 <body>
-  <div class="notepad-section">
-    <img src="images/left.png" alt="Левое изображение" class="side-image" />
+  <div class="notepad-wrapper">
+    <img src="images/up.png" alt="Пролетарии всех стран пишите" class="header-image" />
 
-    <div class="notepad-wrapper">
-      <img src="images/up.png" alt="Орнамент: Пролетарии всех стран, пишите" class="top-banner" />
-      
+    <div class="notepad-section">
+      <img src="images/left.png" alt="Левое изображение" class="side-image" />
+
       <div class="container">
         <div class="header-text">
           <h1>Центральный народный блокнот</h1>
@@ -221,11 +212,12 @@
           <button class="download-button" id="downloadBtn" title="Скачать файл с заметками">Скачать</button>
         </div>
       </div>
-    </div>
 
-    <img src="images/right.png" alt="Правое изображение" class="side-image" />
+      <img src="images/right.png" alt="Правое изображение" class="side-image" />
+    </div>
   </div>
 
+  <!-- Пасхалка: кнопка и выезжающее видео -->
   <button class="easter-button" onclick="toggleVideo()">?</button>
 
   <div class="video-wrapper" id="videoWrapper">
