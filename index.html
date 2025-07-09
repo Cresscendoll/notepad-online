@@ -25,8 +25,8 @@
       background-color: #333333;
       font-family: monospace;
       color: #222;
-      overflow-y: hidden; /* Убираем вертикальный скролл */
-      height: 100vh; /* Заставляем тело занимать всю высоту окна */
+      overflow-y: hidden;
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -34,7 +34,7 @@
 
     .notepad-section {
       display: flex;
-      align-items: flex-end; /* Картинки по низу */
+      align-items: flex-end;
       justify-content: center;
       width: 100%;
       max-width: 1200px;
@@ -62,6 +62,14 @@
       background-color: #ffffff;
       display: flex;
       flex-direction: column;
+    }
+
+    .top-banner {
+      width: 100%;
+      max-width: 100%;
+      margin-bottom: 5px;
+      display: block;
+      border-radius: 4px;
     }
 
     .header-text {
@@ -106,34 +114,34 @@
     }
 
     .video-section {
-      display: none; /* Убираем видео-секцию если не нужна */
+      display: none;
     }
 
-  .easter-button {
-  position: fixed;
-  bottom: 0;        
-  right: 0;         
-  background-color: #b22222; /* чуть бледнее, бордовый оттенок */
-  color: #fff;      
-  border: none;
-  border-radius: 50%; 
-  width: 32px;      /* поменьше */
-  height: 32px;     
-  padding: 0;       
-  font-size: 16px;  /* поменьше */
-  cursor: pointer;
-  opacity: 0.75;    /* чуть прозрачнее */
-  z-index: 1000;
-  transition: background-color 0.3s, opacity 0.3s;
-  user-select: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+    .easter-button {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      background-color: #b22222;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      font-size: 16px;
+      cursor: pointer;
+      opacity: 0.75;
+      z-index: 1000;
+      transition: background-color 0.3s, opacity 0.3s;
+      user-select: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-.easter-button:hover {
-  background-color: #cc3333;
-  opacity: 1;
+    .easter-button:hover {
+      background-color: #cc3333;
+      opacity: 1;
     }
 
     .video-wrapper {
@@ -175,7 +183,8 @@
 
       .easter-button {
         font-size: 10px;
-        padding: 5px 10px;
+        width: 28px;
+        height: 28px;
       }
 
       button.download-button {
@@ -190,6 +199,7 @@
     <img src="images/left.png" alt="Левое изображение" class="side-image" />
 
     <div class="container">
+      <img src="images/up.png" alt="Орнамент: Пролетарии всех стран, пишите" class="top-banner" />
       <div class="header-text">
         <h1>Центральный народный блокнот</h1>
         <p>Простой и удобный онлайн-блокнот для быстрого и надёжного ведения заметок. Пиши, сохраняй и возвращайся, товарищ!</p>
@@ -203,7 +213,6 @@
     <img src="images/right.png" alt="Правое изображение" class="side-image" />
   </div>
 
-  <!-- Пасхалка: кнопка и выезжающее видео -->
   <button class="easter-button" onclick="toggleVideo()">?</button>
 
   <div class="video-wrapper" id="videoWrapper">
@@ -217,15 +226,12 @@
     const textarea = document.getElementById('notepad');
     const downloadBtn = document.getElementById('downloadBtn');
 
-    // Загружаем текст из localStorage при загрузке страницы
     textarea.value = localStorage.getItem('savedText') || '';
 
-    // Автосохранение при вводе
     textarea.addEventListener('input', () => {
       localStorage.setItem('savedText', textarea.value);
     });
 
-    // Скачивание текстового файла с содержимым textarea
     downloadBtn.addEventListener('click', () => {
       const text = textarea.value;
       const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
