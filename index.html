@@ -20,7 +20,6 @@
   <meta name="theme-color" content="#b22222" />
 
   <style>
-    /* [Стили без изменений — оставляем как было] */
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -227,7 +226,6 @@
 
   <div class="notepad-section">
     <img src="images/left.png" alt="Левое изображение" class="side-image" />
-
     <div class="container-wrapper">
       <div class="container" id="notepadContainer">
         <div class="header-text">
@@ -243,7 +241,6 @@
         </div>
       </div>
     </div>
-
     <img src="images/right.png" alt="Правое изображение" class="side-image" />
   </div>
 
@@ -264,7 +261,11 @@
     const container = document.getElementById('notepadContainer');
     const switchSound = document.getElementById('switchSound');
 
-    let isDark = false;
+    let isDark = true; // 🕶 По умолчанию включаем тёмную тему
+
+    // Применяем тёмную тему сразу при загрузке
+    body.classList.add('dark-mode');
+    container.classList.add('dark-paper');
 
     textarea.value = localStorage.getItem('savedText') || '';
 
