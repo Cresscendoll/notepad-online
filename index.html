@@ -15,11 +15,13 @@
 
   <link rel="icon" type="image/png" href="favicon.png" />
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+  <!-- 📱 PWA manifest -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#b22222" />
 
+  <style>
+    /* [Стили без изменений — оставляем как было] */
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       background-color: #333333;
@@ -32,10 +34,7 @@
       align-items: center;
       transition: background-color 0.5s ease;
     }
-
-    body.dark-mode {
-      background-color: #111111;
-    }
+    body.dark-mode { background-color: #111111; }
 
     .notepad-section {
       display: flex;
@@ -78,19 +77,10 @@
       transition: background-color 0.5s ease;
     }
 
-    .container.dark-paper {
-      background-color: #f5e7c5; /* Цвет тусклой бумаги */
-    }
+    .container.dark-paper { background-color: #f5e7c5; }
 
-    .header-text {
-      flex: none;
-      margin-bottom: 10px;
-    }
-
-    .header-text nav {
-      margin-bottom: 10px;
-    }
-
+    .header-text { flex: none; margin-bottom: 10px; }
+    .header-text nav { margin-bottom: 10px; }
     .header-text nav a {
       font-size: 14px;
       font-weight: bold;
@@ -99,10 +89,7 @@
       margin-right: 15px;
       font-family: monospace;
     }
-
-    .header-text nav a:hover {
-      text-decoration: underline;
-    }
+    .header-text nav a:hover { text-decoration: underline; }
 
     textarea {
       flex: 1;
@@ -134,7 +121,6 @@
       user-select: none;
       font-family: monospace;
     }
-
     button.download-button:hover {
       background-color: #777;
       opacity: 1;
@@ -161,7 +147,6 @@
       justify-content: center;
       align-items: center;
     }
-
     .easter-button:hover {
       background-color: #cc3333;
       opacity: 1;
@@ -180,11 +165,9 @@
       border-radius: 12px;
       overflow: hidden;
     }
-
     .video-wrapper.active {
       transform: translateX(-50%) translateY(0);
     }
-
     .video-wrapper video {
       width: 100%;
       display: block;
@@ -200,7 +183,6 @@
       user-select: none;
       pointer-events: none;
     }
-
     .switcher-image {
       position: fixed;
       top: -25px;
@@ -212,42 +194,24 @@
       cursor: pointer;
       transition: transform 0.2s ease;
     }
-
     .switcher-image.pulled {
       transform: translateY(25px);
     }
 
     @media (max-width: 900px) {
-      .side-image {
-        display: none;
-      }
-
-      .container {
-        height: 90vh;
-      }
-
-      .container-wrapper {
-        max-width: 90%;
-      }
-
-      .video-wrapper {
-        width: 95%;
-      }
-
+      .side-image { display: none; }
+      .container { height: 90vh; }
+      .container-wrapper { max-width: 90%; }
+      .video-wrapper { width: 95%; }
       .easter-button {
         font-size: 10px;
         padding: 5px 10px;
       }
-
       button.download-button {
         padding: 5px 15px;
         font-size: 11px;
       }
-
-      .corner-image {
-        width: 60px;
-      }
-
+      .corner-image { width: 60px; }
       .switcher-image {
         width: 60px;
         left: 45px;
@@ -257,7 +221,6 @@
   </style>
 </head>
 <body>
-  <!-- 🌟 Орнамент и выключатель -->
   <img src="images/upleft.png" alt="Орнамент в левом углу" class="corner-image" />
   <img src="images/switcher.png" alt="Выключатель света" class="switcher-image" id="switcher" />
   <audio id="switchSound" src="sound/click.mp3" preload="auto"></audio>
@@ -333,11 +296,9 @@
         switcher.classList.remove('pulled');
       }, 200);
 
-      // 🎵 Щелчок
       switchSound.currentTime = 0;
       switchSound.play();
 
-      // 🌒 Переключение темы
       isDark = !isDark;
       body.classList.toggle('dark-mode', isDark);
       container.classList.toggle('dark-paper', isDark);
