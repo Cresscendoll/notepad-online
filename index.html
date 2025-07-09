@@ -162,7 +162,6 @@
       display: block;
     }
 
-    /* 🌟 Картинка в левом верхнем углу */
     .corner-image {
       position: fixed;
       top: 0;
@@ -170,6 +169,17 @@
       width: 80px;
       height: auto;
       z-index: 1001;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .switcher-image {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 40px;
+      height: auto;
+      z-index: 1002; /* Поверх corner-image */
       user-select: none;
       pointer-events: none;
     }
@@ -204,12 +214,17 @@
       .corner-image {
         width: 60px;
       }
+
+      .switcher-image {
+        width: 30px;
+      }
     }
   </style>
 </head>
 <body>
   <!-- 🌟 Левый верхний угол -->
   <img src="images/upleft.png" alt="Орнамент в левом углу" class="corner-image" />
+  <img src="images/switcher.png" alt="Выключатель света" class="switcher-image" />
 
   <div class="notepad-section">
     <img src="images/left.png" alt="Левое изображение" class="side-image" />
