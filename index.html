@@ -177,11 +177,16 @@
       position: fixed;
       top: 0;
       left: 0;
-      width: 40px;
+      width: 80px; /* увеличили */
       height: auto;
-      z-index: 1002; /* Поверх corner-image */
+      z-index: 1002;
       user-select: none;
-      pointer-events: none;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .switcher-image.pulled {
+      transform: translateY(25px); /* оттягивание вниз */
     }
 
     @media (max-width: 900px) {
@@ -216,15 +221,15 @@
       }
 
       .switcher-image {
-        width: 30px;
+        width: 60px;
       }
     }
   </style>
 </head>
 <body>
-  <!-- 🌟 Левый верхний угол -->
+  <!-- 🌟 Верхний левый угол -->
   <img src="images/upleft.png" alt="Орнамент в левом углу" class="corner-image" />
-  <img src="images/switcher.png" alt="Выключатель света" class="switcher-image" />
+  <img src="images/switcher.png" alt="Выключатель света" class="switcher-image" id="switcher" />
 
   <div class="notepad-section">
     <img src="images/left.png" alt="Левое изображение" class="side-image" />
@@ -282,6 +287,15 @@
       const videoBox = document.getElementById('videoWrapper');
       videoBox.classList.toggle('active');
     }
+
+    // 🔌 Дёргать выключатель
+    const switcher = document.getElementById('switcher');
+    switcher.addEventListener('click', () => {
+      switcher.classList.add('pulled');
+      setTimeout(() => {
+        switcher.classList.remove('pulled');
+      }, 200);
+    });
   </script>
 </body>
 </html>
