@@ -81,8 +81,14 @@
       margin-bottom: 10px;
     }
 
-    .save-button {
-      align-self: flex-end;
+    .button-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    button.save-button,
+    button.download-button {
       background-color: #555;
       color: #ddd;
       border: none;
@@ -96,7 +102,8 @@
       font-family: monospace;
     }
 
-    .save-button:hover {
+    button.save-button:hover,
+    button.download-button:hover {
       background-color: #777;
       opacity: 1;
     }
@@ -170,7 +177,8 @@
         padding: 5px 10px;
       }
 
-      .save-button {
+      button.save-button,
+      button.download-button {
         padding: 5px 15px;
         font-size: 11px;
       }
@@ -187,7 +195,10 @@
         <p>Простой и удобный онлайн-блокнот для быстрого и надёжного ведения заметок. Пиши, сохраняй и возвращайся, товарищ!</p>
       </div>
       <textarea id="notepad" placeholder="Пиши, товарищ... всё сохранится!"></textarea>
-      <button class="save-button" id="saveBtn" title="Сохранить текущий текст">Сохранить</button>
+      <div class="button-row">
+        <button class="save-button" id="saveBtn" title="Сохранить в браузере">Сохранить</button>
+        <button class="download-button" id="downloadBtn" title="Скачать файл с заметками">Скачать</button>
+      </div>
     </div>
 
     <img src="images/right.png" alt="Правое изображение" class="side-image" />
@@ -206,6 +217,7 @@
   <script>
     const textarea = document.getElementById('notepad');
     const saveBtn = document.getElementById('saveBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
 
     // Загружаем текст из localStorage при загрузке страницы
     textarea.value = localStorage.getItem('savedText') || '';
@@ -215,10 +227,25 @@
       localStorage.setItem('savedText', textarea.value);
     });
 
-    // Сохранение по кнопке
+    // Сохранение по кнопке в localStorage
     saveBtn.addEventListener('click', () => {
       localStorage.setItem('savedText', textarea.value);
-      alert('Текст сохранён, товарищ!');
+      alert('Текст сохранён в браузере, товарищ!');
+    });
+
+    // Скачивание текстового файла с содержимым textarea
+    downloadBtn.addEventListener('click', () => {
+      const text = textarea.value;
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'central_narodny_blocknot.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     });
 
     function toggleVideo() {
