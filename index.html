@@ -78,6 +78,27 @@
       resize: none;
       outline: none;
       background-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    .save-button {
+      align-self: flex-end;
+      background-color: #555;
+      color: #ddd;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 18px;
+      font-size: 12px;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: background-color 0.3s, opacity 0.3s;
+      user-select: none;
+      font-family: monospace;
+    }
+
+    .save-button:hover {
+      background-color: #777;
+      opacity: 1;
     }
 
     .video-section {
@@ -98,6 +119,8 @@
       opacity: 0.6;
       z-index: 1000;
       transition: background-color 0.3s, opacity 0.3s;
+      user-select: none;
+      font-family: monospace;
     }
 
     .easter-button:hover {
@@ -146,6 +169,11 @@
         font-size: 10px;
         padding: 5px 10px;
       }
+
+      .save-button {
+        padding: 5px 15px;
+        font-size: 11px;
+      }
     }
   </style>
 </head>
@@ -159,6 +187,7 @@
         <p>Простой и удобный онлайн-блокнот для быстрого и надёжного ведения заметок. Пиши, сохраняй и возвращайся, товарищ!</p>
       </div>
       <textarea id="notepad" placeholder="Пиши, товарищ... всё сохранится!"></textarea>
+      <button class="save-button" id="saveBtn" title="Сохранить текущий текст">Сохранить</button>
     </div>
 
     <img src="images/right.png" alt="Правое изображение" class="side-image" />
@@ -176,9 +205,20 @@
 
   <script>
     const textarea = document.getElementById('notepad');
+    const saveBtn = document.getElementById('saveBtn');
+
+    // Загружаем текст из localStorage при загрузке страницы
     textarea.value = localStorage.getItem('savedText') || '';
+
+    // Автосохранение при вводе
     textarea.addEventListener('input', () => {
       localStorage.setItem('savedText', textarea.value);
+    });
+
+    // Сохранение по кнопке
+    saveBtn.addEventListener('click', () => {
+      localStorage.setItem('savedText', textarea.value);
+      alert('Текст сохранён, товарищ!');
     });
 
     function toggleVideo() {
