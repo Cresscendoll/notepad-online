@@ -1,0 +1,21 @@
+{
+  "name": "Центральный народный блокнот",
+  "short_name": "Народный блокнот",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fefdf9",
+  "theme_color": "#b22222",
+  "description": "Минималистичный и надёжный онлайн-блокнот для быстрого и приватного ведения заметок.",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
