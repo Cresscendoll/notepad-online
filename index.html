@@ -84,10 +84,8 @@
     .button-row {
       display: flex;
       justify-content: flex-end;
-      gap: 10px;
     }
 
-    button.save-button,
     button.download-button {
       background-color: #555;
       color: #ddd;
@@ -102,7 +100,6 @@
       font-family: monospace;
     }
 
-    button.save-button:hover,
     button.download-button:hover {
       background-color: #777;
       opacity: 1;
@@ -177,7 +174,6 @@
         padding: 5px 10px;
       }
 
-      button.save-button,
       button.download-button {
         padding: 5px 15px;
         font-size: 11px;
@@ -196,7 +192,6 @@
       </div>
       <textarea id="notepad" placeholder="Пиши, товарищ... всё сохранится!"></textarea>
       <div class="button-row">
-        <button class="save-button" id="saveBtn" title="Сохранить в браузере">Сохранить</button>
         <button class="download-button" id="downloadBtn" title="Скачать файл с заметками">Скачать</button>
       </div>
     </div>
@@ -216,7 +211,6 @@
 
   <script>
     const textarea = document.getElementById('notepad');
-    const saveBtn = document.getElementById('saveBtn');
     const downloadBtn = document.getElementById('downloadBtn');
 
     // Загружаем текст из localStorage при загрузке страницы
@@ -225,12 +219,6 @@
     // Автосохранение при вводе
     textarea.addEventListener('input', () => {
       localStorage.setItem('savedText', textarea.value);
-    });
-
-    // Сохранение по кнопке в localStorage
-    saveBtn.addEventListener('click', () => {
-      localStorage.setItem('savedText', textarea.value);
-      alert('Текст сохранён в браузере, товарищ!');
     });
 
     // Скачивание текстового файла с содержимым textarea
