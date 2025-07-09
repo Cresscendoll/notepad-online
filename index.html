@@ -175,9 +175,9 @@
 
     .switcher-image {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 80px; /* увеличили */
+      top: -10px;       /* ⬆ Чуть выше, чтобы верёвка выглядывала */
+      left: 68px;       /* ▶ Чуть правее */
+      width: 80px;
       height: auto;
       z-index: 1002;
       user-select: none;
@@ -186,7 +186,7 @@
     }
 
     .switcher-image.pulled {
-      transform: translateY(25px); /* оттягивание вниз */
+      transform: translateY(25px);
     }
 
     @media (max-width: 900px) {
@@ -222,12 +222,13 @@
 
       .switcher-image {
         width: 60px;
+        left: 50px;
       }
     }
   </style>
 </head>
 <body>
-  <!-- 🌟 Верхний левый угол -->
+  <!-- 🌟 Орнамент и выключатель -->
   <img src="images/upleft.png" alt="Орнамент в левом углу" class="corner-image" />
   <img src="images/switcher.png" alt="Выключатель света" class="switcher-image" id="switcher" />
 
@@ -288,7 +289,7 @@
       videoBox.classList.toggle('active');
     }
 
-    // 🔌 Дёргать выключатель
+    // 🪢 Дёргать выключатель
     const switcher = document.getElementById('switcher');
     switcher.addEventListener('click', () => {
       switcher.classList.add('pulled');
