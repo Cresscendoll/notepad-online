@@ -110,26 +110,30 @@
     }
 
     .easter-button {
-      position: fixed;
-      bottom: 80px;
-      right: 10px;
-      background-color: #555;
-      color: #ddd;
-      border: none;
-      border-radius: 4px;
-      padding: 6px 12px;
-      font-size: 12px;
-      cursor: pointer;
-      opacity: 0.6;
-      z-index: 1000;
-      transition: background-color 0.3s, opacity 0.3s;
-      user-select: none;
-      font-family: monospace;
-    }
+  position: fixed;
+  bottom: 0;        /* прямо у нижнего края */
+  right: 0;         /* прямо у правого края */
+  background-color: #cc0000; /* насыщенный красный */
+  color: #fff;      /* белый текст для контраста */
+  border: none;
+  border-radius: 50%; /* круглая */
+  width: 40px;
+  height: 40px;
+  padding: 0;       /* убираем внутренние отступы */
+  font-size: 20px;  /* чуть побольше */
+  cursor: pointer;
+  opacity: 0.8;
+  z-index: 1000;
+  transition: background-color 0.3s, opacity 0.3s;
+  user-select: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-    .easter-button:hover {
-      background-color: #777;
-      opacity: 1;
+.easter-button:hover {
+  background-color: #ff3333;
+  opacity: 1;
     }
 
     .video-wrapper {
