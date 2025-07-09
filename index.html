@@ -3,6 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <title>Центральный народный блокнот</title>
+  
+  <!-- Метаописание для поисковиков -->
+  <meta name="description" content="Простой и удобный онлайн-блокнот Центрального народного блокнота для быстрого и надёжного ведения заметок. Пиши, сохрани и возвращайся, товарищ!" />
+  
+  <!-- Мобильная адаптивность -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <!-- Open Graph для соцсетей -->
+  <meta property="og:title" content="Центральный народный блокнот" />
+  <meta property="og:description" content="Простой и удобный онлайн-блокнот Центрального народного блокнота для быстрого и надёжного ведения заметок." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://zmtk.my" />
+  <meta property="og:image" content="https://zmtk.my/images/preview.png" />
+  
   <link rel="icon" type="image/png" href="favicon.png" />
 
   <style>
@@ -124,69 +138,3 @@
     .video-wrapper video {
       width: 100%;
       display: block;
-    }
-
-    @media (max-width: 900px) {
-      .side-image {
-        display: none;
-      }
-
-      .container {
-        max-width: 90%;
-        height: 90vh;
-      }
-
-      .video-wrapper {
-        width: 95%;
-      }
-
-      .easter-button {
-        font-size: 10px;
-        padding: 5px 10px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="notepad-section">
-    <div class="wrapper">
-      <img src="images/left.png" alt="Левое изображение" class="side-image" />
-
-      <div class="container">
-        <textarea id="notepad" placeholder="Пиши, товарищ... всё сохранится!"></textarea>
-      </div>
-
-      <img src="images/right.png" alt="Правое изображение" class="side-image" />
-    </div>
-  </div>
-
-  <div class="filler"></div>
-
-  <div class="video-section">
-    <!-- Можно тут вставить открытое видео, если не хочешь использовать кнопку -->
-  </div>
-
-  <!-- Пасхалка: кнопка и выезжающее видео -->
-  <button class="easter-button" onclick="toggleVideo()">?</button>
-
-  <div class="video-wrapper" id="videoWrapper">
-    <video controls>
-      <source src="video/easteregg.mp4" type="video/mp4" />
-      Ваш браузер не поддерживает видео. Установите Chrome, товарищ!
-    </video>
-  </div>
-
-  <script>
-    const textarea = document.getElementById('notepad');
-    textarea.value = localStorage.getItem('savedText') || '';
-    textarea.addEventListener('input', () => {
-      localStorage.setItem('savedText', textarea.value);
-    });
-
-    function toggleVideo() {
-      const videoBox = document.getElementById('videoWrapper');
-      videoBox.classList.toggle('active');
-    }
-  </script>
-</body>
-</html>
