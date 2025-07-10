@@ -15,9 +15,12 @@
 
   <link rel="icon" type="image/png" href="favicon.png" />
 
+  <!-- 📱 PWA manifest -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#b22222" />
+
   <style>
     * { box-sizing: border-box; }
-
     html, body {
       margin: 0;
       padding: 0;
@@ -25,22 +28,28 @@
       overflow: hidden;
       font-family: monospace;
       color: #222;
+      transition: background-color 0.5s ease;
+    }
+
+    body {
       position: relative;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       background-color: transparent;
-      transition: background-color 0.5s ease;
+      color: #222;
+      overflow-y: hidden;
     }
 
+    /* Революционный фон с правильным путём */
     body::before {
       content: "";
       position: fixed;
       top: 0; left: 0;
       width: 100vw;
       height: 100vh;
-      background-image: url('main/images/background.jpg');
+      background-image: url('/main/images/background.jpg');
       background-size: cover;
       background-position: center center;
       background-repeat: no-repeat;
@@ -50,6 +59,7 @@
       pointer-events: none;
     }
 
+    /* Тёмный режим затемняет фон */
     body.dark-mode::before {
       filter: brightness(0.4);
     }
@@ -100,6 +110,16 @@
     .container.dark-paper { background-color: #f5e7c5; }
 
     .header-text { flex: none; margin-bottom: 10px; }
+    .header-text nav { margin-bottom: 10px; }
+    .header-text nav a {
+      font-size: 14px;
+      font-weight: bold;
+      color: #b22222;
+      text-decoration: none;
+      margin-right: 15px;
+      font-family: monospace;
+    }
+    .header-text nav a:hover { text-decoration: underline; }
 
     textarea {
       flex: 1;
@@ -231,15 +251,18 @@
   </style>
 </head>
 <body>
-  <img src="images/upleft.png" alt="Орнамент в левом углу" class="corner-image" />
-  <img src="images/switcher.png" alt="Выключатель света" class="switcher-image" id="switcher" />
+  <img src="main/images/upleft.png" alt="Орнамент в левом углу" class="corner-image" />
+  <img src="main/images/switcher.png" alt="Выключатель света" class="switcher-image" id="switcher" />
   <audio id="switchSound" src="sound/click.mp3" preload="auto"></audio>
 
   <div class="notepad-section">
-    <img src="images/left.png" alt="Левое изображение" class="side-image" />
+    <img src="main/images/left.png" alt="Левое изображение" class="side-image" />
     <div class="container-wrapper">
       <div class="container" id="notepadContainer">
         <div class="header-text">
+          <nav>
+            <a href="about.html" title="О проекте">О проекте</a>
+          </nav>
           <h1>Центральный народный блокнот</h1>
           <p>Простой и удобный онлайн-блокнот для быстрого и надёжного ведения заметок. Пиши, сохраняй и возвращайся, товарищ!</p>
         </div>
@@ -249,7 +272,7 @@
         </div>
       </div>
     </div>
-    <img src="images/right.png" alt="Правое изображение" class="side-image" />
+    <img src="main/images/right.png" alt="Правое изображение" class="side-image" />
   </div>
 
   <button class="easter-button" onclick="toggleVideo()">?</button>
@@ -269,7 +292,10 @@
     const container = document.getElementById('notepadContainer');
     const switchSound = document.getElementById('switchSound');
 
-    let isDark = false;
+    let isDark = true; // Включаем тёмную тему по умолчанию
+
+    body.classList.add('dark-mode');
+    container.classList.add('dark-paper');
 
     textarea.value = localStorage.getItem('savedText') || '';
 
