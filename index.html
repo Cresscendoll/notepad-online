@@ -16,26 +16,42 @@
   <link rel="icon" type="image/png" href="favicon.png" />
 
   <style>
-    /* Стили твои */
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    body {
+    html, body {
       margin: 0;
-      background-color: #333333;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
       font-family: monospace;
       color: #222;
-      overflow-y: hidden;
-      height: 100vh;
+      position: relative;
       display: flex;
       justify-content: center;
       align-items: center;
+      height: 100vh;
+      background-color: transparent;
       transition: background-color 0.5s ease;
     }
 
-    body.dark-mode {
-      background-color: #111111;
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-image: url('main/images/background.jpg');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      filter: brightness(1);
+      z-index: -1;
+      transition: filter 0.5s ease;
+      pointer-events: none;
+    }
+
+    body.dark-mode::before {
+      filter: brightness(0.4);
     }
 
     .notepad-section {
@@ -47,6 +63,8 @@
       gap: 20px;
       padding: 20px;
       height: 95vh;
+      position: relative;
+      z-index: 1;
     }
 
     .side-image {
@@ -79,14 +97,9 @@
       transition: background-color 0.5s ease;
     }
 
-    .container.dark-paper {
-      background-color: #f5e7c5;
-    }
+    .container.dark-paper { background-color: #f5e7c5; }
 
-    .header-text {
-      flex: none;
-      margin-bottom: 10px;
-    }
+    .header-text { flex: none; margin-bottom: 10px; }
 
     textarea {
       flex: 1;
@@ -118,7 +131,6 @@
       user-select: none;
       font-family: monospace;
     }
-
     button.download-button:hover {
       background-color: #777;
       opacity: 1;
@@ -145,7 +157,6 @@
       justify-content: center;
       align-items: center;
     }
-
     .easter-button:hover {
       background-color: #cc3333;
       opacity: 1;
@@ -164,11 +175,9 @@
       border-radius: 12px;
       overflow: hidden;
     }
-
     .video-wrapper.active {
       transform: translateX(-50%) translateY(0);
     }
-
     .video-wrapper video {
       width: 100%;
       display: block;
@@ -184,7 +193,6 @@
       user-select: none;
       pointer-events: none;
     }
-
     .switcher-image {
       position: fixed;
       top: -25px;
@@ -196,42 +204,24 @@
       cursor: pointer;
       transition: transform 0.2s ease;
     }
-
     .switcher-image.pulled {
       transform: translateY(25px);
     }
 
     @media (max-width: 900px) {
-      .side-image {
-        display: none;
-      }
-
-      .container {
-        height: 90vh;
-      }
-
-      .container-wrapper {
-        max-width: 90%;
-      }
-
-      .video-wrapper {
-        width: 95%;
-      }
-
+      .side-image { display: none; }
+      .container { height: 90vh; }
+      .container-wrapper { max-width: 90%; }
+      .video-wrapper { width: 95%; }
       .easter-button {
         font-size: 10px;
         padding: 5px 10px;
       }
-
       button.download-button {
         padding: 5px 15px;
         font-size: 11px;
       }
-
-      .corner-image {
-        width: 60px;
-      }
-
+      .corner-image { width: 60px; }
       .switcher-image {
         width: 60px;
         left: 45px;
@@ -247,7 +237,6 @@
 
   <div class="notepad-section">
     <img src="images/left.png" alt="Левое изображение" class="side-image" />
-
     <div class="container-wrapper">
       <div class="container" id="notepadContainer">
         <div class="header-text">
@@ -260,7 +249,6 @@
         </div>
       </div>
     </div>
-
     <img src="images/right.png" alt="Правое изображение" class="side-image" />
   </div>
 
