@@ -12,59 +12,30 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://zmtk.my" />
   <meta property="og:image" content="https://zmtk.my/main/images/preview.png" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
 
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-  <link rel="shortcut icon" href="/favicon.ico" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-
-  <!-- 📱 PWA manifest -->
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#b22222" />
+  <link rel="icon" type="image/png" href="favicon.png" />
 
   <style>
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      overflow: hidden;
-      font-family: monospace;
-      color: #222;
-      transition: background-color 0.5s ease;
+    /* Стили твои */
+    * {
+      box-sizing: border-box;
     }
 
     body {
-      position: relative;
+      margin: 0;
+      background-color: #333333;
+      font-family: monospace;
+      color: #222;
+      overflow-y: hidden;
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      background-color: transparent;
-      color: #222;
-      overflow-y: hidden;
+      transition: background-color 0.5s ease;
     }
 
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-image: url('images/background.jpg');
-      background-size: cover;
-      background-position: center center;
-      background-repeat: no-repeat;
-      filter: brightness(1);
-      z-index: -1;
-      transition: filter 0.5s ease;
-      pointer-events: none;
-    }
-
-    body.dark-mode::before {
-      filter: brightness(0.4);
+    body.dark-mode {
+      background-color: #111111;
     }
 
     .notepad-section {
@@ -76,8 +47,6 @@
       gap: 20px;
       padding: 20px;
       height: 95vh;
-      position: relative;
-      z-index: 1;
     }
 
     .side-image {
@@ -110,19 +79,14 @@
       transition: background-color 0.5s ease;
     }
 
-    .container.dark-paper { background-color: #f5e7c5; }
-
-    .header-text { flex: none; margin-bottom: 10px; }
-    .header-text nav { margin-bottom: 10px; }
-    .header-text nav a {
-      font-size: 14px;
-      font-weight: bold;
-      color: #b22222;
-      text-decoration: none;
-      margin-right: 15px;
-      font-family: monospace;
+    .container.dark-paper {
+      background-color: #f5e7c5;
     }
-    .header-text nav a:hover { text-decoration: underline; }
+
+    .header-text {
+      flex: none;
+      margin-bottom: 10px;
+    }
 
     textarea {
       flex: 1;
@@ -154,6 +118,7 @@
       user-select: none;
       font-family: monospace;
     }
+
     button.download-button:hover {
       background-color: #777;
       opacity: 1;
@@ -180,6 +145,7 @@
       justify-content: center;
       align-items: center;
     }
+
     .easter-button:hover {
       background-color: #cc3333;
       opacity: 1;
@@ -198,9 +164,11 @@
       border-radius: 12px;
       overflow: hidden;
     }
+
     .video-wrapper.active {
       transform: translateX(-50%) translateY(0);
     }
+
     .video-wrapper video {
       width: 100%;
       display: block;
@@ -216,6 +184,7 @@
       user-select: none;
       pointer-events: none;
     }
+
     .switcher-image {
       position: fixed;
       top: -25px;
@@ -227,24 +196,42 @@
       cursor: pointer;
       transition: transform 0.2s ease;
     }
+
     .switcher-image.pulled {
       transform: translateY(25px);
     }
 
     @media (max-width: 900px) {
-      .side-image { display: none; }
-      .container { height: 90vh; }
-      .container-wrapper { max-width: 90%; }
-      .video-wrapper { width: 95%; }
+      .side-image {
+        display: none;
+      }
+
+      .container {
+        height: 90vh;
+      }
+
+      .container-wrapper {
+        max-width: 90%;
+      }
+
+      .video-wrapper {
+        width: 95%;
+      }
+
       .easter-button {
         font-size: 10px;
         padding: 5px 10px;
       }
+
       button.download-button {
         padding: 5px 15px;
         font-size: 11px;
       }
-      .corner-image { width: 60px; }
+
+      .corner-image {
+        width: 60px;
+      }
+
       .switcher-image {
         width: 60px;
         left: 45px;
@@ -260,12 +247,10 @@
 
   <div class="notepad-section">
     <img src="images/left.png" alt="Левое изображение" class="side-image" />
+
     <div class="container-wrapper">
       <div class="container" id="notepadContainer">
         <div class="header-text">
-          <nav>
-            <a href="about.html" title="О проекте">О проекте</a>
-          </nav>
           <h1>Центральный народный блокнот</h1>
           <p>Простой и удобный онлайн-блокнот для быстрого и надёжного ведения заметок. Пиши, сохраняй и возвращайся, товарищ!</p>
         </div>
@@ -275,6 +260,7 @@
         </div>
       </div>
     </div>
+
     <img src="images/right.png" alt="Правое изображение" class="side-image" />
   </div>
 
@@ -295,10 +281,7 @@
     const container = document.getElementById('notepadContainer');
     const switchSound = document.getElementById('switchSound');
 
-    let isDark = true;
-
-    body.classList.add('dark-mode');
-    container.classList.add('dark-paper');
+    let isDark = false;
 
     textarea.value = localStorage.getItem('savedText') || '';
 
