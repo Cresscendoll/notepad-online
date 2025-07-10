@@ -55,6 +55,25 @@
       filter: brightness(0.4);
     }
 
+    .stopwatch-container {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #222;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 14px;
+      z-index: 9999;
+      box-shadow: 0 0 8px rgba(0,0,0,0.3);
+      user-select: none;
+    }
+    .dark-mode .stopwatch-container {
+      background-color: rgba(20, 20, 20, 0.85);
+      color: #f5e7c5;
+    }
+
     .notepad-section {
       display: flex;
       align-items: flex-end;
@@ -238,6 +257,8 @@
   </style>
 </head>
 <body>
+  <div class="stopwatch-container" id="stopwatch">00:00:00</div>
+
   <img src="/images/upleft.png" alt="Орнамент в левом углу" class="corner-image" />
   <img src="/images/switcher.png" alt="Выключатель света" class="switcher-image" id="switcher" />
   <audio id="switchSound" src="/sound/click.mp3" preload="auto"></audio>
@@ -318,6 +339,17 @@
       body.classList.toggle('dark-mode', isDark);
       container.classList.toggle('dark-paper', isDark);
     });
+
+    // Секундомер
+    let seconds = 0;
+    function updateStopwatch() {
+      seconds++;
+      const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
+      const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+      const secs = String(seconds % 60).padStart(2, '0');
+      document.getElementById('stopwatch').textContent = `${hrs}:${mins}:${secs}`;
+    }
+    setInterval(updateStopwatch, 1000);
   </script>
 </body>
 </html>
