@@ -318,8 +318,8 @@
 
   <!-- Аудио для кнопок секундомера -->
   <audio id="startSound" src="/sound/start.mp3" preload="auto"></audio>
-  <audio id="pauseSound" src="/sound/pause.mp3" preload="auto"></audio>
-  <audio id="resetSound" src="/sound/reset.mp3" preload="auto"></audio>
+  <audio id="pauseSound" src="/sound/reset.mp3" preload="auto"></audio>
+  <audio id="resetSound" src="/sound/pause.mp3" preload="auto"></audio>
 
   <div class="notepad-section">
     <img src="/images/left.png" alt="Левое изображение" class="side-image" />
@@ -414,10 +414,10 @@
     const pauseBtn = document.getElementById('pauseBtn');
     const startBtn = document.getElementById('startBtn');
 
-    // Аудио кнопок секундомера
+    // Аудио кнопок секундомера (поменяли pauseSound и resetSound местами)
     const startSound = document.getElementById('startSound');
-    const pauseSound = document.getElementById('pauseSound');
-    const resetSound = document.getElementById('resetSound');
+    const pauseSound = document.getElementById('pauseSound'); // теперь с reset.mp3
+    const resetSound = document.getElementById('resetSound'); // теперь с pause.mp3
 
     let timerInterval = null;
     let elapsedSeconds = 0;
