@@ -55,42 +55,6 @@
       filter: brightness(0.4);
     }
 
-    .stopwatch-container {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      background-color: rgba(255, 255, 255, 0.9);
-      color: #222;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-family: monospace;
-      font-size: 14px;
-      z-index: 9999;
-      box-shadow: 0 0 8px rgba(0,0,0,0.3);
-      user-select: none;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-    .stopwatch-container button {
-      background-color: #b22222;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 4px 8px;
-      font-size: 12px;
-      font-family: monospace;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
-    .stopwatch-container button:hover {
-      background-color: #cc3333;
-    }
-    .dark-mode .stopwatch-container {
-      background-color: rgba(20, 20, 20, 0.85);
-      color: #f5e7c5;
-    }
-
     .notepad-section {
       display: flex;
       align-items: flex-end;
@@ -251,73 +215,240 @@
       transform: translateY(25px);
     }
 
-    @media (max-width: 900px) {
-      .side-image { display: none; }
-      .container { height: 90vh; }
-      .container-wrapper { max-width: 90%; }
-      .video-wrapper { width: 95%; }
-      .easter-button {
-        font-size: 10px;
-        padding: 5px 10px;
+    /* --- СТИЛИ ДЛЯ СЕКУНДОМЕРА И КНОПОК --- */
+    #timerContainer {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background-color: rgba(178, 34, 34, 0.85); /* цвет из темы */
+      border-radius: 8px;
+      padding: 10px 15px;
+      box-shadow: 0 0 10px rgba(178, 34, 34, 0.7);
+      font-family: monospace;
+      color: #fff;
+      z-index: 2000;
+      user-select: none;
+      min-width: 140px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #timerDisplay {
+      font-size: 22px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    .timer-buttons {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .timer-buttons button {
+      background-color: #7a1616;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-family: monospace;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      user-select: none;
+      flex: 1;
+      text-align: center;
+    }
+
+    .timer-buttons button:hover {
+      background-color: #a72a2a;
+    }
+
+    @media (max-width: 600px) {
+      #timerContainer {
+        min-width: 120px;
+        padding: 8px 12px;
       }
-      button.download-button {
-        padding: 5px 15px;
+      #timerDisplay {
+        font-size: 18px;
+      }
+      .timer-buttons button {
         font-size: 11px;
+        padding: 5px 8px;
       }
-      .corner-image { width: 60px; }
-      .switcher-image {
-        width: 60px;
-        left: 45px;
-        top: -20px;
+    }
+
+    @media (max-width: 350px) {
+      #timerContainer {
+        top: 5px;
+        right: 5px;
+        padding: 6px 8px;
+      }
+      #timerDisplay {
+        font-size: 16px;
+      }
+      .timer-buttons button {
+        font-size: 10px;
+        padding: 4px 6px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="stopwatch-container">
-    <button onclick="startStopwatch()">Старт</button>
-    <button onclick="pauseStopwatch()">Пауза</button>
-    <button onclick="resetStopwatch()">Сброс</button>
-    <span id="stopwatch">00:00:00</span>
+  <img src="/images/upleft.png" alt="Орнамент в левом углу" class="corner-image" />
+  <img src="/images/switcher.png" alt="Выключатель света" class="switcher-image" id="switcher" />
+  <audio id="switchSound" src="/sound/click.mp3" preload="auto"></audio>
+
+  <div class="notepad-section">
+    <img src="/images/left.png" alt="Левое изображение" class="side-image" />
+    <div class="container-wrapper">
+      <div class="container" id="notepadContainer">
+        <div class="header-text">
+          <nav><a href="about.html" title="О проекте">О проекте</a></nav>
+          <h1>Центральный народный блокнот</h1>
+          <p>Простой и удобный онлайн-блокнот для быстрого и надёжного ведения заметок. Пиши, сохраняй и возвращайся, товарищ!</p>
+        </div>
+        <textarea id="notepad" placeholder="Пиши, товарищ... всё сохранится!"></textarea>
+        <div class="button-row">
+          <button class="download-button" id="downloadBtn" title="Скачать файл с заметками">Скачать</button>
+        </div>
+      </div>
+    </div>
+    <img src="/images/right.png" alt="Правое изображение" class="side-image" />
   </div>
 
-  <!-- остальной код сайта без изменений -->
+  <!-- Секундомер и кнопки -->
+  <div id="timerContainer" aria-label="Секундомер">
+    <div id="timerDisplay">00:00:00</div>
+    <div class="timer-buttons">
+      <button id="resetBtn" type="button">Сброс</button>
+      <button id="pauseBtn" type="button">Пауза</button>
+      <button id="startBtn" type="button">Запустить</button>
+    </div>
+  </div>
+
+  <button class="easter-button" onclick="toggleVideo()">?</button>
+
+  <div class="video-wrapper" id="videoWrapper">
+    <video controls>
+      <source src="/video/easteregg.mp4" type="video/mp4" />
+      Ваш браузер не поддерживает видео. Установите Chrome, товарищ!
+    </video>
+  </div>
 
   <script>
-    // существующие скрипты выше
+    const textarea = document.getElementById('notepad');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const switcher = document.getElementById('switcher');
+    const body = document.body;
+    const container = document.getElementById('notepadContainer');
+    const switchSound = document.getElementById('switchSound');
 
-    // Секундомер с кнопками
-    let stopwatchInterval;
-    let seconds = 0;
+    let isDark = true;
+    body.classList.add('dark-mode');
+    container.classList.add('dark-paper');
+
+    textarea.value = localStorage.getItem('savedText') || '';
+
+    textarea.addEventListener('input', () => {
+      localStorage.setItem('savedText', textarea.value);
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      const text = textarea.value;
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'central_narodny_blocknot.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    function toggleVideo() {
+      const videoBox = document.getElementById('videoWrapper');
+      videoBox.classList.toggle('active');
+    }
+
+    switcher.addEventListener('click', () => {
+      switcher.classList.add('pulled');
+      setTimeout(() => {
+        switcher.classList.remove('pulled');
+      }, 200);
+
+      switchSound.currentTime = 0;
+      switchSound.play();
+
+      isDark = !isDark;
+      body.classList.toggle('dark-mode', isDark);
+      container.classList.toggle('dark-paper', isDark);
+    });
+
+    // --- Логика секундомера ---
+    const timerDisplay = document.getElementById('timerDisplay');
+    const resetBtn = document.getElementById('resetBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const startBtn = document.getElementById('startBtn');
+
+    let timerInterval = null;
+    let elapsedSeconds = 0;
     let running = false;
 
-    function updateStopwatchDisplay() {
-      const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
-      const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
-      const secs = String(seconds % 60).padStart(2, '0');
-      document.getElementById('stopwatch').textContent = `${hrs}:${mins}:${secs}`;
+    function formatTime(seconds) {
+      const hrs = Math.floor(seconds / 3600);
+      const mins = Math.floor((seconds % 3600) / 60);
+      const secs = seconds % 60;
+      return [
+        hrs.toString().padStart(2, '0'),
+        mins.toString().padStart(2, '0'),
+        secs.toString().padStart(2, '0'),
+      ].join(':');
     }
 
-    function startStopwatch() {
-      if (!running) {
-        running = true;
-        stopwatchInterval = setInterval(() => {
-          seconds++;
-          updateStopwatchDisplay();
-        }, 1000);
-      }
+    function updateTimer() {
+      timerDisplay.textContent = formatTime(elapsedSeconds);
     }
 
-    function pauseStopwatch() {
+    function startTimer() {
+      if (running) return;
+      running = true;
+      timerInterval = setInterval(() => {
+        elapsedSeconds++;
+        updateTimer();
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      if (!running) return;
       running = false;
-      clearInterval(stopwatchInterval);
+      clearInterval(timerInterval);
     }
 
-    function resetStopwatch() {
-      pauseStopwatch();
-      seconds = 0;
-      updateStopwatchDisplay();
+    function resetTimer() {
+      pauseTimer();
+      elapsedSeconds = 0;
+      updateTimer();
     }
+
+    startBtn.addEventListener('click', () => {
+      startTimer();
+    });
+
+    pauseBtn.addEventListener('click', () => {
+      pauseTimer();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      resetTimer();
+    });
+
+    // Инициализация - показать 00:00:00
+    updateTimer();
   </script>
 </body>
 </html>
