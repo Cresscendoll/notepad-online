@@ -19,12 +19,12 @@
   <meta name="theme-color" content="#b22222" />
 
   <style>
+    /* === Весь твой CSS без изменений === */
     * { box-sizing: border-box; }
     html, body {
       margin: 0; padding: 0; height: 100%; overflow: hidden;
       font-family: monospace; color: #222; transition: background-color 0.5s ease;
     }
-
     body {
       position: relative;
       display: flex;
@@ -35,7 +35,6 @@
       color: #222;
       overflow-y: hidden;
     }
-
     body::before {
       content: "";
       position: fixed;
@@ -50,11 +49,9 @@
       transition: filter 0.5s ease;
       pointer-events: none;
     }
-
     body.dark-mode::before {
       filter: brightness(0.4);
     }
-
     .notepad-section {
       display: flex;
       align-items: flex-end;
@@ -67,14 +64,12 @@
       position: relative;
       z-index: 1;
     }
-
     .side-image {
       height: 250px;
       width: auto;
       object-fit: contain;
       opacity: 0.95;
     }
-
     .container-wrapper {
       display: flex;
       flex-direction: column;
@@ -83,7 +78,6 @@
       max-width: 800px;
       flex: 1;
     }
-
     .container {
       width: 100%;
       height: 100%;
@@ -97,9 +91,7 @@
       margin-top: 0;
       transition: background-color 0.5s ease;
     }
-
     .container.dark-paper { background-color: #f5e7c5; }
-
     .header-text { flex: none; margin-bottom: 10px; }
     .header-text nav { margin-bottom: 10px; }
     .header-text nav a {
@@ -111,7 +103,6 @@
       font-family: monospace;
     }
     .header-text nav a:hover { text-decoration: underline; }
-
     textarea {
       flex: 1;
       width: 100%;
@@ -123,12 +114,10 @@
       margin-bottom: 0;
       color: #222;
     }
-
     .button-row {
       display: flex;
       justify-content: flex-end;
     }
-
     button.download-button {
       background-color: #555;
       color: #ddd;
@@ -146,7 +135,6 @@
       background-color: #777;
       opacity: 1;
     }
-
     .easter-button {
       position: fixed;
       bottom: 0; right: 0;
@@ -170,7 +158,6 @@
       background-color: #cc3333;
       opacity: 1;
     }
-
     .video-wrapper {
       position: fixed;
       bottom: 0;
@@ -191,7 +178,6 @@
       width: 100%;
       display: block;
     }
-
     .corner-image {
       position: fixed;
       top: 0; left: 0;
@@ -214,7 +200,6 @@
     .switcher-image.pulled {
       transform: translateY(25px);
     }
-
     /* --- СТИЛИ ДЛЯ СЕКУНДОМЕРА И КНОПОК --- */
     #timerContainer {
       position: fixed;
@@ -235,25 +220,21 @@
       gap: 8px;
       transition: background-color 0.5s ease, box-shadow 0.5s ease;
     }
-
     body.dark-mode #timerContainer {
       background-color: rgba(139, 0, 0, 0.7);
       box-shadow: 0 0 12px rgba(139, 0, 0, 0.8);
     }
-
     #timerDisplay {
       font-size: 22px;
       font-weight: bold;
       letter-spacing: 2px;
     }
-
     .timer-buttons {
       display: flex;
       gap: 8px;
       width: 100%;
       justify-content: center;
     }
-
     .timer-buttons button {
       background-color: rgba(122, 22, 22, 0.7);
       border: none;
@@ -268,19 +249,15 @@
       flex: 1;
       text-align: center;
     }
-
     body.dark-mode .timer-buttons button {
       background-color: rgba(90, 5, 5, 0.85);
     }
-
     .timer-buttons button:hover {
       background-color: rgba(167, 42, 42, 0.85);
     }
-
     body.dark-mode .timer-buttons button:hover {
       background-color: rgba(190, 30, 30, 1);
     }
-
     @media (max-width: 600px) {
       #timerContainer {
         min-width: 120px;
@@ -294,7 +271,6 @@
         padding: 5px 8px;
       }
     }
-
     @media (max-width: 350px) {
       #timerContainer {
         top: 5px;
@@ -359,6 +335,7 @@
   </div>
 
   <script>
+    // === Логика заметок ===
     const textarea = document.getElementById('notepad');
     const downloadBtn = document.getElementById('downloadBtn');
     const switcher = document.getElementById('switcher');
@@ -408,21 +385,23 @@
       container.classList.toggle('dark-paper', isDark);
     });
 
-    // --- Логика секундомера ---
+    // === Секундомер с таймер-воркером ===
     const timerDisplay = document.getElementById('timerDisplay');
     const resetBtn = document.getElementById('resetBtn');
     const pauseBtn = document.getElementById('pauseBtn');
     const startBtn = document.getElementById('startBtn');
 
-    // Аудио кнопок секундомера (поменяли pauseSound и resetSound местами)
     const startSound = document.getElementById('startSound');
-    const pauseSound = document.getElementById('pauseSound'); // теперь с reset.mp3
-    const resetSound = document.getElementById('resetSound'); // теперь с pause.mp3
+    const pauseSound = document.getElementById('pauseSound');
+    const resetSound = document.getElementById('resetSound');
 
-    let timerInterval = null;
     let elapsedSeconds = 0;
     let running = false;
 
+    // Создаем воркер, указывая путь к timer-worker.js
+    const timerWorker = new Worker('timer-worker.js');
+
+    // Функция форматирования времени
     function formatTime(seconds) {
       const hrs = Math.floor(seconds / 3600);
       const mins = Math.floor((seconds % 3600) / 60);
@@ -434,19 +413,26 @@
       ].join(':');
     }
 
-    function updateTimer() {
-      timerDisplay.textContent = formatTime(elapsedSeconds);
+    // Обновляем отображение таймера
+    function updateTimerDisplay(seconds) {
+      timerDisplay.textContent = formatTime(seconds);
     }
 
+    // Получаем сообщения из воркера
+    timerWorker.onmessage = function(e) {
+      if (e.data && e.data.type === 'tick') {
+        elapsedSeconds = e.data.elapsedSeconds;
+        updateTimerDisplay(elapsedSeconds);
+      }
+    };
+
+    // Отправляем команды воркеру
     function startTimer() {
       if (running) return;
       running = true;
       startSound.currentTime = 0;
       startSound.play();
-      timerInterval = setInterval(() => {
-        elapsedSeconds++;
-        updateTimer();
-      }, 1000);
+      timerWorker.postMessage({ command: 'start', elapsedSeconds });
     }
 
     function pauseTimer() {
@@ -454,7 +440,7 @@
       running = false;
       pauseSound.currentTime = 0;
       pauseSound.play();
-      clearInterval(timerInterval);
+      timerWorker.postMessage({ command: 'pause' });
     }
 
     function resetTimer() {
@@ -462,23 +448,17 @@
       elapsedSeconds = 0;
       resetSound.currentTime = 0;
       resetSound.play();
-      updateTimer();
+      updateTimerDisplay(elapsedSeconds);
+      timerWorker.postMessage({ command: 'reset' });
     }
 
-    startBtn.addEventListener('click', () => {
-      startTimer();
-    });
+    startBtn.addEventListener('click', startTimer);
+    pauseBtn.addEventListener('click', pauseTimer);
+    resetBtn.addEventListener('click', resetTimer);
 
-    pauseBtn.addEventListener('click', () => {
-      pauseTimer();
-    });
+    // Инициализация таймера
+    updateTimerDisplay(elapsedSeconds);
 
-    resetBtn.addEventListener('click', () => {
-      resetTimer();
-    });
-
-    // Инициализация - показать 00:00:00
-    updateTimer();
   </script>
 </body>
 </html>
