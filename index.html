@@ -13,7 +13,7 @@
   <meta property="og:url" content="https://zmtk.my" />
   <meta property="og:image" content="https://zmtk.my/main/images/preview.png" />
 
-  <link rel="icon" type="image/png" href="/main/images/favicon.png" />
+  <link rel="icon" type="image/png" href="main/images/favicon.png" />
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#b22222" />
@@ -21,13 +21,8 @@
   <style>
     * { box-sizing: border-box; }
     html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      overflow: hidden;
-      font-family: monospace;
-      color: #222;
-      transition: background-color 0.5s ease;
+      margin: 0; padding: 0; height: 100%; overflow: hidden;
+      font-family: monospace; color: #222; transition: background-color 0.5s ease;
     }
 
     body {
@@ -45,9 +40,8 @@
       content: "";
       position: fixed;
       top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-image: url('/main/images/background.jpg');
+      width: 100vw; height: 100vh;
+      background-image: url('main/images/background.jpg');
       background-size: cover;
       background-position: center center;
       background-repeat: no-repeat;
@@ -79,6 +73,7 @@
       width: auto;
       object-fit: contain;
       opacity: 0.95;
+      border: 2px solid #b22222; /* для проверки */
     }
 
     .container-wrapper {
@@ -93,11 +88,11 @@
     .container {
       width: 100%;
       height: 100%;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
       border: 1px solid #ccc;
       border-radius: 8px;
       padding: 10px;
-      background-color: #ffffff;
+      background-color: #fff;
       display: flex;
       flex-direction: column;
       margin-top: 0;
@@ -155,14 +150,12 @@
 
     .easter-button {
       position: fixed;
-      bottom: 0;
-      right: 0;
+      bottom: 0; right: 0;
       background-color: #b22222;
       color: #fff;
       border: none;
       border-radius: 50%;
-      width: 32px;
-      height: 32px;
+      width: 32px; height: 32px;
       padding: 0;
       font-size: 16px;
       cursor: pointer;
@@ -202,24 +195,24 @@
 
     .corner-image {
       position: fixed;
-      top: 0;
-      left: 0;
+      top: 0; left: 0;
       width: 80px;
       height: auto;
       z-index: 1001;
       user-select: none;
       pointer-events: none;
+      border: 1px solid #b22222; /* для проверки */
     }
     .switcher-image {
       position: fixed;
-      top: -25px;
-      left: 58px;
+      top: -25px; left: 58px;
       width: 80px;
       height: auto;
       z-index: 1002;
       user-select: none;
       cursor: pointer;
       transition: transform 0.2s ease;
+      border: 1px solid #b22222; /* для проверки */
     }
     .switcher-image.pulled {
       transform: translateY(25px);
@@ -248,18 +241,16 @@
   </style>
 </head>
 <body>
-  <img src="/main/images/upleft.png" alt="Орнамент в левом углу" class="corner-image" />
-  <img src="/main/images/switcher.png" alt="Выключатель света" class="switcher-image" id="switcher" />
-  <audio id="switchSound" src="/main/sounds/click.mp3" preload="auto"></audio>
+  <img src="main/images/upleft.png" alt="Орнамент в левом углу" class="corner-image" />
+  <img src="main/images/switcher.png" alt="Выключатель света" class="switcher-image" id="switcher" />
+  <audio id="switchSound" src="main/sounds/click.mp3" preload="auto"></audio>
 
   <div class="notepad-section">
-    <img src="/main/images/left.png" alt="Левое изображение" class="side-image" />
+    <img src="main/images/left.png" alt="Левое изображение" class="side-image" />
     <div class="container-wrapper">
       <div class="container" id="notepadContainer">
         <div class="header-text">
-          <nav>
-            <a href="about.html" title="О проекте">О проекте</a>
-          </nav>
+          <nav><a href="about.html" title="О проекте">О проекте</a></nav>
           <h1>Центральный народный блокнот</h1>
           <p>Простой и удобный онлайн-блокнот для быстрого и надёжного ведения заметок. Пиши, сохраняй и возвращайся, товарищ!</p>
         </div>
@@ -269,14 +260,14 @@
         </div>
       </div>
     </div>
-    <img src="/main/images/right.png" alt="Правое изображение" class="side-image" />
+    <img src="main/images/right.png" alt="Правое изображение" class="side-image" />
   </div>
 
   <button class="easter-button" onclick="toggleVideo()">?</button>
 
   <div class="video-wrapper" id="videoWrapper">
     <video controls>
-      <source src="/main/videos/easteregg.mp4" type="video/mp4" />
+      <source src="main/videos/easteregg.mp4" type="video/mp4" />
       Ваш браузер не поддерживает видео. Установите Chrome, товарищ!
     </video>
   </div>
@@ -290,7 +281,6 @@
     const switchSound = document.getElementById('switchSound');
 
     let isDark = true;
-
     body.classList.add('dark-mode');
     container.classList.add('dark-paper');
 
