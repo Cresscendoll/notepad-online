@@ -11,7 +11,7 @@
   <meta property="og:description" content="Простой и удобный онлайн-блокнот Центрального народного блокнота для быстрого и надёжного ведения заметок." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://zmtk.my" />
-  <meta property="og:image" content="https://zmtk.my/images/preview.png" />
+  <meta property="og:image" content="https://zmtk.my/main/images/preview.png" />
 
   <link rel="icon" type="image/png" href="favicon.png" />
 
@@ -37,13 +37,11 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
-      /* Убираем старый фон */
       background-color: transparent;
       color: #222;
       overflow-y: hidden;
     }
 
-    /* Наш революционный фон - карта 1922 */
     body::before {
       content: "";
       position: fixed;
@@ -57,15 +55,13 @@
       filter: brightness(1);
       z-index: -1;
       transition: filter 0.5s ease;
-      pointer-events: none; /* чтобы не мешать кликам */
+      pointer-events: none;
     }
 
-    /* Тёмный режим затемняет фон */
     body.dark-mode::before {
       filter: brightness(0.4);
     }
 
-    /* Остальной код как и был */
     .notepad-section {
       display: flex;
       align-items: flex-end;
@@ -76,7 +72,7 @@
       padding: 20px;
       height: 95vh;
       position: relative;
-      z-index: 1; /* чтобы быть поверх фона */
+      z-index: 1;
     }
 
     .side-image {
@@ -294,9 +290,8 @@
     const container = document.getElementById('notepadContainer');
     const switchSound = document.getElementById('switchSound');
 
-    let isDark = true; // 🕶 По умолчанию включаем тёмную тему
+    let isDark = true;
 
-    // Применяем тёмную тему сразу при загрузке
     body.classList.add('dark-mode');
     container.classList.add('dark-paper');
 
