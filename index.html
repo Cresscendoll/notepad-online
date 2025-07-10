@@ -220,7 +220,7 @@
       position: fixed;
       top: 10px;
       right: 10px;
-      background-color: rgba(178, 34, 34, 0.5); /* стартовый цвет дневного режима - полупрозрачный красный */
+      background-color: rgba(178, 34, 34, 0.5);
       border-radius: 8px;
       padding: 10px 15px;
       box-shadow: 0 0 10px rgba(178, 34, 34, 0.4);
@@ -237,7 +237,7 @@
     }
 
     body.dark-mode #timerContainer {
-      background-color: rgba(139, 0, 0, 0.7); /* более тёмный, но тоже полупрозрачный красный для ночного режима */
+      background-color: rgba(139, 0, 0, 0.7);
       box-shadow: 0 0 12px rgba(139, 0, 0, 0.8);
     }
 
@@ -315,6 +315,11 @@
   <img src="/images/upleft.png" alt="Орнамент в левом углу" class="corner-image" />
   <img src="/images/switcher.png" alt="Выключатель света" class="switcher-image" id="switcher" />
   <audio id="switchSound" src="/sound/click.mp3" preload="auto"></audio>
+
+  <!-- Аудио для кнопок секундомера -->
+  <audio id="startSound" src="/sound/start.mp3" preload="auto"></audio>
+  <audio id="pauseSound" src="/sound/pause.mp3" preload="auto"></audio>
+  <audio id="resetSound" src="/sound/reset.mp3" preload="auto"></audio>
 
   <div class="notepad-section">
     <img src="/images/left.png" alt="Левое изображение" class="side-image" />
@@ -409,6 +414,11 @@
     const pauseBtn = document.getElementById('pauseBtn');
     const startBtn = document.getElementById('startBtn');
 
+    // Аудио кнопок секундомера
+    const startSound = document.getElementById('startSound');
+    const pauseSound = document.getElementById('pauseSound');
+    const resetSound = document.getElementById('resetSound');
+
     let timerInterval = null;
     let elapsedSeconds = 0;
     let running = false;
@@ -431,6 +441,8 @@
     function startTimer() {
       if (running) return;
       running = true;
+      startSound.currentTime = 0;
+      startSound.play();
       timerInterval = setInterval(() => {
         elapsedSeconds++;
         updateTimer();
@@ -440,12 +452,16 @@
     function pauseTimer() {
       if (!running) return;
       running = false;
+      pauseSound.currentTime = 0;
+      pauseSound.play();
       clearInterval(timerInterval);
     }
 
     function resetTimer() {
       pauseTimer();
       elapsedSeconds = 0;
+      resetSound.currentTime = 0;
+      resetSound.play();
       updateTimer();
     }
 
