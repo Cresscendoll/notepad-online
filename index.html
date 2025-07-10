@@ -13,9 +13,12 @@
   <meta property="og:url" content="https://zmtk.my" />
   <meta property="og:image" content="https://zmtk.my/main/images/preview.png" />
 
-  <link rel="icon" type="image/png" href="favicon.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Центральный народный блокнот" />
+  <meta name="twitter:description" content="Простой и удобный онлайн-блокнот для народа. Пиши и сохраняй, как дед Ленин завещал!" />
+  <meta name="twitter:image" content="https://zmtk.my/main/images/preview.png" />
 
-  <!-- 📱 PWA manifest -->
+  <link rel="icon" type="image/png" href="favicon.png" />
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#b22222" />
 
@@ -38,7 +41,6 @@
       align-items: center;
       height: 100vh;
       background-color: transparent;
-      color: #222;
       overflow-y: hidden;
     }
 
@@ -115,7 +117,6 @@
       color: #b22222;
       text-decoration: none;
       margin-right: 15px;
-      font-family: monospace;
     }
     .header-text nav a:hover { text-decoration: underline; }
 
@@ -147,7 +148,6 @@
       opacity: 0.6;
       transition: background-color 0.3s, opacity 0.3s;
       user-select: none;
-      font-family: monospace;
     }
     button.download-button:hover {
       background-color: #777;
