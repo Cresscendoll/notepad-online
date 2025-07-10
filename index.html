@@ -13,7 +13,7 @@
   <meta property="og:url" content="https://zmtk.my" />
   <meta property="og:image" content="https://zmtk.my/main/images/preview.png" />
 
-  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="icon" type="image/png" href="/main/images/favicon.png" />
 
   <!-- 📱 PWA manifest -->
   <link rel="manifest" href="manifest.json" />
@@ -42,7 +42,6 @@
       overflow-y: hidden;
     }
 
-    /* Революционный фон с правильным путём */
     body::before {
       content: "";
       position: fixed;
@@ -59,7 +58,6 @@
       pointer-events: none;
     }
 
-    /* Тёмный режим затемняет фон */
     body.dark-mode::before {
       filter: brightness(0.4);
     }
@@ -251,12 +249,12 @@
   </style>
 </head>
 <body>
-  <img src="main/images/upleft.png" alt="Орнамент в левом углу" class="corner-image" />
-  <img src="main/images/switcher.png" alt="Выключатель света" class="switcher-image" id="switcher" />
-  <audio id="switchSound" src="sound/click.mp3" preload="auto"></audio>
+  <img src="/main/images/upleft.png" alt="Орнамент в левом углу" class="corner-image" />
+  <img src="/main/images/switcher.png" alt="Выключатель света" class="switcher-image" id="switcher" />
+  <audio id="switchSound" src="/main/sounds/click.mp3" preload="auto"></audio>
 
   <div class="notepad-section">
-    <img src="main/images/left.png" alt="Левое изображение" class="side-image" />
+    <img src="/main/images/left.png" alt="Левое изображение" class="side-image" />
     <div class="container-wrapper">
       <div class="container" id="notepadContainer">
         <div class="header-text">
@@ -272,14 +270,14 @@
         </div>
       </div>
     </div>
-    <img src="main/images/right.png" alt="Правое изображение" class="side-image" />
+    <img src="/main/images/right.png" alt="Правое изображение" class="side-image" />
   </div>
 
   <button class="easter-button" onclick="toggleVideo()">?</button>
 
   <div class="video-wrapper" id="videoWrapper">
     <video controls>
-      <source src="video/easteregg.mp4" type="video/mp4" />
+      <source src="/main/videos/easteregg.mp4" type="video/mp4" />
       Ваш браузер не поддерживает видео. Установите Chrome, товарищ!
     </video>
   </div>
@@ -292,7 +290,7 @@
     const container = document.getElementById('notepadContainer');
     const switchSound = document.getElementById('switchSound');
 
-    let isDark = true; // Включаем тёмную тему по умолчанию
+    let isDark = true;
 
     body.classList.add('dark-mode');
     container.classList.add('dark-paper');
