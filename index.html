@@ -13,14 +13,30 @@
   <meta property="og:url" content="https://zmtk.my" />
   <meta property="og:image" content="https://zmtk.my/main/images/preview.png" />
 
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Центральный народный блокнот" />
-  <meta name="twitter:description" content="Простой и удобный онлайн-блокнот для народа. Пиши и сохраняй, как дед Ленин завещал!" />
-  <meta name="twitter:image" content="https://zmtk.my/main/images/preview.png" />
-
   <link rel="icon" type="image/png" href="favicon.png" />
+
+  <!-- 📱 PWA manifest -->
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#b22222" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Центральный народный блокнот",
+    "url": "https://zmtk.my",
+    "applicationCategory": "Productivity",
+    "operatingSystem": "All",
+    "description": "Простой и удобный онлайн-блокнот Центрального народного блокнота для быстрого и надёжного ведения заметок.",
+    "screenshot": "https://zmtk.my/main/images/preview.png",
+    "inLanguage": "ru",
+    "browserRequirements": "Requires JavaScript",
+    "creator": {
+      "@type": "Organization",
+      "name": "Центральный народный блокнот"
+    }
+  }
+  </script>
 
   <style>
     * { box-sizing: border-box; }
@@ -41,6 +57,7 @@
       align-items: center;
       height: 100vh;
       background-color: transparent;
+      color: #222;
       overflow-y: hidden;
     }
 
@@ -117,6 +134,7 @@
       color: #b22222;
       text-decoration: none;
       margin-right: 15px;
+      font-family: monospace;
     }
     .header-text nav a:hover { text-decoration: underline; }
 
@@ -148,6 +166,7 @@
       opacity: 0.6;
       transition: background-color 0.3s, opacity 0.3s;
       user-select: none;
+      font-family: monospace;
     }
     button.download-button:hover {
       background-color: #777;
