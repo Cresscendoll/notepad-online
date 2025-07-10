@@ -5,29 +5,34 @@ let running = false;
 function tick() {
   if (!running) return;
   const now = Date.now();
-  const elapsed = now - startTime + elapsedBeforePause;
-  postMessage({ type: 'tick', elapsed });
-  setTimeout(tick, 1000); // раз в секунду
+  const elapsedMs = now - startTime + elapsedBeforePause;
+  const elapsedSec = Math.floor(elapsedMs / 1000);
+  postMessage({ type: 'tick', elapsedSeconds: elapsedSec });
+  setTimeout(tick, 1000);
 }
 
 onmessage = function (e) {
   const msg = e.data;
 
-  if (msg.type === 'start') {
-    if (!running) {
-      startTime = Date.now();
-      running = true;
-      tick();
-    }
-  } else if (msg.type === 'pause') {
-    if (running) {
-      elapsedBeforePause += Date.now() - startTime;
+  switch (msg.command) {
+    case 'start':
+      if (!running) {
+        startTime = Date.now();
+        running = true;
+        tick();
+      }
+      break;
+    case 'pause':
+      if (running) {
+        elapsedBeforePause += Date.now() - startTime;
+        running = false;
+      }
+      break;
+    case 'reset':
       running = false;
-    }
-  } else if (msg.type === 'reset') {
-    running = false;
-    startTime = null;
-    elapsedBeforePause = 0;
-    postMessage({ type: 'tick', elapsed: 0 });
+      startTime = null;
+      elapsedBeforePause = 0;
+      postMessage({ type: 'tick', elapsedSeconds: 0 });
+      break;
   }
 };
