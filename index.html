@@ -6,12 +6,12 @@
 
   <link rel="canonical" href="https://zmtk.my" />
 
-  <meta name="description" content="Блокнот онлайн для заметок — бесплатный, удобный, быстрый. Центральный народный блокнот для всех трудящихся. Пиши, сохраняй, возвращайся!" />
-  <meta name="keywords" content="блокнот онлайн, онлайн блокнот, заметки, записать текст, текстовый блокнот, notepad online" />
+  <meta name="description" content="Блокнот онлайн для заметок и анонимных чатов — бесплатный, удобный, быстрый. Центральный народный блокнот для всех трудящихся." />
+  <meta name="keywords" content="блокнот онлайн, онлайн блокнот, заметки, записать текст, текстовый блокнот, анонимный чат, notepad online" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta property="og:title" content="Блокнот онлайн — Центральный народный блокнот" />
-  <meta property="og:description" content="Простой и бесплатный блокнот онлайн. Быстрые заметки без регистрации. Центральный народный блокнот для трудового народа." />
+  <meta property="og:description" content="Простой и бесплатный блокнот онлайн с анонимным чатом. Быстрые заметки и чаты без регистрации." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://zmtk.my" />
   <meta property="og:image" content="https://zmtk.my/preview.png" />
@@ -115,11 +115,78 @@
       margin-bottom: 0;
       color: #222;
     }
+    .chat-container {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 10px;
+    }
+    .chat-message {
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 4px;
+      max-width: 80%;
+    }
+    .chat-message.sent {
+      background-color: #b22222;
+      color: #fff;
+      align-self: flex-end;
+    }
+    .chat-message.received {
+      background-color: #eee;
+      align-self: flex-start;
+    }
+    .chat-input {
+      display: flex;
+      margin-top: 10px;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 8px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      outline: none;
+      font-family: monospace;
+    }
+    .chat-input button {
+      background-color: #555;
+      color: #ddd;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 12px;
+      margin-left: 5px;
+      font-size: 12px;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: background-color 0.3s, opacity 0.3s;
+      font-family: monospace;
+    }
+    .chat-input button:hover {
+      background-color: #777;
+      opacity: 1;
+    }
+    .link-display {
+      display: none;
+      margin-bottom: 10px;
+      font-size: 14px;
+      color: #b22222;
+      word-break: break-all;
+    }
+    .link-display a {
+      color: #b22222;
+      text-decoration: none;
+    }
+    .link-display a:hover {
+      text-decoration: underline;
+    }
     .button-row {
       display: flex;
       justify-content: flex-end;
+      gap: 10px;
     }
-    button.download-button {
+    button.download-button, button.chat-button {
       background-color: #555;
       color: #ddd;
       border: none;
@@ -132,7 +199,7 @@
       user-select: none;
       font-family: monospace;
     }
-    button.download-button:hover {
+    button.download-button:hover, button.chat-button:hover {
       background-color: #777;
       opacity: 1;
     }
@@ -270,7 +337,7 @@
 <body>
   <img src="/images/upleft.png" alt="Орнамент в левом углу" class="corner-image" />
   <img src="/images/switcher.png" alt="Выключатель света" class="switcher-image" id="switcher" />
-  
+
   <!-- Аудио элементы -->
   <audio id="switchSound" src="/sound/click.mp3" preload="auto"></audio>
   <audio id="startSound" src="/sound/start.mp3" preload="auto"></audio>
@@ -284,10 +351,19 @@
         <div class="header-text">
           <nav><a href="about.html" title="О проекте">О проекте</a></nav>
           <h1>Блокнот онлайн — Центральный народный блокнот</h1>
-          <p>Удобный бесплатный блокнот онлайн для заметок. Никакой регистрации. Просто пиши, сохраняй и возвращайся, товарищ!</p>
+          <p>Удобный бесплатный блокнот онлайн для заметок и анонимных чатов. Никакой регистрации. Просто пиши, сохраняй или общайся, товарищ!</p>
+        </div>
+        <div class="link-display" id="chatLinkDisplay">
+          Поделись этой ссылкой с собеседником: <a href="#" id="chatLink"></a>
         </div>
         <textarea id="notepad" placeholder="Пиши свою заметку в наш онлайн-блокнот — всё сохранится!"></textarea>
+        <div class="chat-container" id="chatContainer"></div>
+        <div class="chat-input" id="chatInput" style="display: none;">
+          <input type="text" id="chatMessage" placeholder="Напиши сообщение..." />
+          <button id="sendMessage">Отправить</button>
+        </div>
         <div class="button-row">
+          <button class="chat-button" id="createChatBtn" title="Создать анонимный чат">Создать секретный чат</button>
           <button class="download-button" id="downloadBtn" title="Скачать файл с заметками">Скачать</button>
         </div>
       </div>
@@ -321,8 +397,18 @@
     const body = document.body;
     const container = document.getElementById('notepadContainer');
     const switchSound = document.getElementById('switchSound');
+    const createChatBtn = document.getElementById('createChatBtn');
+    const chatContainer = document.getElementById('chatContainer');
+    const chatInput = document.getElementById('chatInput');
+    const chatMessage = document.getElementById('chatMessage');
+    const sendMessage = document.getElementById('sendMessage');
+    const chatLinkDisplay = document.getElementById('chatLinkDisplay');
+    const chatLink = document.getElementById('chatLink');
 
     let isDark = true;
+    let isChatMode = false;
+    let ws = null;
+
     body.classList.add('dark-mode');
     container.classList.add('dark-paper');
 
@@ -331,29 +417,31 @@
 
     // Сохранение текста при изменении
     textarea.addEventListener('input', () => {
-      localStorage.setItem('savedText', textarea.value);
+      if (!isChatMode) {
+        localStorage.setItem('savedText', textarea.value);
+      }
     });
 
     // Скачивание файла
     downloadBtn.addEventListener('click', () => {
-      const text = textarea.value;
-      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'central_narodny_blocknot.txt';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      if (!isChatMode) {
+        const text = textarea.value;
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'central_narodny_blocknot.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
     });
 
     // Переключение видео
     function toggleVideo() {
       const videoBox = document.getElementById('videoWrapper');
       videoBox.classList.toggle('active');
-      
-      // Если видео открывается, запускаем его
       if (videoBox.classList.contains('active')) {
         const video = videoBox.querySelector('video');
         video.currentTime = 0;
@@ -367,14 +455,91 @@
       setTimeout(() => {
         switcher.classList.remove('pulled');
       }, 200);
-
-      // Воспроизведение звука переключения
       switchSound.currentTime = 0;
       switchSound.play();
-
       isDark = !isDark;
       body.classList.toggle('dark-mode', isDark);
       container.classList.toggle('dark-paper', isDark);
+    });
+
+    // Создание анонимного чата
+    createChatBtn.addEventListener('click', () => {
+      if (!isChatMode) {
+        // Переключение в режим чата
+        isChatMode = true;
+        textarea.style.display = 'none';
+        chatContainer.style.display = 'flex';
+        chatInput.style.display = 'flex';
+        downloadBtn.style.display = 'none';
+        createChatBtn.textContent = 'Вернуться к блокноту';
+
+        // Генерация уникального ID чата (замените на серверную логику)
+        const chatId = Math.random().toString(36).substring(2, 10);
+        const chatUrl = `${window.location.origin}/chat/${chatId}`;
+        chatLink.textContent = chatUrl;
+        chatLink.href = chatUrl;
+        chatLinkDisplay.style.display = 'block';
+
+        // Подключение к WebSocket (замените URL на ваш сервер)
+        ws = new WebSocket('wss://your-websocket-server/chat/' + chatId);
+
+        ws.onopen = () => {
+          console.log('Connected to chat');
+        };
+
+        ws.onmessage = (event) => {
+          const message = JSON.parse(event.data);
+          const messageElement = document.createElement('div');
+          messageElement.classList.add('chat-message', message.isSent ? 'sent' : 'received');
+          messageElement.textContent = message.text;
+          chatContainer.appendChild(messageElement);
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        };
+
+        ws.onclose = () => {
+          const messageElement = document.createElement('div');
+          messageElement.classList.add('chat-message', 'received');
+          messageElement.textContent = 'Соединение закрыто.';
+          chatContainer.appendChild(messageElement);
+        };
+      } else {
+        // Возврат к блокноту
+        isChatMode = false;
+        textarea.style.display = 'block';
+        chatContainer.style.display = 'none';
+        chatInput.style.display = 'none';
+        downloadBtn.style.display = 'block';
+        createChatBtn.textContent = 'Создать секретный чат';
+        chatLinkDisplay.style.display = 'none';
+        if (ws) {
+          ws.close();
+          ws = null;
+        }
+        chatContainer.innerHTML = '';
+      }
+    });
+
+    // Отправка сообщения
+    sendMessage.addEventListener('click', () => {
+      if (chatMessage.value.trim() && ws) {
+        const message = {
+          text: chatMessage.value,
+          isSent: true,
+        };
+        ws.send(JSON.stringify(message));
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('chat-message', 'sent');
+        messageElement.textContent = chatMessage.value;
+        chatContainer.appendChild(messageElement);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        chatMessage.value = '';
+      }
+    });
+
+    chatMessage.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && chatMessage.value.trim() && ws) {
+        sendMessage.click();
+      }
     });
 
     // Секундомер
@@ -382,8 +547,6 @@
     const resetBtn = document.getElementById('resetBtn');
     const pauseBtn = document.getElementById('pauseBtn');
     const startBtn = document.getElementById('startBtn');
-    
-    // Аудио для секундомера
     const startSound = document.getElementById('startSound');
     const pauseSound = document.getElementById('pauseSound');
     const resetSound = document.getElementById('resetSound');
@@ -392,7 +555,6 @@
     let running = false;
     let timerInterval = null;
 
-    // Форматирование времени в HH:MM:SS
     function formatTime(seconds) {
       const hrs = Math.floor(seconds / 3600);
       const mins = Math.floor((seconds % 3600) / 60);
@@ -404,63 +566,45 @@
       ].join(':');
     }
 
-    // Обновление отображения таймера
     function updateTimerDisplay() {
       timerDisplay.textContent = formatTime(elapsedSeconds);
     }
 
-    // Запуск таймера
     function startTimer() {
       if (running) return;
-      
       running = true;
       startBtn.disabled = true;
       pauseBtn.disabled = false;
-      
-      // Воспроизведение звука старта
       startSound.currentTime = 0;
       startSound.play();
-      
       timerInterval = setInterval(() => {
         elapsedSeconds++;
         updateTimerDisplay();
       }, 1000);
     }
 
-    // Пауза таймера
     function pauseTimer() {
       if (!running) return;
-      
       running = false;
       startBtn.disabled = false;
       pauseBtn.disabled = true;
-      
-      // Воспроизведение звука паузы
       pauseSound.currentTime = 0;
       pauseSound.play();
-      
       clearInterval(timerInterval);
     }
 
-    // Сброс таймера
     function resetTimer() {
       if (running) pauseTimer();
-      
       elapsedSeconds = 0;
-      
-      // Воспроизведение звука сброса
       resetSound.currentTime = 0;
       resetSound.play();
-      
       updateTimerDisplay();
     }
 
-    // Назначение обработчиков событий
     startBtn.addEventListener('click', startTimer);
     pauseBtn.addEventListener('click', pauseTimer);
     resetBtn.addEventListener('click', resetTimer);
 
-    // Инициализация отображения таймера
     updateTimerDisplay();
   </script>
 </body>
