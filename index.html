@@ -440,7 +440,7 @@ chatBtn.addEventListener('click', () => {
 
     // Генерация уникальной ссылки
     const chatId = generateUUID();
-    const link = `${window.location.origin}/chat/${chatId}`;
+    const link = `${window.location.origin}/#/chat/${chatId}`;
     inviteLink.innerHTML = `Пригласить собеседника: <a href="${link}" target="_blank">${link}</a>`;
 
     // Инициализация WebSocket с твоим сервером на Replit
