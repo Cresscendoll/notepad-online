@@ -390,255 +390,228 @@
   </div>
 
   <script>
-    // Блокнот и чат
-    const textarea = document.getElementById('notepad');
-    const downloadBtn = document.getElementById('downloadBtn');
-    const switcher = document.getElementById('switcher');
-    const body = document.body;
-    const container = document.getElementById('notepadContainer');
-    const switchSound = document.getElementById('switchSound');
-    const createChatBtn = document.getElementById('createChatBtn');
-    const chatContainer = document.getElementById('chatContainer');
-    const chatInput = document.getElementById('chatInput');
-    const chatMessage = document.getElementById('chatMessage');
-    const sendMessage = document.getElementById('sendMessage');
-    const chatLinkDisplay = document.getElementById('chatLinkDisplay');
-    const chatLink = document.getElementById('chatLink');
+  // Всё как было до этого...
 
-    let isDark = true;
-    let isChatMode = false;
-    let ws = null;
+  const textarea = document.getElementById('notepad');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const switcher = document.getElementById('switcher');
+  const body = document.body;
+  const container = document.getElementById('notepadContainer');
+  const switchSound = document.getElementById('switchSound');
+  const createChatBtn = document.getElementById('createChatBtn');
+  const chatContainer = document.getElementById('chatContainer');
+  const chatInput = document.getElementById('chatInput');
+  const chatMessage = document.getElementById('chatMessage');
+  const sendMessage = document.getElementById('sendMessage');
+  const chatLinkDisplay = document.getElementById('chatLinkDisplay');
+  const chatLink = document.getElementById('chatLink');
 
-    body.classList.add('dark-mode');
-    container.classList.add('dark-paper');
+  let isDark = true;
+  let isChatMode = false;
+  let ws = null;
 
-    // Восстановление текста из localStorage
-    textarea.value = localStorage.getItem('savedText') || '';
+  body.classList.add('dark-mode');
+  container.classList.add('dark-paper');
 
-    // Сохранение текста при изменении
-    textarea.addEventListener('input', () => {
-      if (!isChatMode) {
-        localStorage.setItem('savedText', textarea.value);
-      }
-    });
+  textarea.value = localStorage.getItem('savedText') || '';
 
-    // Скачивание файла
-    downloadBtn.addEventListener('click', () => {
-      if (!isChatMode) {
-        const text = textarea.value;
-        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'central_narodny_blocknot.txt';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
-    });
-
-    // Переключение видео
-    function toggleVideo() {
-      const videoBox = document.getElementById('videoWrapper');
-      videoBox.classList.toggle('active');
-      if (videoBox.classList.contains('active')) {
-        const video = videoBox.querySelector('video');
-        video.currentTime = 0;
-        video.play();
-      }
+  textarea.addEventListener('input', () => {
+    if (!isChatMode) {
+      localStorage.setItem('savedText', textarea.value);
     }
+  });
 
-    // Переключение темы
-    switcher.addEventListener('click', () => {
-      switcher.classList.add('pulled');
-      setTimeout(() => {
-        switcher.classList.remove('pulled');
-      }, 200);
-      switchSound.currentTime = 0;
-      switchSound.play();
-      isDark = !isDark;
-      body.classList.toggle('dark-mode', isDark);
-      container.classList.toggle('dark-paper', isDark);
-    });
+  downloadBtn.addEventListener('click', () => {
+    if (!isChatMode) {
+      const text = textarea.value;
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'central_narodny_blocknot.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  });
 
-    // Функция для переключения в режим чата
-    function switchToChatMode(chatId) {
-      isChatMode = true;
-      textarea.style.display = 'none';
-      chatContainer.style.display = 'flex';
-      chatInput.style.display = 'flex';
-      downloadBtn.style.display = 'none';
-      createChatBtn.textContent = 'Вернуться к блокноту';
+  function toggleVideo() {
+    const videoBox = document.getElementById('videoWrapper');
+    videoBox.classList.toggle('active');
+    if (videoBox.classList.contains('active')) {
+      const video = videoBox.querySelector('video');
+      video.currentTime = 0;
+      video.play();
+    }
+  }
 
-      const chatUrl = `${window.location.origin}/chat/${chatId}`;
-      chatLink.textContent = chatUrl;
-      chatLink.href = chatUrl;
-      chatLinkDisplay.style.display = 'block';
+  switcher.addEventListener('click', () => {
+    switcher.classList.add('pulled');
+    setTimeout(() => switcher.classList.remove('pulled'), 200);
+    switchSound.currentTime = 0;
+    switchSound.play();
+    isDark = !isDark;
+    body.classList.toggle('dark-mode', isDark);
+    container.classList.toggle('dark-paper', isDark);
+  });
 
-      // Подключение к WebSocket
-      ws = new WebSocket(`wss://your-websocket-server/chat/${chatId}`);
+  function switchToChatMode(chatId) {
+    isChatMode = true;
+    textarea.style.display = 'none';
+    chatContainer.style.display = 'flex';
+    chatInput.style.display = 'flex';
+    downloadBtn.style.display = 'none';
+    createChatBtn.textContent = 'Вернуться к блокноту';
 
-      ws.onopen = () => {
-        console.log('Connected to chat');
+    const chatUrl = `${window.location.origin}#/chat/${chatId}`;
+    chatLink.textContent = chatUrl;
+    chatLink.href = chatUrl;
+    chatLinkDisplay.style.display = 'block';
+
+    ws = new WebSocket(`wss://your-websocket-server/chat/${chatId}`);
+
+    ws.onopen = () => console.log('Connected to chat');
+
+    ws.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      const msgEl = document.createElement('div');
+      msgEl.classList.add('chat-message', message.isSent ? 'sent' : 'received');
+      msgEl.textContent = message.text;
+      chatContainer.appendChild(msgEl);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    };
+
+    ws.onclose = () => {
+      const msgEl = document.createElement('div');
+      msgEl.classList.add('chat-message', 'received');
+      msgEl.textContent = 'Соединение закрыто.';
+      chatContainer.appendChild(msgEl);
+    };
+  }
+
+  function switchToNotepadMode() {
+    isChatMode = false;
+    textarea.style.display = 'block';
+    chatContainer.style.display = 'none';
+    chatInput.style.display = 'none';
+    downloadBtn.style.display = 'block';
+    createChatBtn.textContent = 'Создать секретный чат';
+    chatLinkDisplay.style.display = 'none';
+    if (ws) ws.close();
+    ws = null;
+    chatContainer.innerHTML = '';
+    window.location.hash = '';
+  }
+
+  createChatBtn.addEventListener('click', () => {
+    if (!isChatMode) {
+      const chatId = Math.random().toString(36).substring(2, 10);
+      window.location.hash = `/chat/${chatId}`;
+    } else {
+      switchToNotepadMode();
+    }
+  });
+
+  function checkHash() {
+    const hash = window.location.hash;
+    const match = hash.match(/^#\/chat\/(.+)$/);
+    if (match) {
+      switchToChatMode(match[1]);
+    } else if (isChatMode) {
+      switchToNotepadMode();
+    }
+  }
+
+  window.addEventListener('load', checkHash);
+  window.addEventListener('hashchange', checkHash);
+
+  sendMessage.addEventListener('click', () => {
+    if (chatMessage.value.trim() && ws) {
+      const message = {
+        text: chatMessage.value,
+        isSent: true,
       };
-
-      ws.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('chat-message', message.isSent ? 'sent' : 'received');
-        messageElement.textContent = message.text;
-        chatContainer.appendChild(messageElement);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      };
-
-      ws.onclose = () => {
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('chat-message', 'received');
-        messageElement.textContent = 'Соединение закрыто.';
-        chatContainer.appendChild(messageElement);
-      };
+      ws.send(JSON.stringify(message));
+      const msgEl = document.createElement('div');
+      msgEl.classList.add('chat-message', 'sent');
+      msgEl.textContent = chatMessage.value;
+      chatContainer.appendChild(msgEl);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+      chatMessage.value = '';
     }
+  });
 
-    // Функция для возврата к блокноту
-    function switchToNotepadMode() {
-      isChatMode = false;
-      textarea.style.display = 'block';
-      chatContainer.style.display = 'none';
-      chatInput.style.display = 'none';
-      downloadBtn.style.display = 'block';
-      createChatBtn.textContent = 'Создать секретный чат';
-      chatLinkDisplay.style.display = 'none';
-      if (ws) {
-        ws.close();
-        ws = null;
-      }
-      chatContainer.innerHTML = '';
-      // Очистка URL
-      window.history.pushState({}, '', window.location.origin);
+  chatMessage.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && chatMessage.value.trim() && ws) {
+      sendMessage.click();
     }
+  });
 
-    // Создание или присоединение к чату
-    createChatBtn.addEventListener('click', () => {
-      if (!isChatMode) {
-        // Генерация нового chatId (замените на серверную логику)
-        const chatId = Math.random().toString(36).substring(2, 10);
-        switchToChatMode(chatId);
-        // Обновление URL без перезагрузки
-        window.history.pushState({}, '', `/chat/${chatId}`);
-      } else {
-        switchToNotepadMode();
-      }
-    });
+  // Секундомер
+  const timerDisplay = document.getElementById('timerDisplay');
+  const resetBtn = document.getElementById('resetBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const startBtn = document.getElementById('startBtn');
+  const startSound = document.getElementById('startSound');
+  const pauseSound = document.getElementById('pauseSound');
+  const resetSound = document.getElementById('resetSound');
 
-    // Проверка URL при загрузке страницы
-    window.addEventListener('load', () => {
-      const path = window.location.pathname;
-      const match = path.match(/^\/chat\/(.+)$/);
-      if (match) {
-        const chatId = match[1];
-        switchToChatMode(chatId);
-      }
-    });
+  let elapsedSeconds = 0;
+  let running = false;
+  let timerInterval = null;
 
-    // Обработка изменения URL (например, при использовании кнопок назад/вперед)
-    window.addEventListener('popstate', () => {
-      const path = window.location.pathname;
-      const match = path.match(/^\/chat\/(.+)$/);
-      if (match && !isChatMode) {
-        switchToChatMode(match[1]);
-      } else if (!match && isChatMode) {
-        switchToNotepadMode();
-      }
-    });
+  function formatTime(seconds) {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return [
+      hrs.toString().padStart(2, '0'),
+      mins.toString().padStart(2, '0'),
+      secs.toString().padStart(2, '0'),
+    ].join(':');
+  }
 
-    // Отправка сообщения
-    sendMessage.addEventListener('click', () => {
-      if (chatMessage.value.trim() && ws) {
-        const message = {
-          text: chatMessage.value,
-          isSent: true,
-        };
-        ws.send(JSON.stringify(message));
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('chat-message', 'sent');
-        messageElement.textContent = chatMessage.value;
-        chatContainer.appendChild(messageElement);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-        chatMessage.value = '';
-      }
-    });
+  function updateTimerDisplay() {
+    timerDisplay.textContent = formatTime(elapsedSeconds);
+  }
 
-    chatMessage.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter' && chatMessage.value.trim() && ws) {
-        sendMessage.click();
-      }
-    });
-
-    // Секундомер
-    const timerDisplay = document.getElementById('timerDisplay');
-    const resetBtn = document.getElementById('resetBtn');
-    const pauseBtn = document.getElementById('pauseBtn');
-    const startBtn = document.getElementById('startBtn');
-    const startSound = document.getElementById('startSound');
-    const pauseSound = document.getElementById('pauseSound');
-    const resetSound = document.getElementById('resetSound');
-
-    let elapsedSeconds = 0;
-    let running = false;
-    let timerInterval = null;
-
-    function formatTime(seconds) {
-      const hrs = Math.floor(seconds / 3600);
-      const mins = Math.floor((seconds % 3600) / 60);
-      const secs = seconds % 60;
-      return [
-        hrs.toString().padStart(2, '0'),
-        mins.toString().padStart(2, '0'),
-        secs.toString().padStart(2, '0'),
-      ].join(':');
-    }
-
-    function updateTimerDisplay() {
-      timerDisplay.textContent = formatTime(elapsedSeconds);
-    }
-
-    function startTimer() {
-      if (running) return;
-      running = true;
-      startBtn.disabled = true;
-      pauseBtn.disabled = false;
-      startSound.currentTime = 0;
-      startSound.play();
-      timerInterval = setInterval(() => {
-        elapsedSeconds++;
-        updateTimerDisplay();
-      }, 1000);
-    }
-
-    function pauseTimer() {
-      if (!running) return;
-      running = false;
-      startBtn.disabled = false;
-      pauseBtn.disabled = true;
-      pauseSound.currentTime = 0;
-      pauseSound.play();
-      clearInterval(timerInterval);
-    }
-
-    function resetTimer() {
-      if (running) pauseTimer();
-      elapsedSeconds = 0;
-      resetSound.currentTime = 0;
-      resetSound.play();
+  function startTimer() {
+    if (running) return;
+    running = true;
+    startBtn.disabled = true;
+    pauseBtn.disabled = false;
+    startSound.currentTime = 0;
+    startSound.play();
+    timerInterval = setInterval(() => {
+      elapsedSeconds++;
       updateTimerDisplay();
-    }
+    }, 1000);
+  }
 
-    startBtn.addEventListener('click', startTimer);
-    pauseBtn.addEventListener('click', pauseTimer);
-    resetBtn.addEventListener('click', resetTimer);
+  function pauseTimer() {
+    if (!running) return;
+    running = false;
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+    pauseSound.currentTime = 0;
+    pauseSound.play();
+    clearInterval(timerInterval);
+  }
 
+  function resetTimer() {
+    if (running) pauseTimer();
+    elapsedSeconds = 0;
+    resetSound.currentTime = 0;
+    resetSound.play();
     updateTimerDisplay();
-  </script>
+  }
+
+  startBtn.addEventListener('click', startTimer);
+  pauseBtn.addEventListener('click', pauseTimer);
+  resetBtn.addEventListener('click', resetTimer);
+
+  updateTimerDisplay();
+</script>
 </body>
 </html>
