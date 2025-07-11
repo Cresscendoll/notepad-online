@@ -81,6 +81,7 @@
       height: 100%;
       max-width: 800px;
       flex: 1;
+      position: relative;
     }
     .container {
       width: 100%;
@@ -94,6 +95,9 @@
       flex-direction: column;
       margin-top: 0;
       transition: background-color 0.5s ease;
+      /* Чтобы контейнер занимал всё доступное место */
+      flex-grow: 1;
+      min-height: 0; /* важная штука для flexbox прокрутки */
     }
     .container.dark-paper { background-color: #f5e7c5; }
     .header-text { flex: none; margin-bottom: 10px; }
@@ -118,7 +122,7 @@
       padding: 6px 12px;
       cursor: pointer;
       font-size: 14px;
-      margin-bottom: 10px;
+      margin-top: 8px;
       user-select: none;
       align-self: flex-start;
       transition: background-color 0.3s ease;
@@ -137,6 +141,7 @@
       background-color: transparent;
       margin-bottom: 0;
       color: #222;
+      min-height: 0; /* чтобы flex контейнер работал */
     }
     .button-row {
       display: flex;
@@ -183,16 +188,20 @@
       opacity: 1;
     }
 
-    /* Стили для контейнера чата, изначально скрыт */
+    /* Контейнер для чата - точь-в-точь как контейнер блокнота */
     #chatContainer {
       display: none;
       flex-direction: column;
       height: 100%;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
       border: 1px solid #ccc;
       border-radius: 8px;
-      background-color: #fff;
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
       padding: 10px;
+      background-color: #fff;
+      flex-grow: 1;
+      min-height: 0;
+      overflow: hidden;
+      position: relative;
     }
 
     #messages {
@@ -206,17 +215,19 @@
       color: #222;
       white-space: pre-wrap;
       word-wrap: break-word;
+      min-height: 0;
     }
 
     #chatForm {
       display: flex;
+      gap: 4px;
     }
 
     #chatInput {
       flex: 1;
       padding: 8px;
       font-size: 16px;
-      border-radius: 4px 0 0 4px;
+      border-radius: 4px;
       border: 1px solid #ccc;
       outline: none;
       font-family: monospace;
@@ -226,7 +237,7 @@
       background-color: #b22222;
       color: white;
       border: none;
-      border-radius: 0 4px 4px 0;
+      border-radius: 4px;
       padding: 8px 16px;
       cursor: pointer;
       font-family: monospace;
@@ -238,6 +249,23 @@
       background-color: #cc3333;
     }
 
+    /* Кнопка закрытия чата */
+    #closeChatBtn {
+      font-family: monospace;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: #b22222;
+      font-size: 14px;
+      margin-bottom: 10px;
+      padding: 0;
+      align-self: flex-start;
+      transition: color 0.3s ease;
+    }
+    #closeChatBtn:hover {
+      color: #cc3333;
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -273,7 +301,7 @@
         <div class="header-text">
           <nav><a href="about.html" title="О проекте">О проекте</a></nav>
           <h1>Анонимный секретный чат</h1>
-          <button id="closeChatBtn" title="Закрыть чат" style="margin-bottom:10px; align-self:flex-start; font-family: monospace; cursor:pointer;">← Назад к блокноту</button>
+          <button id="closeChatBtn" title="Закрыть чат">← Назад к блокноту</button>
         </div>
         <div id="messages"></div>
         <form id="chatForm" autocomplete="off">
@@ -446,46 +474,48 @@
 
     // --- Анонимный чат ---
 
-    // Подключение к серверу Replit (замени ссылку, если изменится)
+    // Подключение к серверу Replit (замени ссылку на свой Dev link)
     const socket = io('https://cc4fa76a-7776-40f5-9855-23e73550d85c-00-3gns3sex7heh6.spock.replit.dev');
 
-    const messages = document.getElementById('messages');
+    const messagesDiv = document.getElementById('messages');
     const chatForm = document.getElementById('chatForm');
     const chatInput = document.getElementById('chatInput');
 
-    // Отображение подключений и сообщений
-    socket.on('connect', () => {
-      console.log('Подключились к серверу анонимного чата');
-    });
+    // Отобразить сообщение в блоке сообщений
+    function appendMessage(text) {
+      const msg = document.createElement('div');
+      msg.textContent = text;
+      messagesDiv.appendChild(msg);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
 
-    socket.on('chat message', (msg) => {
-      const item = document.createElement('div');
-      item.textContent = msg;
-      messages.appendChild(item);
-      messages.scrollTop = messages.scrollHeight;
-    });
-
-    // Отправка сообщений
+    // Отправка сообщения
     chatForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      if (chatInput.value.trim()) {
-        socket.emit('chat message', chatInput.value.trim());
-        chatInput.value = '';
-      }
+      const msg = chatInput.value.trim();
+      if (!msg) return;
+      socket.emit('chat message', msg);
+      chatInput.value = '';
     });
 
-    // Кнопка показа чата и скрытия блокнота
+    // Получение сообщений с сервера
+    socket.on('chat message', (msg) => {
+      appendMessage(msg);
+    });
+
+    // Показать чат, скрыть блокнот
     secretChatBtn.addEventListener('click', () => {
       notepadContainer.style.display = 'none';
       chatContainer.style.display = 'flex';
+      chatInput.focus();
     });
 
-    // Кнопка закрытия чата и возврата к блокноту
+    // Скрыть чат, показать блокнот
     closeChatBtn.addEventListener('click', () => {
       chatContainer.style.display = 'none';
       notepadContainer.style.display = 'flex';
+      textarea.focus();
     });
-
   </script>
 </body>
 </html>
