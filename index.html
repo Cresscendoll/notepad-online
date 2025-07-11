@@ -20,9 +20,6 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#b22222" />
 
-  <!-- Подключаем socket.io-client -->
-  <script src="https://cdn.socket.io/4.6.1/socket.io.min.js" defer></script>
-
   <style>
     * { box-sizing: border-box; }
     html, body {
@@ -81,7 +78,6 @@
       height: 100%;
       max-width: 800px;
       flex: 1;
-      position: relative;
     }
     .container {
       width: 100%;
@@ -95,9 +91,6 @@
       flex-direction: column;
       margin-top: 0;
       transition: background-color 0.5s ease;
-      /* Чтобы контейнер занимал всё доступное место */
-      flex-grow: 1;
-      min-height: 0; /* важная штука для flexbox прокрутки */
     }
     .container.dark-paper { background-color: #f5e7c5; }
     .header-text { flex: none; margin-bottom: 10px; }
@@ -111,26 +104,6 @@
       font-family: monospace;
     }
     .header-text nav a:hover { text-decoration: underline; }
-
-    /* Кнопка для создания секретного чата */
-    #secretChatBtn {
-      font-family: monospace;
-      background-color: #b22222;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 6px 12px;
-      cursor: pointer;
-      font-size: 14px;
-      margin-top: 8px;
-      user-select: none;
-      align-self: flex-start;
-      transition: background-color 0.3s ease;
-    }
-    #secretChatBtn:hover {
-      background-color: #cc3333;
-    }
-
     textarea {
       flex: 1;
       width: 100%;
@@ -141,13 +114,13 @@
       background-color: transparent;
       margin-bottom: 0;
       color: #222;
-      min-height: 0; /* чтобы flex контейнер работал */
     }
     .button-row {
       display: flex;
       justify-content: flex-end;
+      gap: 10px;
     }
-    button.download-button {
+    button.download-button, button.chat-button {
       background-color: #555;
       color: #ddd;
       border: none;
@@ -160,9 +133,61 @@
       user-select: none;
       font-family: monospace;
     }
-    button.download-button:hover {
+    button.download-button:hover, button.chat-button:hover {
       background-color: #777;
       opacity: 1;
+    }
+    .chat-container {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+    }
+    .chat-messages {
+      flex: 1;
+      border: 1px solid #ccc;
+      padding: 10px;
+      overflow-y: auto;
+      background-color: #f9f9f9;
+      margin-bottom: 10px;
+    }
+    .chat-message {
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 5px;
+      background-color: #e0e0e0;
+    }
+    .chat-input {
+      display: flex;
+      gap: 10px;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 8px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    .chat-input button {
+      background-color: #555;
+      color: #ddd;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 16px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: monospace;
+    }
+    .chat-input button:hover {
+      background-color: #777;
+    }
+    .invite-link {
+      margin-bottom: 10px;
+      font-size: 14px;
+      color: #b22222;
+      word-break: break-all;
     }
     .easter-button {
       position: fixed;
@@ -187,84 +212,111 @@
       background-color: #cc3333;
       opacity: 1;
     }
-
-    /* Контейнер для чата - точь-в-точь как контейнер блокнота */
-    #chatContainer {
-      display: none;
-      flex-direction: column;
-      height: 100%;
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 10px;
-      background-color: #fff;
-      flex-grow: 1;
-      min-height: 0;
+    .video-wrapper {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%) translateY(100%);
+      width: 80%;
+      max-width: 700px;
+      transition: transform 0.6s ease;
+      z-index: 999;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+      border-radius: 12px;
       overflow: hidden;
-      position: relative;
     }
-
-    #messages {
-      flex: 1;
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin-bottom: 10px;
-      overflow-y: auto;
-      font-size: 16px;
-      background-color: #fafafa;
-      color: #222;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      min-height: 0;
+    .video-wrapper.active {
+      transform: translateX(-50%) translateY(0);
     }
-
-    #chatForm {
+    .video-wrapper video {
+      width: 100%;
+      display: block;
+    }
+    .corner-image {
+      position: fixed;
+      top: 0; left: 0;
+      width: 80px;
+      height: auto;
+      z-index: 1001;
+      user-select: none;
+      pointer-events: none;
+    }
+    .switcher-image {
+      position: fixed;
+      top: -25px; left: 58px;
+      width: 80px;
+      height: auto;
+      z-index: 1002;
+      user-select: none;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .switcher-image.pulled {
+      transform: translateY(25px);
+    }
+    #timerContainer {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background-color: rgba(178, 34, 34, 0.5);
+      border-radius: 8px;
+      padding: 10px 15px;
+      box-shadow: 0 0 10px rgba(178, 34, 34, 0.4);
+      font-family: monospace;
+      color: #fff;
+      z-index: 2000;
+      user-select: none;
+      min-width: 140px;
       display: flex;
-      gap: 4px;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      transition: background-color 0.5s ease, box-shadow 0.5s ease;
     }
-
-    #chatInput {
+    body.dark-mode #timerContainer {
+      background-color: rgba(139, 0, 0, 0.7);
+      box-shadow: 0 0 12px rgba(139, 0, 0, 0.8);
+    }
+    #timerDisplay {
+      font-size: 22px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+    .timer-buttons {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      justify-content: center;
+    }
+    .timer-buttons button {
+      background-color: rgba(122, 22, 22, 0.7);
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-family: monospace;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      user-select: none;
       flex: 1;
-      padding: 8px;
-      font-size: 16px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      outline: none;
-      font-family: monospace;
+      text-align: center;
     }
-
-    #chatSendBtn {
-      background-color: #b22222;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 8px 16px;
-      cursor: pointer;
-      font-family: monospace;
-      font-size: 16px;
-      transition: background-color 0.3s ease;
+    body.dark-mode .timer-buttons button {
+      background-color: rgba(90, 5, 5, 0.85);
     }
-
-    #chatSendBtn:hover {
-      background-color: #cc3333;
+    .timer-buttons button:hover {
+      background-color: rgba(167, 42, 42, 0.85);
     }
-
-    /* Кнопка закрытия чата */
-    #closeChatBtn {
-      font-family: monospace;
-      cursor: pointer;
-      background: none;
-      border: none;
-      color: #b22222;
-      font-size: 14px;
-      margin-bottom: 10px;
-      padding: 0;
-      align-self: flex-start;
-      transition: color 0.3s ease;
+    body.dark-mode .timer-buttons button:hover {
+      background-color: rgba(190, 30, 30, 1);
     }
-    #closeChatBtn:hover {
-      color: #cc3333;
-      text-decoration: underline;
+    .timer-buttons button:disabled {
+      background-color: rgba(80, 80, 80, 0.5);
+      cursor: not-allowed;
+    }
+    body.dark-mode .timer-buttons button:disabled {
+      background-color: rgba(60, 60, 60, 0.7);
     }
   </style>
 </head>
@@ -281,35 +333,26 @@
   <div class="notepad-section">
     <img src="/images/left.png" alt="Левое изображение" class="side-image" />
     <div class="container-wrapper">
-      
-      <!-- Основной контейнер блокнота -->
-      <div class="container dark-paper" id="notepadContainer">
+      <div class="container" id="notepadContainer">
         <div class="header-text">
           <nav><a href="about.html" title="О проекте">О проекте</a></nav>
           <h1>Блокнот онлайн — Центральный народный блокнот</h1>
           <p>Удобный бесплатный блокнот онлайн для заметок. Никакой регистрации. Просто пиши, сохраняй и возвращайся, товарищ!</p>
-          <button id="secretChatBtn" title="Создать анонимный секретный чат">Создать секретный чат</button>
         </div>
         <textarea id="notepad" placeholder="Пиши свою заметку в наш онлайн-блокнот — всё сохранится!"></textarea>
+        <div class="chat-container" id="chatContainer">
+          <div class="invite-link" id="inviteLink"></div>
+          <div class="chat-messages" id="chatMessages"></div>
+          <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="Напиши сообщение..." />
+            <button id="sendMessageBtn">Отправить</button>
+          </div>
+        </div>
         <div class="button-row">
+          <button class="chat-button" id="chatBtn" title="Создать секретный чат">Создать секретный чат</button>
           <button class="download-button" id="downloadBtn" title="Скачать файл с заметками">Скачать</button>
         </div>
       </div>
-
-      <!-- Контейнер с чатом (по умолчанию скрыт) -->
-      <div class="container" id="chatContainer">
-        <div class="header-text">
-          <nav><a href="about.html" title="О проекте">О проекте</a></nav>
-          <h1>Анонимный секретный чат</h1>
-          <button id="closeChatBtn" title="Закрыть чат">← Назад к блокноту</button>
-        </div>
-        <div id="messages"></div>
-        <form id="chatForm" autocomplete="off">
-          <input id="chatInput" placeholder="Введите сообщение..." />
-          <button id="chatSendBtn" type="submit">Отправить</button>
-        </form>
-      </div>
-
     </div>
     <img src="/images/right.png" alt="Правое изображение" class="side-image" />
   </div>
@@ -333,20 +376,33 @@
   </div>
 
   <script>
-    // --- Блокнот ---
+    // Генерация UUID для уникальной ссылки
+    function generateUUID() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    // Блокнот
     const textarea = document.getElementById('notepad');
     const downloadBtn = document.getElementById('downloadBtn');
     const switcher = document.getElementById('switcher');
     const body = document.body;
-    const notepadContainer = document.getElementById('notepadContainer');
-    const chatContainer = document.getElementById('chatContainer');
-    const secretChatBtn = document.getElementById('secretChatBtn');
-    const closeChatBtn = document.getElementById('closeChatBtn');
+    const container = document.getElementById('notepadContainer');
     const switchSound = document.getElementById('switchSound');
+    const chatBtn = document.getElementById('chatBtn');
+    const chatContainer = document.getElementById('chatContainer');
+    const notepad = document.getElementById('notepad');
+    const inviteLink = document.getElementById('inviteLink');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const sendMessageBtn = document.getElementById('sendMessageBtn');
 
     let isDark = true;
     body.classList.add('dark-mode');
-    notepadContainer.classList.add('dark-paper');
+    container.classList.add('dark-paper');
+    let isChatMode = false;
 
     // Восстановление текста из localStorage
     textarea.value = localStorage.getItem('savedText') || '';
@@ -358,6 +414,7 @@
 
     // Скачивание файла
     downloadBtn.addEventListener('click', () => {
+      if (isChatMode) return; // Не скачивать в режиме чата
       const text = textarea.value;
       const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
       const url = URL.createObjectURL(blob);
@@ -368,6 +425,61 @@
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    });
+
+    // Переключение между блокнотом и чатом
+    chatBtn.addEventListener('click', () => {
+      isChatMode = !isChatMode;
+      if (isChatMode) {
+        // Переключение на чат
+        notepad.style.display = 'none';
+        chatContainer.style.display = 'flex';
+        chatBtn.textContent = 'Вернуться к блокноту';
+        downloadBtn.style.display = 'none';
+
+        // Генерация уникальной ссылки
+        const chatId = generateUUID();
+        const link = `${window.location.origin}/chat/${chatId}`;
+        inviteLink.innerHTML = `Пригласить собеседника: <a href="${link}" target="_blank">${link}</a>`;
+
+        // Инициализация WebSocket (пример, замените на ваш сервер)
+        const ws = new WebSocket('wss://your-websocket-server'); // Замените на реальный WebSocket сервер
+        ws.onmessage = (event) => {
+          const message = document.createElement('div');
+          message.className = 'chat-message';
+          message.textContent = event.data;
+          chatMessages.appendChild(message);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        };
+      } else {
+        // Переключение на блокнот
+        notepad.style.display = 'block';
+        chatContainer.style.display = 'none';
+        chatBtn.textContent = 'Создать секретный чат';
+        downloadBtn.style.display = 'block';
+      }
+    });
+
+    // Отправка сообщения
+    sendMessageBtn.addEventListener('click', () => {
+      const message = chatInput.value.trim();
+      if (message) {
+        const messageElement = document.createElement('div');
+        messageElement.className = 'chat-message';
+        messageElement.textContent = message;
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        chatInput.value = '';
+        // Отправка через WebSocket (раскомментируйте при наличии сервера)
+        // ws.send(message);
+      }
+    });
+
+    // Отправка сообщения по нажатию Enter
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessageBtn.click();
+      }
     });
 
     // Переключение видео
@@ -394,7 +506,7 @@
 
       isDark = !isDark;
       body.classList.toggle('dark-mode', isDark);
-      notepadContainer.classList.toggle('dark-paper', isDark);
+      container.classList.toggle('dark-paper', isDark);
     });
 
     // Секундомер
@@ -471,51 +583,6 @@
     resetBtn.addEventListener('click', resetTimer);
 
     updateTimerDisplay();
-
-    // --- Анонимный чат ---
-
-    // Подключение к серверу Replit (замени ссылку на свой Dev link)
-    const socket = io('https://cc4fa76a-7776-40f5-9855-23e73550d85c-00-3gns3sex7heh6.spock.replit.dev');
-
-    const messagesDiv = document.getElementById('messages');
-    const chatForm = document.getElementById('chatForm');
-    const chatInput = document.getElementById('chatInput');
-
-    // Отобразить сообщение в блоке сообщений
-    function appendMessage(text) {
-      const msg = document.createElement('div');
-      msg.textContent = text;
-      messagesDiv.appendChild(msg);
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-
-    // Отправка сообщения
-    chatForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const msg = chatInput.value.trim();
-      if (!msg) return;
-      socket.emit('chat message', msg);
-      chatInput.value = '';
-    });
-
-    // Получение сообщений с сервера
-    socket.on('chat message', (msg) => {
-      appendMessage(msg);
-    });
-
-    // Показать чат, скрыть блокнот
-    secretChatBtn.addEventListener('click', () => {
-      notepadContainer.style.display = 'none';
-      chatContainer.style.display = 'flex';
-      chatInput.focus();
-    });
-
-    // Скрыть чат, показать блокнот
-    closeChatBtn.addEventListener('click', () => {
-      chatContainer.style.display = 'none';
-      notepadContainer.style.display = 'flex';
-      textarea.focus();
-    });
   </script>
 </body>
 </html>
