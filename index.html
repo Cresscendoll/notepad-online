@@ -154,6 +154,18 @@
       border-radius: 5px;
       background-color: #e0e0e0;
     }
+    .chat-message.self {
+      background-color: #d0e0f0;
+      margin-left: 20%;
+      text-align: right;
+    }
+    .chat-message.system {
+      font-style: italic;
+      color: #666;
+      background-color: transparent;
+      text-align: center;
+      padding: 5px;
+    }
     .chat-input {
       display: flex;
       gap: 10px;
@@ -181,9 +193,6 @@
     }
     .invite-link {
       margin-bottom: 10px;
-      font-size: 14px;
-      color: #b22222;
-      word-break: break-all;
     }
     .invite-link-container {
       background: #f8f8f8;
@@ -526,6 +535,22 @@
       inviteLink.appendChild(container);
     }
 
+    // Функция для добавления сообщения в чат
+    function addMessageToChat(content, isSelf = false, isSystem = false) {
+      const messageElement = document.createElement('div');
+      messageElement.className = 'chat-message';
+      
+      if (isSelf) {
+        messageElement.classList.add('self');
+      } else if (isSystem) {
+        messageElement.classList.add('system');
+      }
+      
+      messageElement.textContent = content;
+      chatMessages.appendChild(messageElement);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
     // Функция для активации чата
     function activateChatMode(chatId, host = false) {
       isChatMode = true;
@@ -541,8 +566,10 @@
       
       if (host) {
         showInviteLink(chatId);
+        addMessageToChat('Вы создали новый чат. Отправьте ссылку другу.', false, true);
       } else {
         inviteLink.innerHTML = '<div style="font-weight:bold;margin-bottom:15px;">Вы присоединились к чату</div>';
+        addMessageToChat('Вы подключились к чату', false, true);
       }
 
       ws = new WebSocket('wss://cc4fa76a-7776-40f5-9855-23e73550d85c-00-3gns3sex7heh6.spock.replit.dev/');
@@ -559,12 +586,11 @@
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
+          
           if (data.type === 'message') {
-            const messageElement = document.createElement('div');
-            messageElement.className = 'chat-message';
-            messageElement.textContent = data.content;
-            chatMessages.appendChild(messageElement);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            addMessageToChat(data.content);
+          } else if (data.type === 'notification') {
+            addMessageToChat(data.content, false, true);
           }
         } catch (e) {
           console.error('Ошибка обработки сообщения:', e);
@@ -572,11 +598,12 @@
       };
 
       ws.onclose = () => {
-        console.log('Соединение закрыто');
+        addMessageToChat('Соединение с сервером потеряно', false, true);
       };
 
       ws.onerror = (error) => {
         console.error('Ошибка WebSocket:', error);
+        addMessageToChat('Ошибка соединения', false, true);
       };
     }
 
@@ -613,19 +640,14 @@
     function sendMessage() {
       const message = chatInput.value.trim();
       if (message && ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
+        const messageData = {
           type: 'message',
           chatId: currentChatId,
           content: message
-        }));
+        };
         
-        const messageElement = document.createElement('div');
-        messageElement.className = 'chat-message';
-        messageElement.style.backgroundColor = '#d0e0f0';
-        messageElement.textContent = message;
-        chatMessages.appendChild(messageElement);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        
+        ws.send(JSON.stringify(messageData));
+        addMessageToChat(message, true);
         chatInput.value = '';
       }
     }
