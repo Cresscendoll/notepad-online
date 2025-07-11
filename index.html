@@ -403,6 +403,8 @@
     body.classList.add('dark-mode');
     container.classList.add('dark-paper');
     let isChatMode = false;
+    let ws = null;
+    let currentChatId = null;
 
     // Восстановление текста из localStorage
     textarea.value = localStorage.getItem('savedText') || '';
@@ -427,79 +429,124 @@
       URL.revokeObjectURL(url);
     });
 
-    let ws; // переменная для WebSocket, чтобы использовать и в отправке, и в получении
+    // Функция для активации чата
+    function activateChatMode(chatId, isHost = false) {
+      isChatMode = true;
+      currentChatId = chatId;
+      
+      notepad.style.display = 'none';
+      chatContainer.style.display = 'flex';
+      chatBtn.textContent = 'Вернуться к блокноту';
+      downloadBtn.style.display = 'none';
 
-chatBtn.addEventListener('click', () => {
-  isChatMode = !isChatMode;
-  if (isChatMode) {
-    // Переключение на чат
-    notepad.style.display = 'none';
-    chatContainer.style.display = 'flex';
-    chatBtn.textContent = 'Вернуться к блокноту';
-    downloadBtn.style.display = 'none';
+      // Инициализация WebSocket с сервером
+      ws = new WebSocket('wss://cc4fa76a-7776-40f5-9855-23e73550d85c-00-3gns3sex7heh6.spock.replit.dev/');
 
-    // Генерация уникальной ссылки
-    const chatId = generateUUID();
-    const link = `${window.location.origin}/#/chat/${chatId}`;
-    inviteLink.innerHTML = `Пригласить собеседника: <a href="${link}" target="_blank">${link}</a>`;
+      ws.onopen = () => {
+        console.log('Соединение с сервером установлено');
+        // Отправляем идентификатор чата при подключении
+        ws.send(JSON.stringify({ type: 'join', chatId }));
+        
+        if (isHost) {
+          // Если это хост, показываем ссылку для приглашения
+          const link = `${window.location.origin}${window.location.pathname}#/chat/${chatId}`;
+          inviteLink.innerHTML = `Пригласить собеседника: <a href="${link}" target="_blank">${link}</a>`;
+        } else {
+          inviteLink.innerHTML = `Вы присоединились к чату`;
+        }
+      };
 
-    // Инициализация WebSocket с твоим сервером на Replit
-    ws = new WebSocket('wss://cc4fa76a-7776-40f5-9855-23e73550d85c-00-3gns3sex7heh6.spock.replit.dev/');
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'message') {
+            const message = document.createElement('div');
+            message.className = 'chat-message';
+            message.textContent = data.content;
+            chatMessages.appendChild(message);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+          }
+        } catch (e) {
+          console.error('Ошибка обработки сообщения:', e);
+        }
+      };
 
-    ws.onopen = () => {
-      console.log('Соединение с сервером установлено, душа моя!');
-    };
+      ws.onclose = () => {
+        console.log('Соединение закрыто');
+      };
 
-    ws.onmessage = (event) => {
-      const message = document.createElement('div');
-      message.className = 'chat-message';
-      message.textContent = event.data;
-      chatMessages.appendChild(message);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    };
-
-    ws.onclose = () => {
-      console.log('Связь с сервером потеряна, горько...');
-    };
-
-    ws.onerror = (err) => {
-      console.error('Ошибка WebSocket:', err);
-    };
-
-  } else {
-    // Переключение на блокнот
-    notepad.style.display = 'block';
-    chatContainer.style.display = 'none';
-    chatBtn.textContent = 'Создать секретный чат';
-    downloadBtn.style.display = 'block';
-
-    // Закрываем соединение, если оно есть
-    if (ws) {
-      ws.close();
-      ws = null;
+      ws.onerror = (err) => {
+        console.error('Ошибка WebSocket:', err);
+      };
     }
 
-    // Очищаем чат
-    chatMessages.innerHTML = '';
-    inviteLink.innerHTML = '';
-  }
-});
+    // Функция для деактивации чата
+    function deactivateChatMode() {
+      isChatMode = false;
+      currentChatId = null;
+      
+      notepad.style.display = 'block';
+      chatContainer.style.display = 'none';
+      chatBtn.textContent = 'Создать секретный чат';
+      downloadBtn.style.display = 'block';
+      inviteLink.innerHTML = '';
+      chatMessages.innerHTML = '';
 
-// Отправка сообщения
-sendMessageBtn.addEventListener('click', () => {
-  const message = chatInput.value.trim();
-  if (message && ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(message); // отправляем на сервер
-    chatInput.value = '';
-  }
-});
+      // Закрываем соединение, если оно есть
+      if (ws) {
+        ws.close();
+        ws = null;
+      }
+    }
 
-// Отправка сообщения по нажатию Enter
-chatInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    sendMessageBtn.click();
-  }
-});
+    // Обработчик кнопки чата
+    chatBtn.addEventListener('click', () => {
+      if (isChatMode) {
+        deactivateChatMode();
+      } else {
+        // Создаем новый чат
+        const chatId = generateUUID();
+        activateChatMode(chatId, true);
+      }
+    });
+
+    // Отправка сообщения
+    sendMessageBtn.addEventListener('click', () => {
+      const message = chatInput.value.trim();
+      if (message && ws && ws.readyState === WebSocket.OPEN) {
+        // Отправляем сообщение как JSON
+        ws.send(JSON.stringify({ 
+          type: 'message', 
+          chatId: currentChatId,
+          content: message 
+        }));
+        chatInput.value = '';
+      }
+    });
+
+    // Отправка сообщения по нажатию Enter
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessageBtn.click();
+      }
+    });
+
+    // Проверка URL при загрузке страницы
+    function checkUrlForChat() {
+      const hash = window.location.hash;
+      if (hash.startsWith('#/chat/')) {
+        const chatId = hash.split('/')[2];
+        if (chatId) {
+          activateChatMode(chatId, false);
+        }
+      }
+    }
+
+    // Обработчик изменения URL
+    window.addEventListener('hashchange', checkUrlForChat);
+
+    // Проверяем URL при загрузке страницы
+    window.addEventListener('load', checkUrlForChat);
 
     // Переключение видео
     function toggleVideo() {
