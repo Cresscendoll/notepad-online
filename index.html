@@ -138,7 +138,7 @@
       align-self: flex-start;
     }
     .chat-input {
-      display: flex;
+      display: none;
       margin-top: 10px;
     }
     .chat-input input {
@@ -358,7 +358,7 @@
         </div>
         <textarea id="notepad" placeholder="Пиши свою заметку в наш онлайн-блокнот — всё сохранится!"></textarea>
         <div class="chat-container" id="chatContainer"></div>
-        <div class="chat-input" id="chatInput" style="display: none;">
+        <div class="chat-input" id="chatInput">
           <input type="text" id="chatMessage" placeholder="Напиши сообщение..." />
           <button id="sendMessage">Отправить</button>
         </div>
@@ -390,7 +390,7 @@
   </div>
 
   <script>
-    // Блокнот
+    // Блокнот и чат
     const textarea = document.getElementById('notepad');
     const downloadBtn = document.getElementById('downloadBtn');
     const switcher = document.getElementById('switcher');
@@ -462,60 +462,93 @@
       container.classList.toggle('dark-paper', isDark);
     });
 
-    // Создание анонимного чата
+    // Функция для переключения в режим чата
+    function switchToChatMode(chatId) {
+      isChatMode = true;
+      textarea.style.display = 'none';
+      chatContainer.style.display = 'flex';
+      chatInput.style.display = 'flex';
+      downloadBtn.style.display = 'none';
+      createChatBtn.textContent = 'Вернуться к блокноту';
+
+      const chatUrl = `${window.location.origin}/chat/${chatId}`;
+      chatLink.textContent = chatUrl;
+      chatLink.href = chatUrl;
+      chatLinkDisplay.style.display = 'block';
+
+      // Подключение к WebSocket
+      ws = new WebSocket(`wss://your-websocket-server/chat/${chatId}`);
+
+      ws.onopen = () => {
+        console.log('Connected to chat');
+      };
+
+      ws.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('chat-message', message.isSent ? 'sent' : 'received');
+        messageElement.textContent = message.text;
+        chatContainer.appendChild(messageElement);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      };
+
+      ws.onclose = () => {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('chat-message', 'received');
+        messageElement.textContent = 'Соединение закрыто.';
+        chatContainer.appendChild(messageElement);
+      };
+    }
+
+    // Функция для возврата к блокноту
+    function switchToNotepadMode() {
+      isChatMode = false;
+      textarea.style.display = 'block';
+      chatContainer.style.display = 'none';
+      chatInput.style.display = 'none';
+      downloadBtn.style.display = 'block';
+      createChatBtn.textContent = 'Создать секретный чат';
+      chatLinkDisplay.style.display = 'none';
+      if (ws) {
+        ws.close();
+        ws = null;
+      }
+      chatContainer.innerHTML = '';
+      // Очистка URL
+      window.history.pushState({}, '', window.location.origin);
+    }
+
+    // Создание или присоединение к чату
     createChatBtn.addEventListener('click', () => {
       if (!isChatMode) {
-        // Переключение в режим чата
-        isChatMode = true;
-        textarea.style.display = 'none';
-        chatContainer.style.display = 'flex';
-        chatInput.style.display = 'flex';
-        downloadBtn.style.display = 'none';
-        createChatBtn.textContent = 'Вернуться к блокноту';
-
-        // Генерация уникального ID чата (замените на серверную логику)
+        // Генерация нового chatId (замените на серверную логику)
         const chatId = Math.random().toString(36).substring(2, 10);
-        const chatUrl = `${window.location.origin}/chat/${chatId}`;
-        chatLink.textContent = chatUrl;
-        chatLink.href = chatUrl;
-        chatLinkDisplay.style.display = 'block';
-
-        // Подключение к WebSocket (замените URL на ваш сервер)
-        ws = new WebSocket('wss://your-websocket-server/chat/' + chatId);
-
-        ws.onopen = () => {
-          console.log('Connected to chat');
-        };
-
-        ws.onmessage = (event) => {
-          const message = JSON.parse(event.data);
-          const messageElement = document.createElement('div');
-          messageElement.classList.add('chat-message', message.isSent ? 'sent' : 'received');
-          messageElement.textContent = message.text;
-          chatContainer.appendChild(messageElement);
-          chatContainer.scrollTop = chatContainer.scrollHeight;
-        };
-
-        ws.onclose = () => {
-          const messageElement = document.createElement('div');
-          messageElement.classList.add('chat-message', 'received');
-          messageElement.textContent = 'Соединение закрыто.';
-          chatContainer.appendChild(messageElement);
-        };
+        switchToChatMode(chatId);
+        // Обновление URL без перезагрузки
+        window.history.pushState({}, '', `/chat/${chatId}`);
       } else {
-        // Возврат к блокноту
-        isChatMode = false;
-        textarea.style.display = 'block';
-        chatContainer.style.display = 'none';
-        chatInput.style.display = 'none';
-        downloadBtn.style.display = 'block';
-        createChatBtn.textContent = 'Создать секретный чат';
-        chatLinkDisplay.style.display = 'none';
-        if (ws) {
-          ws.close();
-          ws = null;
-        }
-        chatContainer.innerHTML = '';
+        switchToNotepadMode();
+      }
+    });
+
+    // Проверка URL при загрузке страницы
+    window.addEventListener('load', () => {
+      const path = window.location.pathname;
+      const match = path.match(/^\/chat\/(.+)$/);
+      if (match) {
+        const chatId = match[1];
+        switchToChatMode(chatId);
+      }
+    });
+
+    // Обработка изменения URL (например, при использовании кнопок назад/вперед)
+    window.addEventListener('popstate', () => {
+      const path = window.location.pathname;
+      const match = path.match(/^\/chat\/(.+)$/);
+      if (match && !isChatMode) {
+        switchToChatMode(match[1]);
+      } else if (!match && isChatMode) {
+        switchToNotepadMode();
       }
     });
 
