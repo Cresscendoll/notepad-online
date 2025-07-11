@@ -185,6 +185,50 @@
       color: #b22222;
       word-break: break-all;
     }
+    .invite-link-container {
+      background: #f8f8f8;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 15px;
+    }
+    .invite-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #b22222;
+    }
+    .link-and-copy {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .invite-url {
+      flex-grow: 1;
+      word-break: break-all;
+      color: #0066cc;
+      text-decoration: underline;
+    }
+    .copy-btn {
+      background: #555;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .copy-btn:hover {
+      background: #666;
+    }
+    .copy-btn.copied {
+      background: #2e8b57;
+    }
+    .invite-instruction {
+      font-size: 13px;
+      color: #666;
+      margin-top: 8px;
+    }
     .easter-button {
       position: fixed;
       bottom: 0; right: 0;
@@ -426,58 +470,100 @@
       URL.revokeObjectURL(url);
     });
 
+    // Функция для отображения ссылки приглашения
+    function showInviteLink(chatId) {
+      const link = `${window.location.origin}${window.location.pathname}#/chat/${chatId}`;
+      
+      const container = document.createElement('div');
+      container.className = 'invite-link-container';
+      
+      const title = document.createElement('div');
+      title.className = 'invite-title';
+      title.textContent = 'Пригласительная ссылка:';
+      
+      const linkWrapper = document.createElement('div');
+      linkWrapper.className = 'link-and-copy';
+      
+      const linkElement = document.createElement('a');
+      linkElement.className = 'invite-url';
+      linkElement.href = link;
+      linkElement.textContent = link;
+      linkElement.target = '_blank';
+      
+      const copyButton = document.createElement('button');
+      copyButton.className = 'copy-btn';
+      copyButton.textContent = 'Копировать';
+      
+      const instruction = document.createElement('div');
+      instruction.className = 'invite-instruction';
+      instruction.textContent = 'Отправьте эту ссылку другу для подключения к чату';
+      
+      copyButton.addEventListener('click', () => {
+        navigator.clipboard.writeText(link).then(() => {
+          copyButton.textContent = 'Скопировано!';
+          copyButton.classList.add('copied');
+          setTimeout(() => {
+            copyButton.textContent = 'Копировать';
+            copyButton.classList.remove('copied');
+          }, 2000);
+        }).catch(err => {
+          console.error('Не удалось скопировать ссылку:', err);
+          copyButton.textContent = 'Ошибка!';
+          setTimeout(() => {
+            copyButton.textContent = 'Копировать';
+          }, 2000);
+        });
+      });
+      
+      linkWrapper.appendChild(linkElement);
+      linkWrapper.appendChild(copyButton);
+      
+      container.appendChild(title);
+      container.appendChild(linkWrapper);
+      container.appendChild(instruction);
+      
+      inviteLink.innerHTML = '';
+      inviteLink.appendChild(container);
+    }
+
     // Функция для активации чата
     function activateChatMode(chatId, host = false) {
       isChatMode = true;
       currentChatId = chatId;
       isChatHost = host;
 
-      // Переключаем интерфейс
       notepad.style.display = 'none';
       chatContainer.style.display = 'flex';
       chatBtn.textContent = 'Вернуться к блокноту';
       downloadBtn.style.display = 'none';
 
-      // Подключаемся к WebSocket серверу на Replit
+      chatMessages.innerHTML = '';
+      
+      if (host) {
+        showInviteLink(chatId);
+      } else {
+        inviteLink.innerHTML = '<div style="font-weight:bold;margin-bottom:15px;">Вы присоединились к чату</div>';
+      }
+
       ws = new WebSocket('wss://cc4fa76a-7776-40f5-9855-23e73550d85c-00-3gns3sex7heh6.spock.replit.dev/');
 
       ws.onopen = () => {
         console.log('Соединение с сервером установлено');
-        
-        // Отправляем информацию о подключении
         ws.send(JSON.stringify({
           type: 'join',
           chatId: chatId,
           isHost: host
         }));
-
-        // Если это хост, показываем ссылку для приглашения
-        if (host) {
-          const link = `${window.location.origin}${window.location.pathname}#/chat/${chatId}`;
-          inviteLink.innerHTML = `Пригласить собеседника: <a href="${link}" target="_blank">${link}</a>`;
-        } else {
-          inviteLink.innerHTML = `Вы присоединились к чату`;
-        }
       };
 
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          
           if (data.type === 'message') {
-            // Добавляем сообщение в чат
             const messageElement = document.createElement('div');
             messageElement.className = 'chat-message';
             messageElement.textContent = data.content;
             chatMessages.appendChild(messageElement);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-          } else if (data.type === 'notification') {
-            // Системное уведомление
-            const notificationElement = document.createElement('div');
-            notificationElement.className = 'chat-message';
-            notificationElement.style.fontStyle = 'italic';
-            notificationElement.textContent = data.content;
-            chatMessages.appendChild(notificationElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
           }
         } catch (e) {
@@ -500,7 +586,6 @@
       currentChatId = null;
       isChatHost = false;
 
-      // Переключаем интерфейс
       notepad.style.display = 'block';
       chatContainer.style.display = 'none';
       chatBtn.textContent = 'Создать секретный чат';
@@ -508,7 +593,6 @@
       inviteLink.innerHTML = '';
       chatMessages.innerHTML = '';
 
-      // Закрываем соединение
       if (ws) {
         ws.close();
         ws = null;
@@ -520,7 +604,6 @@
       if (isChatMode) {
         deactivateChatMode();
       } else {
-        // Создаем новый чат
         const chatId = generateUUID();
         activateChatMode(chatId, true);
       }
@@ -530,14 +613,12 @@
     function sendMessage() {
       const message = chatInput.value.trim();
       if (message && ws && ws.readyState === WebSocket.OPEN) {
-        // Отправляем сообщение на сервер
         ws.send(JSON.stringify({
           type: 'message',
           chatId: currentChatId,
           content: message
         }));
         
-        // Добавляем свое сообщение в чат
         const messageElement = document.createElement('div');
         messageElement.className = 'chat-message';
         messageElement.style.backgroundColor = '#d0e0f0';
@@ -545,7 +626,6 @@
         chatMessages.appendChild(messageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
         
-        // Очищаем поле ввода
         chatInput.value = '';
       }
     }
