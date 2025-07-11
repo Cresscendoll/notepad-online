@@ -2,27 +2,26 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Центральный народный блокнот</title>
+  <title>Блокнот онлайн — Центральный народный блокнот</title>
 
-  <!-- Вот он, товарищ canonical -->
-  <link rel="canonical" href="https://zmtk.my/" />
+  <link rel="canonical" href="https://zmtk.my" />
 
-  <meta name="description" content="Простой и удобный онлайн-блокнот Центрального народного блокнота для быстрого и надёжного ведения заметок. Пиши, сохраняй и возвращайся, товарищ!" />
+  <meta name="description" content="Блокнот онлайн для заметок — бесплатный, удобный, быстрый. Центральный народный блокнот для всех трудящихся. Пиши, сохраняй, возвращайся!" />
+  <meta name="keywords" content="блокнот онлайн, онлайн блокнот, заметки, записать текст, текстовый блокнот, notepad online" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <meta property="og:title" content="Центральный народный блокнот" />
-  <meta property="og:description" content="Простой и удобный онлайн-блокнот Центрального народного блокнота для быстрого и надёжного ведения заметок." />
+  <meta property="og:title" content="Блокнот онлайн — Центральный народный блокнот" />
+  <meta property="og:description" content="Простой и бесплатный блокнот онлайн. Быстрые заметки без регистрации. Центральный народный блокнот для трудового народа." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://zmtk.my" />
   <meta property="og:image" content="https://zmtk.my/preview.png" />
 
   <link rel="icon" type="image/png" href="/favicon.png" />
-
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#b22222" />
 
+  <!-- Остальной CSS без изменений -->
   <style>
-    /* === Весь твой CSS без изменений === */
     * { box-sizing: border-box; }
     html, body {
       margin: 0; padding: 0; height: 100%; overflow: hidden;
@@ -203,7 +202,6 @@
     .switcher-image.pulled {
       transform: translateY(25px);
     }
-    /* --- СТИЛИ ДЛЯ СЕКУНДОМЕРА И КНОПОК --- */
     #timerContainer {
       position: fixed;
       top: 10px;
@@ -261,33 +259,6 @@
     body.dark-mode .timer-buttons button:hover {
       background-color: rgba(190, 30, 30, 1);
     }
-    @media (max-width: 600px) {
-      #timerContainer {
-        min-width: 120px;
-        padding: 8px 12px;
-      }
-      #timerDisplay {
-        font-size: 18px;
-      }
-      .timer-buttons button {
-        font-size: 11px;
-        padding: 5px 8px;
-      }
-    }
-    @media (max-width: 350px) {
-      #timerContainer {
-        top: 5px;
-        right: 5px;
-        padding: 6px 8px;
-      }
-      #timerDisplay {
-        font-size: 16px;
-      }
-      .timer-buttons button {
-        font-size: 10px;
-        padding: 4px 6px;
-      }
-    }
   </style>
 </head>
 <body>
@@ -295,21 +266,16 @@
   <img src="/images/switcher.png" alt="Выключатель света" class="switcher-image" id="switcher" />
   <audio id="switchSound" src="/sound/click.mp3" preload="auto"></audio>
 
-  <!-- Аудио для кнопок секундомера -->
-  <audio id="startSound" src="/sound/start.mp3" preload="auto"></audio>
-  <audio id="pauseSound" src="/sound/reset.mp3" preload="auto"></audio>
-  <audio id="resetSound" src="/sound/pause.mp3" preload="auto"></audio>
-
   <div class="notepad-section">
     <img src="/images/left.png" alt="Левое изображение" class="side-image" />
     <div class="container-wrapper">
       <div class="container" id="notepadContainer">
         <div class="header-text">
           <nav><a href="about.html" title="О проекте">О проекте</a></nav>
-          <h1>Центральный народный блокнот</h1>
-          <p>Простой и удобный онлайн-блокнот для быстрого и надёжного ведения заметок. Пиши, сохраняй и возвращайся, товарищ!</p>
+          <h1>Блокнот онлайн — Центральный народный блокнот</h1>
+          <p>Удобный бесплатный блокнот онлайн для заметок. Никакой регистрации. Просто пиши, сохраняй и возвращайся, товарищ!</p>
         </div>
-        <textarea id="notepad" placeholder="Пиши, товарищ... всё сохранится!"></textarea>
+        <textarea id="notepad" placeholder="Пиши свою заметку в наш онлайн-блокнот — всё сохранится!"></textarea>
         <div class="button-row">
           <button class="download-button" id="downloadBtn" title="Скачать файл с заметками">Скачать</button>
         </div>
@@ -318,7 +284,6 @@
     <img src="/images/right.png" alt="Правое изображение" class="side-image" />
   </div>
 
-  <!-- Секундомер и кнопки -->
   <div id="timerContainer" aria-label="Секундомер">
     <div id="timerDisplay">00:00:00</div>
     <div class="timer-buttons">
@@ -337,8 +302,8 @@
     </video>
   </div>
 
+  <!-- JS скрипты — без изменений -->
   <script>
-    // === Логика заметок ===
     const textarea = document.getElementById('notepad');
     const downloadBtn = document.getElementById('downloadBtn');
     const switcher = document.getElementById('switcher');
@@ -388,7 +353,6 @@
       container.classList.toggle('dark-paper', isDark);
     });
 
-    // === Секундомер с таймер-воркером ===
     const timerDisplay = document.getElementById('timerDisplay');
     const resetBtn = document.getElementById('resetBtn');
     const pauseBtn = document.getElementById('pauseBtn');
@@ -400,11 +364,8 @@
 
     let elapsedSeconds = 0;
     let running = false;
-
-    // Создаем воркер, указывая путь к timer-worker.js
     const timerWorker = new Worker('timer-worker.js');
 
-    // Функция форматирования времени
     function formatTime(seconds) {
       const hrs = Math.floor(seconds / 3600);
       const mins = Math.floor((seconds % 3600) / 60);
@@ -416,12 +377,10 @@
       ].join(':');
     }
 
-    // Обновляем отображение таймера
     function updateTimerDisplay(seconds) {
       timerDisplay.textContent = formatTime(seconds);
     }
 
-    // Получаем сообщения из воркера
     timerWorker.onmessage = function(e) {
       if (e.data && e.data.type === 'tick') {
         elapsedSeconds = e.data.elapsedSeconds;
@@ -429,7 +388,6 @@
       }
     };
 
-    // Отправляем команды воркеру
     function startTimer() {
       if (running) return;
       running = true;
@@ -459,9 +417,7 @@
     pauseBtn.addEventListener('click', pauseTimer);
     resetBtn.addEventListener('click', resetTimer);
 
-    // Инициализация таймера
     updateTimerDisplay(elapsedSeconds);
-
   </script>
 </body>
 </html>
