@@ -258,12 +258,24 @@
     body.dark-mode .timer-buttons button:hover {
       background-color: rgba(190, 30, 30, 1);
     }
+    .timer-buttons button:disabled {
+      background-color: rgba(80, 80, 80, 0.5);
+      cursor: not-allowed;
+    }
+    body.dark-mode .timer-buttons button:disabled {
+      background-color: rgba(60, 60, 60, 0.7);
+    }
   </style>
 </head>
 <body>
   <img src="/images/upleft.png" alt="Орнамент в левом углу" class="corner-image" />
   <img src="/images/switcher.png" alt="Выключатель света" class="switcher-image" id="switcher" />
+  
+  <!-- Аудио элементы -->
   <audio id="switchSound" src="/sound/click.mp3" preload="auto"></audio>
+  <audio id="startSound" src="/sound/start.mp3" preload="auto"></audio>
+  <audio id="pauseSound" src="/sound/pause.mp3" preload="auto"></audio>
+  <audio id="resetSound" src="/sound/reset.mp3" preload="auto"></audio>
 
   <div class="notepad-section">
     <img src="/images/left.png" alt="Левое изображение" class="side-image" />
@@ -302,6 +314,7 @@
   </div>
 
   <script>
+    // Блокнот
     const textarea = document.getElementById('notepad');
     const downloadBtn = document.getElementById('downloadBtn');
     const switcher = document.getElementById('switcher');
@@ -313,12 +326,15 @@
     body.classList.add('dark-mode');
     container.classList.add('dark-paper');
 
+    // Восстановление текста из localStorage
     textarea.value = localStorage.getItem('savedText') || '';
 
+    // Сохранение текста при изменении
     textarea.addEventListener('input', () => {
       localStorage.setItem('savedText', textarea.value);
     });
 
+    // Скачивание файла
     downloadBtn.addEventListener('click', () => {
       const text = textarea.value;
       const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
@@ -332,17 +348,27 @@
       URL.revokeObjectURL(url);
     });
 
+    // Переключение видео
     function toggleVideo() {
       const videoBox = document.getElementById('videoWrapper');
       videoBox.classList.toggle('active');
+      
+      // Если видео открывается, запускаем его
+      if (videoBox.classList.contains('active')) {
+        const video = videoBox.querySelector('video');
+        video.currentTime = 0;
+        video.play();
+      }
     }
 
+    // Переключение темы
     switcher.addEventListener('click', () => {
       switcher.classList.add('pulled');
       setTimeout(() => {
         switcher.classList.remove('pulled');
       }, 200);
 
+      // Воспроизведение звука переключения
       switchSound.currentTime = 0;
       switchSound.play();
 
@@ -351,16 +377,22 @@
       container.classList.toggle('dark-paper', isDark);
     });
 
-    // Таймер (исправленная версия)
+    // Секундомер
     const timerDisplay = document.getElementById('timerDisplay');
     const resetBtn = document.getElementById('resetBtn');
     const pauseBtn = document.getElementById('pauseBtn');
     const startBtn = document.getElementById('startBtn');
+    
+    // Аудио для секундомера
+    const startSound = document.getElementById('startSound');
+    const pauseSound = document.getElementById('pauseSound');
+    const resetSound = document.getElementById('resetSound');
 
     let elapsedSeconds = 0;
     let running = false;
     let timerInterval = null;
 
+    // Форматирование времени в HH:MM:SS
     function formatTime(seconds) {
       const hrs = Math.floor(seconds / 3600);
       const mins = Math.floor((seconds % 3600) / 60);
@@ -372,10 +404,12 @@
       ].join(':');
     }
 
+    // Обновление отображения таймера
     function updateTimerDisplay() {
       timerDisplay.textContent = formatTime(elapsedSeconds);
     }
 
+    // Запуск таймера
     function startTimer() {
       if (running) return;
       
@@ -383,12 +417,17 @@
       startBtn.disabled = true;
       pauseBtn.disabled = false;
       
+      // Воспроизведение звука старта
+      startSound.currentTime = 0;
+      startSound.play();
+      
       timerInterval = setInterval(() => {
         elapsedSeconds++;
         updateTimerDisplay();
       }, 1000);
     }
 
+    // Пауза таймера
     function pauseTimer() {
       if (!running) return;
       
@@ -396,19 +435,32 @@
       startBtn.disabled = false;
       pauseBtn.disabled = true;
       
+      // Воспроизведение звука паузы
+      pauseSound.currentTime = 0;
+      pauseSound.play();
+      
       clearInterval(timerInterval);
     }
 
+    // Сброс таймера
     function resetTimer() {
-      pauseTimer();
+      if (running) pauseTimer();
+      
       elapsedSeconds = 0;
+      
+      // Воспроизведение звука сброса
+      resetSound.currentTime = 0;
+      resetSound.play();
+      
       updateTimerDisplay();
     }
 
+    // Назначение обработчиков событий
     startBtn.addEventListener('click', startTimer);
     pauseBtn.addEventListener('click', pauseTimer);
     resetBtn.addEventListener('click', resetTimer);
 
+    // Инициализация отображения таймера
     updateTimerDisplay();
   </script>
 </body>
