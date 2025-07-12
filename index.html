@@ -489,6 +489,10 @@
       white-space: nowrap;
       animation: typewriter 3s steps(40) 1s 1 normal both;
     }
+    /* Класс для плавного появления текста */
+    .typing-text {
+      display: inline-block;
+    }
   </style>
 </head>
 <body>
@@ -536,13 +540,13 @@
   <div class="palych-modal" id="palychModal">
     <div class="palych-dialog">
       <div class="palych-header">
-        <span>Палыч — ваш AI помощник</span>
+        <span>Геннадий Палыч - верный заводчанин</span>
         <button class="palych-close" id="palychClose">&times;</button>
       </div>
       <div class="palych-content">
         <div class="palych-messages" id="palychMessages">
           <div class="message assistant-message visible">
-            Здравствуйте, товарищ! Я Палыч — ваш искусственный интеллект помощник. Чем могу помочь?
+            Здравствуйте, товарищ! Я Геннадий Палыч — ваш верный помощник с завода. Чем могу помочь рабочему человеку?
           </div>
         </div>
         <div class="palych-loading" id="palychLoading">
@@ -821,12 +825,10 @@
           palychMessages.appendChild(messageDiv);
           
           // Плавный вывод текста
-          await typeWriter(data.response, messageDiv);
+          await typeWriter(data.response, messageDiv, 10);
           
           // Добавляем класс visible после завершения анимации
-          setTimeout(() => {
-            messageDiv.classList.add('visible');
-          }, 100);
+          messageDiv.classList.add('visible');
           
           // Если Палыч предлагает вставить текст в блокнот
           if (data.response.includes('вставить в блокнот') || 
