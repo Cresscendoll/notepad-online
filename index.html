@@ -3,19 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <title>Блокнот онлайн — Центральный народный блокнот</title>
-
   <link rel="canonical" href="https://zmtk.my" />
-
   <meta name="description" content="Блокнот онлайн для заметок — бесплатный, удобный, быстрый. Центральный народный блокнот для всех трудящихся. Пиши, сохраняй, возвращайся!" />
   <meta name="keywords" content="блокнот онлайн, онлайн блокнот, заметки, записать текст, текстовый блокнот, notepad online" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <meta property="og:title" content="Блокнот онлайн — Центральный народный блокнот" />
   <meta property="og:description" content="Простой и бесплатный блокнот онлайн. Быстрые заметки без регистрации. Центральный народный блокнот для трудового народа." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://zmtk.my" />
   <meta property="og:image" content="https://zmtk.my/preview.png" />
-
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#b22222" />
@@ -553,6 +549,25 @@
       cursor: pointer;
       font-size: 12px;
     }
+    /* Индикатор прикрепленного изображения */
+    .image-attached-indicator {
+      position: absolute;
+      bottom: calc(100% + 5px);
+      right: 60px;
+      font-size: 12px;
+      color: #888;
+      background-color: rgba(255, 255, 255, 0.7);
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: none;
+    }
+    body.dark-mode .image-attached-indicator {
+      background-color: rgba(0, 0, 0, 0.5);
+      color: #aaa;
+    }
+    .image-attached-indicator.visible {
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -611,6 +626,7 @@
         </div>
         <div class="palych-input-area">
           <div class="thinking-indicator" id="thinkingIndicator">Палыч думает...</div>
+          <div class="image-attached-indicator" id="imageAttachedIndicator">Изображение прикреплено</div>
           <textarea class="palych-input" id="palychInput" placeholder="Введите ваш вопрос..."></textarea>
           <button class="palych-attach" id="palychAttach" title="Прикрепить изображение">📎</button>
           <input type="file" id="palychFileInput" class="palych-attach-input" accept="image/*" />
@@ -796,9 +812,11 @@
     const palychAttach = document.getElementById('palychAttach');
     const palychFileInput = document.getElementById('palychFileInput');
     const thinkingIndicator = document.getElementById('thinkingIndicator');
+    const imageAttachedIndicator = document.getElementById('imageAttachedIndicator');
 
     // Глобальная переменная для хранения текущего изображения
     let currentImage = null;
+    let isImageAttached = false;
 
     // Получаем размеры блокнота для окна Палыча
     const notepadRect = document.getElementById('notepadContainer').getBoundingClientRect();
@@ -815,13 +833,23 @@
 
     palychClose.addEventListener('click', () => {
       palychModal.classList.remove('active');
+      resetPalychState();
     });
 
     palychModal.addEventListener('click', (e) => {
       if (e.target === palychModal) {
         palychModal.classList.remove('active');
+        resetPalychState();
       }
     });
+
+    // Сброс состояния чата Палыча
+    function resetPalychState() {
+      currentImage = null;
+      isImageAttached = false;
+      updateSendButtonState();
+      imageAttachedIndicator.classList.remove('visible');
+    }
 
     // Функция для плавного вывода текста
     async function typeWriter(text, element, speed = 30) {
@@ -871,12 +899,14 @@
       const items = (e.clipboardData || e.originalEvent.clipboardData).items;
       for (let i = 0; i < items.length; i++) {
         if (items[i].type.indexOf('image') !== -1) {
+          e.preventDefault();
           const blob = items[i].getAsFile();
           const reader = new FileReader();
           reader.onload = function(event) {
             currentImage = event.target.result;
-            addImageMessage(currentImage, 'user');
-            palychSend.disabled = false;
+            isImageAttached = true;
+            updateSendButtonState();
+            imageAttachedIndicator.classList.add('visible');
           };
           reader.readAsDataURL(blob);
         }
@@ -894,13 +924,19 @@
         const reader = new FileReader();
         reader.onload = function(event) {
           currentImage = event.target.result;
-          addImageMessage(currentImage, 'user');
-          palychSend.disabled = false;
+          isImageAttached = true;
+          updateSendButtonState();
+          imageAttachedIndicator.classList.add('visible');
           palychFileInput.value = ''; // Сброс значения input
         };
         reader.readAsDataURL(file);
       }
     });
+
+    // Функция для обновления состояния кнопки отправки
+    function updateSendButtonState() {
+      palychSend.disabled = palychInput.value.trim() === '' && !isImageAttached;
+    }
 
     // Добавление сообщения с изображением
     function addImageMessage(imageData, sender) {
@@ -930,18 +966,20 @@
     // Отправка сообщения Палычу
     async function sendMessageToPalych() {
       const message = palychInput.value.trim();
-      if (!message && !currentImage) return;
+      if (!message && !isImageAttached) return;
 
       // Добавляем сообщение пользователя в чат
       if (message) {
         addMessage(message, 'user');
       }
-      if (currentImage) {
+      if (isImageAttached && currentImage) {
         addImageMessage(currentImage, 'user');
       }
       
       palychInput.value = '';
       palychSend.disabled = true;
+      isImageAttached = false;
+      imageAttachedIndicator.classList.remove('visible');
 
       // Создаем контейнер для ответа Палыча
       const messageDiv = document.createElement('div');
@@ -1028,10 +1066,12 @@
         console.error('Ошибка при запросе к Палычу:', error);
         thinkingIndicator.classList.remove('visible');
         currentImage = null;
+        isImageAttached = false;
+        imageAttachedIndicator.classList.remove('visible');
         messageDiv.innerHTML = '';
         await typeWriter('Извините, произошла ошибка. Палыч временно недоступен.', messageDiv, 30);
       } finally {
-        palychSend.disabled = false;
+        updateSendButtonState();
       }
     }
 
@@ -1048,12 +1088,11 @@
     palychInput.addEventListener('input', function() {
       this.style.height = 'auto';
       this.style.height = (this.scrollHeight) + 'px';
+      updateSendButtonState();
     });
 
-    // Включаем кнопку отправки только когда есть текст или изображение
-    palychInput.addEventListener('input', function() {
-      palychSend.disabled = this.value.trim() === '' && !currentImage;
-    });
+    // Инициализация состояния кнопки
+    updateSendButtonState();
   </script>
 </body>
 </html>
