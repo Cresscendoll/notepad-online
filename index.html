@@ -265,19 +265,19 @@
     body.dark-mode .timer-buttons button:disabled {
       background-color: rgba(60, 60, 60, 0.7);
     }
-    /* Стили для девочки с часами */
+    /* Обновленные стили для девочки с часами */
     .time-girl {
       position: fixed;
-      right: -200px;
-      bottom: 20px;
-      height: 200px;
+      right: -400px; /* Увеличено, так как изображение теперь больше */
+      top: 80px; /* Позиционируем под секундомером */
+      height: 400px; /* Увеличиваем в 2 раза */
       width: auto;
       z-index: 1999;
       transition: right 0.5s ease-out;
       pointer-events: none;
     }
     .time-girl.visible {
-      right: 20px;
+      right: 0; /* Теперь впритык к правому краю */
     }
   </style>
 </head>
@@ -291,7 +291,7 @@
   <audio id="pauseSound" src="/sound/pause.mp3" preload="auto"></audio>
   <audio id="resetSound" src="/sound/reset.mp3" preload="auto"></audio>
 
-  <!-- Девочка с часами -->
+  <!-- Девочка с часами - теперь в 2 раза больше -->
   <img src="/images/timegirl.png" alt="Девочка показывает на часы" class="time-girl" id="timeGirl" />
 
   <div class="notepad-section">
