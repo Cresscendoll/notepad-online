@@ -315,8 +315,8 @@
     .palych-dialog {
       background-color: #fff;
       border-radius: 8px;
-      width: 800px; /* Фиксированная ширина как у блокнота */
-      height: 95vh; /* Такая же высота как у блокнота */
+      width: 800px;
+      height: 95vh;
       display: flex;
       flex-direction: column;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
@@ -326,9 +326,7 @@
       transition: transform 0.3s ease, opacity 0.3s ease;
     }
     .palych-modal.active .palych-dialog {
-      transform
-
-: translateY(0);
+      transform: translateY(0);
       opacity: 1;
     }
     body.dark-mode .palych-dialog {
@@ -398,7 +396,7 @@
     }
     .message.assistant-message.typing {
       position: relative;
-      padding-right: 20px; /* Место для курсора */
+      padding-right: 20px;
     }
     .message.assistant-message.typing::after {
       content: '|';
@@ -413,6 +411,7 @@
       display: flex;
       gap: 10px;
       padding-top: 10px;
+      position: relative;
     }
     .palych-input {
       flex: 1;
@@ -477,6 +476,29 @@
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-5px); }
     }
+    /* Индикатор "Палыч думает..." */
+    .thinking-indicator {
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 12px;
+      color: #888;
+      padding: 5px;
+      background-color: rgba(255, 255, 255, 0.7);
+      border-radius: 4px 4px 0 0;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    body.dark-mode .thinking-indicator {
+      background-color: rgba(0, 0, 0, 0.5);
+      color: #aaa;
+    }
+    .thinking-indicator.visible {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -534,6 +556,7 @@
           </div>
         </div>
         <div class="palych-input-area">
+          <div class="thinking-indicator" id="thinkingIndicator">Палыч думает...</div>
           <textarea class="palych-input" id="palychInput" placeholder="Введите ваш вопрос..."></textarea>
           <button class="palych-send" id="palychSend">Отправить</button>
         </div>
@@ -714,6 +737,7 @@
     const palychMessages = document.getElementById('palychMessages');
     const palychInput = document.getElementById('palychInput');
     const palychSend = document.getElementById('palychSend');
+    const thinkingIndicator = document.getElementById('thinkingIndicator');
 
     // Получаем размеры блокнота для окна Палыча
     const notepadRect = document.getElementById('notepadContainer').getBoundingClientRect();
@@ -743,17 +767,16 @@
       return new Promise((resolve) => {
         let i = 0;
         element.textContent = '';
-        element.classList.add('typing'); // Добавляем класс для курсора
+        element.classList.add('typing');
         
         function typing() {
           if (i < text.length) {
             element.textContent += text.charAt(i);
             i++;
-            // Прокручиваем к нижней части сообщения
             element.scrollIntoView({ behavior: 'smooth', block: 'end' });
             setTimeout(typing, speed);
           } else {
-            element.classList.remove('typing'); // Убираем класс после завершения
+            element.classList.remove('typing');
             resolve();
           }
         }
@@ -778,8 +801,8 @@
       palychMessages.appendChild(messageDiv);
       messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
 
-      // Показываем индикатор загрузки внутри контейнера сообщения
-      messageDiv.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+      // Показываем индикатор "Палыч думает..."
+      thinkingIndicator.classList.add('visible');
 
       try {
         // Отправляем запрос к бэкенду
@@ -800,12 +823,13 @@
 
         const data = await response.json();
         
-        // Очищаем индикатор загрузки
-        messageDiv.innerHTML = '';
+        // Скрываем индикатор "Палыч думает..."
+        thinkingIndicator.classList.remove('visible');
 
         // Добавляем ответ Палыча с эффектом печати
         if (data.response) {
           await typeWriter(data.response, messageDiv, 30);
+          
           // Если Палыч предлагает вставить текст в блокнот
           if (data.response.includes('вставить в блокнот') || 
               data.response.includes('добавить в заметки')) {
@@ -844,6 +868,7 @@
         }
       } catch (error) {
         console.error('Ошибка при запросе к Палычу:', error);
+        thinkingIndicator.classList.remove('visible');
         messageDiv.innerHTML = '';
         await typeWriter('Извините, произошла ошибка. Палыч временно недоступен.', messageDiv, 30);
       } finally {
