@@ -315,13 +315,19 @@
     .palych-dialog {
       background-color: #fff;
       border-radius: 8px;
-      width: 90%;
-      max-width: 800px; /* Увеличил максимальную ширину */
-      height: 80vh; /* Теперь занимает 80% высоты экрана */
+      width: 800px; /* Фиксированная ширина как у блокнота */
+      height: 95vh; /* Такая же высота как у блокнота */
       display: flex;
       flex-direction: column;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
       overflow: hidden;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .palych-modal.active .palych-dialog {
+      transform: translateY(0);
+      opacity: 1;
     }
     body.dark-mode .palych-dialog {
       background-color: #333;
@@ -343,13 +349,17 @@
       color: white;
       font-size: 24px;
       cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .palych-close:hover {
+      transform: scale(1.2);
     }
     .palych-content {
       flex: 1;
       padding: 15px;
       display: flex;
       flex-direction: column;
-      height: calc(100% - 60px); /* Учитываем высоту заголовка */
+      height: calc(100% - 60px);
     }
     .palych-messages {
       flex: 1;
@@ -357,6 +367,7 @@
       margin-bottom: 15px;
       padding-bottom: 15px;
       border-bottom: 1px solid #ddd;
+      scroll-behavior: smooth;
     }
     .message {
       margin-bottom: 10px;
@@ -364,6 +375,13 @@
       border-radius: 4px;
       max-width: 80%;
       word-wrap: break-word;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .message.visible {
+      opacity: 1;
+      transform: translateY(0);
     }
     .user-message {
       background-color: #e3f2fd;
@@ -396,6 +414,11 @@
       font-family: monospace;
       min-height: 50px;
       resize: none;
+      transition: border-color 0.3s;
+    }
+    .palych-input:focus {
+      border-color: #b22222;
+      outline: none;
     }
     body.dark-mode .palych-input {
       background-color: #444;
@@ -415,6 +438,10 @@
     }
     .palych-send:hover {
       background-color: #cc3333;
+    }
+    .palych-send:disabled {
+      background-color: #777;
+      cursor: not-allowed;
     }
     .palych-loading {
       display: none;
@@ -451,6 +478,16 @@
     @keyframes typing {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-5px); }
+    }
+    /* Анимация печатания текста */
+    @keyframes typewriter {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+    .typewriter-effect {
+      overflow: hidden;
+      white-space: nowrap;
+      animation: typewriter 3s steps(40) 1s 1 normal both;
     }
   </style>
 </head>
@@ -504,7 +541,7 @@
       </div>
       <div class="palych-content">
         <div class="palych-messages" id="palychMessages">
-          <div class="message assistant-message">
+          <div class="message assistant-message visible">
             Здравствуйте, товарищ! Я Палыч — ваш искусственный интеллект помощник. Чем могу помочь?
           </div>
         </div>
@@ -699,6 +736,13 @@
     const palychSend = document.getElementById('palychSend');
     const palychLoading = document.getElementById('palychLoading');
 
+    // Получаем размеры блокнота для окна Палыча
+    const notepadRect = document.getElementById('notepadContainer').getBoundingClientRect();
+
+    // Настраиваем окно Палыча по размерам блокнота
+    document.querySelector('.palych-dialog').style.width = `${notepadRect.width}px`;
+    document.querySelector('.palych-dialog').style.height = `${notepadRect.height}px`;
+
     // Открытие/закрытие модального окна Палыча
     palychBtn.addEventListener('click', () => {
       palychModal.classList.add('active');
@@ -715,6 +759,26 @@
       }
     });
 
+    // Функция для плавного вывода текста
+    async function typeWriter(text, element, speed = 20) {
+      return new Promise((resolve) => {
+        let i = 0;
+        element.textContent = '';
+        
+        function typing() {
+          if (i < text.length) {
+            element.textContent += text.charAt(i);
+            i++;
+            setTimeout(typing, speed);
+          } else {
+            resolve();
+          }
+        }
+        
+        typing();
+      });
+    }
+
     // Отправка сообщения Палычу
     async function sendMessageToPalych() {
       const message = palychInput.value.trim();
@@ -723,6 +787,7 @@
       // Добавляем сообщение пользователя в чат
       addMessage(message, 'user');
       palychInput.value = '';
+      palychSend.disabled = true;
 
       // Показываем индикатор загрузки
       palychLoading.style.display = 'block';
@@ -730,15 +795,15 @@
       try {
         // Отправляем запрос к вашему бэкенду на Vercel
         const response = await fetch('https://palych-backend.vercel.app/api/chat', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    message: message,
-    context: textarea.value
-  })
-});
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: message,
+            context: textarea.value
+          })
+        });
 
         if (!response.ok) {
           throw new Error(`Ошибка HTTP: ${response.status}`);
@@ -746,9 +811,22 @@
 
         const data = await response.json();
         
-        // Добавляем ответ Палыча в чат
+        // Скрываем индикатор загрузки
+        palychLoading.style.display = 'none';
+        
+        // Добавляем ответ Палыча в чат с эффектом печати
         if (data.response) {
-          addMessage(data.response, 'assistant');
+          const messageDiv = document.createElement('div');
+          messageDiv.classList.add('message', 'assistant-message');
+          palychMessages.appendChild(messageDiv);
+          
+          // Плавный вывод текста
+          await typeWriter(data.response, messageDiv);
+          
+          // Добавляем класс visible после завершения анимации
+          setTimeout(() => {
+            messageDiv.classList.add('visible');
+          }, 100);
           
           // Если Палыч предлагает вставить текст в блокнот
           if (data.response.includes('вставить в блокнот') || 
@@ -762,6 +840,7 @@
             insertBtn.style.border = 'none';
             insertBtn.style.borderRadius = '4px';
             insertBtn.style.cursor = 'pointer';
+            insertBtn.style.transition = 'background-color 0.3s';
             
             insertBtn.addEventListener('click', () => {
               const suggestedText = data.response.match(/```([\s\S]*?)```/)?.[1] || 
@@ -771,20 +850,16 @@
               if (suggestedText) {
                 textarea.value += '\n' + suggestedText;
                 localStorage.setItem('savedText', textarea.value);
-                insertBtn.textContent = 'Текст добавлен!';
-                insertBtn.disabled = true;
+                insertBtn.textContent = '✓ Текст добавлен';
+                insertBtn.style.backgroundColor = '#4CAF50';
                 setTimeout(() => {
                   insertBtn.remove();
                 }, 2000);
               }
             });
             
-            // Находим последнее сообщение Палыча и добавляем кнопку
-            const lastMessage = palychMessages.lastElementChild;
-            if (lastMessage && lastMessage.classList.contains('assistant-message')) {
-              lastMessage.appendChild(document.createElement('br'));
-              lastMessage.appendChild(insertBtn);
-            }
+            messageDiv.appendChild(document.createElement('br'));
+            messageDiv.appendChild(insertBtn);
           }
         } else {
           addMessage('Извините, не получилось обработать запрос.', 'assistant');
@@ -795,6 +870,7 @@
       } finally {
         // Скрываем индикатор загрузки
         palychLoading.style.display = 'none';
+        palychSend.disabled = false;
       }
     }
 
@@ -805,6 +881,12 @@
       messageDiv.classList.add(sender === 'user' ? 'user-message' : 'assistant-message');
       messageDiv.textContent = text;
       palychMessages.appendChild(messageDiv);
+      
+      // Анимация появления
+      setTimeout(() => {
+        messageDiv.classList.add('visible');
+      }, 10);
+      
       palychMessages.scrollTop = palychMessages.scrollHeight;
     }
 
@@ -821,6 +903,11 @@
     palychInput.addEventListener('input', function() {
       this.style.height = 'auto';
       this.style.height = (this.scrollHeight) + 'px';
+    });
+
+    // Включаем кнопку отправки только когда есть текст
+    palychInput.addEventListener('input', function() {
+      palychSend.disabled = this.value.trim() === '';
     });
   </script>
 </body>
