@@ -265,6 +265,20 @@
     body.dark-mode .timer-buttons button:disabled {
       background-color: rgba(60, 60, 60, 0.7);
     }
+    /* Стили для девочки с часами */
+    .time-girl {
+      position: fixed;
+      right: -200px;
+      bottom: 20px;
+      height: 200px;
+      width: auto;
+      z-index: 1999;
+      transition: right 0.5s ease-out;
+      pointer-events: none;
+    }
+    .time-girl.visible {
+      right: 20px;
+    }
   </style>
 </head>
 <body>
@@ -276,6 +290,9 @@
   <audio id="startSound" src="/sound/start.mp3" preload="auto"></audio>
   <audio id="pauseSound" src="/sound/pause.mp3" preload="auto"></audio>
   <audio id="resetSound" src="/sound/reset.mp3" preload="auto"></audio>
+
+  <!-- Девочка с часами -->
+  <img src="/images/timegirl.png" alt="Девочка показывает на часы" class="time-girl" id="timeGirl" />
 
   <div class="notepad-section">
     <img src="/images/left.png" alt="Левое изображение" class="side-image" />
@@ -321,6 +338,7 @@
     const body = document.body;
     const container = document.getElementById('notepadContainer');
     const switchSound = document.getElementById('switchSound');
+    const timeGirl = document.getElementById('timeGirl');
 
     let isDark = true;
     body.classList.add('dark-mode');
@@ -382,6 +400,7 @@
     const resetBtn = document.getElementById('resetBtn');
     const pauseBtn = document.getElementById('pauseBtn');
     const startBtn = document.getElementById('startBtn');
+    const timerContainer = document.getElementById('timerContainer');
     
     // Аудио для секундомера
     const startSound = document.getElementById('startSound');
@@ -391,6 +410,26 @@
     let elapsedSeconds = 0;
     let running = false;
     let timerInterval = null;
+
+    // Показать/скрыть девочку с часами
+    function showTimeGirl() {
+      timeGirl.classList.add('visible');
+    }
+    
+    function hideTimeGirl() {
+      timeGirl.classList.remove('visible');
+    }
+
+    // Обработчики для показа девочки при наведении на таймер
+    timerContainer.addEventListener('mouseenter', showTimeGirl);
+    timerContainer.addEventListener('mouseleave', hideTimeGirl);
+    
+    // Также добавляем обработчики для всех кнопок таймера
+    const timerButtons = [startBtn, pauseBtn, resetBtn];
+    timerButtons.forEach(button => {
+      button.addEventListener('mouseenter', showTimeGirl);
+      button.addEventListener('mouseleave', hideTimeGirl);
+    });
 
     // Форматирование времени в HH:MM:SS
     function formatTime(seconds) {
