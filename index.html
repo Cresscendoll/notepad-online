@@ -326,7 +326,9 @@
       transition: transform 0.3s ease, opacity 0.3s ease;
     }
     .palych-modal.active .palych-dialog {
-      transform: translateY(0);
+      transform
+
+: translateY(0);
       opacity: 1;
     }
     body.dark-mode .palych-dialog {
@@ -375,13 +377,6 @@
       border-radius: 4px;
       max-width: 80%;
       word-wrap: break-word;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-    .message.visible {
-      opacity: 1;
-      transform: translateY(0);
     }
     .user-message {
       background-color: #e3f2fd;
@@ -534,7 +529,7 @@
       </div>
       <div class="palych-content">
         <div class="palych-messages" id="palychMessages">
-          <div class="message assistant-message visible">
+          <div class="message assistant-message">
             Здравствуйте, товарищ! Я Геннадий Палыч — ваш верный помощник с завода. Чем могу помочь рабочему человеку?
           </div>
         </div>
@@ -754,7 +749,8 @@
           if (i < text.length) {
             element.textContent += text.charAt(i);
             i++;
-            palychMessages.scrollTop = palychMessages.scrollHeight;
+            // Прокручиваем к нижней части сообщения
+            element.scrollIntoView({ behavior: 'smooth', block: 'end' });
             setTimeout(typing, speed);
           } else {
             element.classList.remove('typing'); // Убираем класс после завершения
@@ -780,7 +776,7 @@
       const messageDiv = document.createElement('div');
       messageDiv.classList.add('message', 'assistant-message');
       palychMessages.appendChild(messageDiv);
-      palychMessages.scrollTop = palychMessages.scrollHeight;
+      messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
 
       // Показываем индикатор загрузки внутри контейнера сообщения
       messageDiv.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
@@ -810,8 +806,6 @@
         // Добавляем ответ Палыча с эффектом печати
         if (data.response) {
           await typeWriter(data.response, messageDiv, 30);
-          messageDiv.classList.add('visible');
-
           // Если Палыч предлагает вставить текст в блокнот
           if (data.response.includes('вставить в блокнот') || 
               data.response.includes('добавить в заметки')) {
@@ -847,13 +841,11 @@
           }
         } else {
           await typeWriter('Извините, не получилось обработать запрос.', messageDiv, 30);
-          messageDiv.classList.add('visible');
         }
       } catch (error) {
         console.error('Ошибка при запросе к Палычу:', error);
         messageDiv.innerHTML = '';
         await typeWriter('Извините, произошла ошибка. Палыч временно недоступен.', messageDiv, 30);
-        messageDiv.classList.add('visible');
       } finally {
         palychSend.disabled = false;
       }
@@ -866,13 +858,7 @@
       messageDiv.classList.add(sender === 'user' ? 'user-message' : 'assistant-message');
       messageDiv.textContent = text;
       palychMessages.appendChild(messageDiv);
-      
-      // Анимация появления
-      setTimeout(() => {
-        messageDiv.classList.add('visible');
-      }, 10);
-      
-      palychMessages.scrollTop = palychMessages.scrollHeight;
+      messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
 
     // Обработчики событий для отправки сообщения
