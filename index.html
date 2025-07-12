@@ -331,40 +331,65 @@
   </div>
 
   <script>
-    // Блокнот
-    const textarea = document.getElementById('notepad');
-    const downloadBtn = document.getElementById('downloadBtn');
-    const switcher = document.getElementById('switcher');
-    const body = document.body;
-    const container = document.getElementById('notepadContainer');
-    const switchSound = document.getElementById('switchSound');
-    const timeGirl = document.getElementById('timeGirl');
+  const textarea = document.getElementById('notepad');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const switcher = document.getElementById('switcher');
+  const body = document.body;
+  const container = document.getElementById('notepadContainer');
+  const switchSound = document.getElementById('switchSound');
+  const timeGirl = document.getElementById('timeGirl');
 
-    let isDark = true;
-    body.classList.add('dark-mode');
-    container.classList.add('dark-paper');
+  let isDark = true;
+  body.classList.add('dark-mode');
+  container.classList.add('dark-paper');
 
-    // Восстановление текста из localStorage
-    textarea.value = localStorage.getItem('savedText') || '';
+  // Генерация user_id
+  let userId = localStorage.getItem('user_id');
+  if (!userId) {
+    userId = crypto.randomUUID();
+    localStorage.setItem('user_id', userId);
+  }
 
-    // Сохранение текста при изменении
-    textarea.addEventListener('input', () => {
-      localStorage.setItem('savedText', textarea.value);
+  // Загрузка заметки с сервера
+  fetch(`/api/load?user_id=${userId}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data && data.text) {
+        textarea.value = data.text;
+      } else {
+        textarea.value = localStorage.getItem('savedText') || '';
+      }
+    })
+    .catch(err => {
+      console.error("Ошибка загрузки с API:", err);
+      textarea.value = localStorage.getItem('savedText') || '';
     });
 
-    // Скачивание файла
-    downloadBtn.addEventListener('click', () => {
-      const text = textarea.value;
-      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'central_narodny_blocknot.txt';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    });
+  // Сохранение текста в localStorage + API
+  textarea.addEventListener('input', () => {
+    const text = textarea.value;
+    localStorage.setItem('savedText', text);
+
+    fetch('/api/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, text })
+    }).catch(err => console.error("Ошибка сохранения:", err));
+  });
+
+  // Скачивание файла
+  downloadBtn.addEventListener('click', () => {
+    const text = textarea.value;
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'central_narodny_blocknot.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
 
     // Переключение видео
     function toggleVideo() {
