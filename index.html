@@ -403,6 +403,13 @@
       right: 5px;
       animation: blink 0.7s step-end infinite;
     }
+    .message-image {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 4px;
+      margin-top: 5px;
+      display: block;
+    }
     @keyframes blink {
       50% { opacity: 0; }
     }
@@ -448,6 +455,26 @@
     .palych-send:disabled {
       background-color: #777;
       cursor: not-allowed;
+    }
+    .palych-attach {
+      background-color: #555;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 0 15px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      align-self: flex-end;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .palych-attach:hover {
+      background-color: #666;
+    }
+    .palych-attach-input {
+      display: none;
     }
     /* Анимация загрузки */
     .typing-indicator {
@@ -498,6 +525,33 @@
     }
     .thinking-indicator.visible {
       opacity: 1;
+    }
+    /* Стили для превью изображения */
+    .image-preview {
+      position: relative;
+      display: inline-block;
+      margin-top: 10px;
+    }
+    .image-preview img {
+      max-width: 200px;
+      max-height: 200px;
+      border-radius: 4px;
+    }
+    .image-preview-remove {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background-color: #b22222;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 12px;
     }
   </style>
 </head>
@@ -558,6 +612,8 @@
         <div class="palych-input-area">
           <div class="thinking-indicator" id="thinkingIndicator">Палыч думает...</div>
           <textarea class="palych-input" id="palychInput" placeholder="Введите ваш вопрос..."></textarea>
+          <button class="palych-attach" id="palychAttach" title="Прикрепить изображение">📎</button>
+          <input type="file" id="palychFileInput" class="palych-attach-input" accept="image/*" />
           <button class="palych-send" id="palychSend">Отправить</button>
         </div>
       </div>
@@ -737,6 +793,8 @@
     const palychMessages = document.getElementById('palychMessages');
     const palychInput = document.getElementById('palychInput');
     const palychSend = document.getElementById('palychSend');
+    const palychAttach = document.getElementById('palychAttach');
+    const palychFileInput = document.getElementById('palychFileInput');
     const thinkingIndicator = document.getElementById('thinkingIndicator');
 
     // Получаем размеры блокнота для окна Палыча
@@ -783,6 +841,53 @@
         
         typing();
       });
+    }
+
+    // Обработка вставки изображений через Ctrl+V
+    palychInput.addEventListener('paste', (e) => {
+      const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const blob = items[i].getAsFile();
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            addImageMessage(event.target.result, 'user');
+          };
+          reader.readAsDataURL(blob);
+        }
+      }
+    });
+
+    // Обработка выбора файла
+    palychAttach.addEventListener('click', () => {
+      palychFileInput.click();
+    });
+
+    palychFileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file && file.type.match('image.*')) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          addImageMessage(event.target.result, 'user');
+          palychFileInput.value = ''; // Сброс значения input
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Добавление сообщения с изображением
+    function addImageMessage(imageData, sender) {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message');
+      messageDiv.classList.add(sender === 'user' ? 'user-message' : 'assistant-message');
+      
+      const imageElement = document.createElement('img');
+      imageElement.src = imageData;
+      imageElement.classList.add('message-image');
+      
+      messageDiv.appendChild(imageElement);
+      palychMessages.appendChild(messageDiv);
+      messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
 
     // Отправка сообщения Палычу
@@ -876,7 +981,7 @@
       }
     }
 
-    // Добавление сообщения в чат
+    // Добавление текстового сообщения в чат
     function addMessage(text, sender) {
       const messageDiv = document.createElement('div');
       messageDiv.classList.add('message');
