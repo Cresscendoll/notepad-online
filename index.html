@@ -848,17 +848,22 @@
 
     // Функция для преобразования DataURL в Blob
     function dataURLtoBlob(dataURL) {
-      const arr = dataURL.split(',');
-      const mime = arr[0].match(/:(.*?);/)[1];
-      const bstr = atob(arr[1]);
-      let n = bstr.length;
-      const u8arr = new Uint8Array(n);
-      
-      while (n--) {
-        u8arr[n] = bstr.charCodeAt(n);
+      try {
+        const arr = dataURL.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        
+        return new Blob([u8arr], { type: mime });
+      } catch (error) {
+        console.error('Ошибка при преобразовании DataURL в Blob:', error);
+        return null;
       }
-      
-      return new Blob([u8arr], { type: mime });
     }
 
     // Обработка вставки изображений через Ctrl+V
@@ -869,7 +874,9 @@
           const blob = items[i].getAsFile();
           const reader = new FileReader();
           reader.onload = function(event) {
-            addImageMessage(event.target.result, 'user');
+            currentImage = event.target.result;
+            addImageMessage(currentImage, 'user');
+            palychSend.disabled = false;
           };
           reader.readAsDataURL(blob);
         }
@@ -886,7 +893,9 @@
       if (file && file.type.match('image.*')) {
         const reader = new FileReader();
         reader.onload = function(event) {
-          addImageMessage(event.target.result, 'user');
+          currentImage = event.target.result;
+          addImageMessage(currentImage, 'user');
+          palychSend.disabled = false;
           palychFileInput.value = ''; // Сброс значения input
         };
         reader.readAsDataURL(file);
@@ -906,9 +915,6 @@
       messageDiv.appendChild(imageElement);
       palychMessages.appendChild(messageDiv);
       messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
-      
-      // Сохраняем изображение для отправки
-      currentImage = imageData;
     }
 
     // Добавление текстового сообщения в чат
@@ -949,13 +955,17 @@
       try {
         // Подготовка данных для отправки
         const formData = new FormData();
-        formData.append('message', message || '');
+        if (message) formData.append('message', message);
         formData.append('context', textarea.value);
         
         if (currentImage) {
           // Преобразуем DataURL в Blob
           const blob = dataURLtoBlob(currentImage);
-          formData.append('image', blob, 'image.png');
+          if (blob) {
+            formData.append('image', blob, 'image.png');
+          } else {
+            throw new Error('Не удалось преобразовать изображение');
+          }
         }
 
         // Отправляем запрос к бэкенду
