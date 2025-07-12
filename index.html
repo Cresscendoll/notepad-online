@@ -797,6 +797,9 @@
     const palychFileInput = document.getElementById('palychFileInput');
     const thinkingIndicator = document.getElementById('thinkingIndicator');
 
+    // Глобальная переменная для хранения текущего изображения
+    let currentImage = null;
+
     // Получаем размеры блокнота для окна Палыча
     const notepadRect = document.getElementById('notepadContainer').getBoundingClientRect();
 
@@ -841,6 +844,21 @@
         
         typing();
       });
+    }
+
+    // Функция для преобразования DataURL в Blob
+    function dataURLtoBlob(dataURL) {
+      const arr = dataURL.split(',');
+      const mime = arr[0].match(/:(.*?);/)[1];
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      
+      return new Blob([u8arr], { type: mime });
     }
 
     // Обработка вставки изображений через Ctrl+V
@@ -888,15 +906,34 @@
       messageDiv.appendChild(imageElement);
       palychMessages.appendChild(messageDiv);
       messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      
+      // Сохраняем изображение для отправки
+      currentImage = imageData;
+    }
+
+    // Добавление текстового сообщения в чат
+    function addMessage(text, sender) {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message');
+      messageDiv.classList.add(sender === 'user' ? 'user-message' : 'assistant-message');
+      messageDiv.textContent = text;
+      palychMessages.appendChild(messageDiv);
+      messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
 
     // Отправка сообщения Палычу
     async function sendMessageToPalych() {
       const message = palychInput.value.trim();
-      if (!message) return;
+      if (!message && !currentImage) return;
 
       // Добавляем сообщение пользователя в чат
-      addMessage(message, 'user');
+      if (message) {
+        addMessage(message, 'user');
+      }
+      if (currentImage) {
+        addImageMessage(currentImage, 'user');
+      }
+      
       palychInput.value = '';
       palychSend.disabled = true;
 
@@ -910,16 +947,21 @@
       thinkingIndicator.classList.add('visible');
 
       try {
+        // Подготовка данных для отправки
+        const formData = new FormData();
+        formData.append('message', message || '');
+        formData.append('context', textarea.value);
+        
+        if (currentImage) {
+          // Преобразуем DataURL в Blob
+          const blob = dataURLtoBlob(currentImage);
+          formData.append('image', blob, 'image.png');
+        }
+
         // Отправляем запрос к бэкенду
         const response = await fetch('https://palych-backend.vercel.app/api/chat', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            message: message,
-            context: textarea.value
-          })
+          body: formData
         });
 
         if (!response.ok) {
@@ -930,6 +972,7 @@
         
         // Скрываем индикатор "Палыч думает..."
         thinkingIndicator.classList.remove('visible');
+        currentImage = null; // Сбрасываем текущее изображение
 
         // Добавляем ответ Палыча с эффектом печати
         if (data.response) {
@@ -974,21 +1017,12 @@
       } catch (error) {
         console.error('Ошибка при запросе к Палычу:', error);
         thinkingIndicator.classList.remove('visible');
+        currentImage = null;
         messageDiv.innerHTML = '';
         await typeWriter('Извините, произошла ошибка. Палыч временно недоступен.', messageDiv, 30);
       } finally {
         palychSend.disabled = false;
       }
-    }
-
-    // Добавление текстового сообщения в чат
-    function addMessage(text, sender) {
-      const messageDiv = document.createElement('div');
-      messageDiv.classList.add('message');
-      messageDiv.classList.add(sender === 'user' ? 'user-message' : 'assistant-message');
-      messageDiv.textContent = text;
-      palychMessages.appendChild(messageDiv);
-      messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
 
     // Обработчики событий для отправки сообщения
@@ -1006,9 +1040,9 @@
       this.style.height = (this.scrollHeight) + 'px';
     });
 
-    // Включаем кнопку отправки только когда есть текст
+    // Включаем кнопку отправки только когда есть текст или изображение
     palychInput.addEventListener('input', function() {
-      palychSend.disabled = this.value.trim() === '';
+      palychSend.disabled = this.value.trim() === '' && !currentImage;
     });
   </script>
 </body>
