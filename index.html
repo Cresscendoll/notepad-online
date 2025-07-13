@@ -888,25 +888,31 @@
     const savedChat = localStorage.getItem('palychChat');
     if (savedChat) {
       palychMessages.innerHTML = savedChat;
-      // Очищаем кнопки из сохранённого HTML
-      palychMessages.querySelectorAll('.message button').forEach(button => button.remove());
-      palychMessages.scrollTop = palychMessages.scrollHeight;
+      // Проверяем, что все сообщения валидны
+      const messages = palychMessages.querySelectorAll('.message');
+      let isValid = true;
+      messages.forEach(msg => {
+        if (!msg.classList.contains('user-message') && !msg.classList.contains('assistant-message')) {
+          isValid = false;
+        }
+      });
+      if (!isValid) {
+        // Если чат некорректен, сбрасываем
+        forgetChat();
+      } else {
+        // Очищаем кнопки и br из восстановленного HTML
+        palychMessages.querySelectorAll('button, br').forEach(el => el.remove());
+        palychMessages.scrollTop = palychMessages.scrollHeight;
+      }
     } else {
-      // Инициализация начального сообщения, если localStorage пуст
-      palychMessages.innerHTML = `
-        <div class="message assistant-message">
-          Здравствуйте, товарищ! Я Геннадий Палыч — ваш верный помощник с завода. Чем могу помочь рабочему человеку?
-        </div>
-      `;
+      forgetChat();
     }
   }
 
   // Сохранение текущего диалога
   function saveChat() {
-    // Сохраняем только сообщения без кнопок
     const messagesClone = palychMessages.cloneNode(true);
-    messagesClone.querySelectorAll('button').forEach(button => button.remove());
-    messagesClone.querySelectorAll('br').forEach(br => br.remove());
+    messagesClone.querySelectorAll('button, br').forEach(el => el.remove());
     localStorage.setItem('palychChat', messagesClone.innerHTML);
   }
 
@@ -918,6 +924,7 @@
       </div>
     `;
     localStorage.removeItem('palychChat');
+    palychMessages.scrollTop = palychMessages.scrollHeight;
   }
 
   // Получаем размеры блокнота для окна Палыча
@@ -987,8 +994,7 @@
   // Добавление текстового сообщения в чат
   function addMessage(text, sender) {
     const messageDiv = document.createElement('div');
-    messageDiv.classList.add('message');
-    messageDiv.classList.add(sender === 'user' ? 'user-message' : 'assistant-message');
+    messageDiv.classList.add('message', sender === 'user' ? 'user-message' : 'assistant-message');
     messageDiv.textContent = text;
     palychMessages.appendChild(messageDiv);
     messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -1016,18 +1022,30 @@
     thinkingIndicator.classList.add('visible');
 
     try {
-      // Получаем историю сообщений, исключая элементы с кнопками
+      // Получаем историю сообщений
       const messages = Array.from(palychMessages.querySelectorAll('.message'))
-        .filter(msg => !msg.querySelector('button')) // Исключаем сообщения с кнопками
+        .filter(msg => {
+          const isValid = (msg.classList.contains('user-message') || msg.classList.contains('assistant-message')) &&
+                          !msg.querySelector('button') &&
+                          msg.textContent.trim();
+          return isValid;
+        })
         .map(msg => ({
           role: msg.classList.contains('user-message') ? 'user' : 'assistant',
           content: msg.textContent.trim()
-        }))
-        .filter(msg => msg.content); // Убираем пустые сообщения
+        }));
 
-      // Проверяем, что messages не пустой
+      // Отладочный вывод
+      console.log('Sending messages:', JSON.stringify(messages, null, 2));
+
+      // Проверяем валидность messages
       if (messages.length === 0) {
         throw new Error('No valid messages to send');
+      }
+      for (const msg of messages) {
+        if (!msg.role || !['user', 'assistant'].includes(msg.role) || !msg.content) {
+          throw new Error('Invalid message format in array');
+        }
       }
 
       // Отправляем запрос на бэкенд
@@ -1090,7 +1108,7 @@
         errorMessage = 'На заводе авария! Сервер временно недоступен.';
       } else if (error.message.includes('429')) {
         errorMessage = 'Слишком много запросов к Палычу! Подождите немного.';
-      } else if (error.message.includes('400') || error.message.includes('No valid messages')) {
+      } else if (error.message.includes('400') || error.message.includes('No valid messages') || error.message.includes('Invalid message format')) {
         errorMessage = 'Ошибка в запросе. Проверьте формат сообщения.';
       }
       
