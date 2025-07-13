@@ -399,13 +399,6 @@
       right: 5px;
       animation: blink 0.7s step-end infinite;
     }
-    .message-image {
-      max-width: 100%;
-      max-height: 300px;
-      border-radius: 4px;
-      margin-top: 5px;
-      display: block;
-    }
     @keyframes blink {
       50% { opacity: 0; }
     }
@@ -451,26 +444,6 @@
     .palych-send:disabled {
       background-color: #777;
       cursor: not-allowed;
-    }
-    .palych-attach {
-      background-color: #555;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 0 15px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      align-self: flex-end;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .palych-attach:hover {
-      background-color: #666;
-    }
-    .palych-attach-input {
-      display: none;
     }
     /* Анимация загрузки */
     .typing-indicator {
@@ -521,52 +494,6 @@
     }
     .thinking-indicator.visible {
       opacity: 1;
-    }
-    /* Стили для превью изображения */
-    .image-preview {
-      position: relative;
-      display: inline-block;
-      margin-top: 10px;
-    }
-    .image-preview img {
-      max-width: 200px;
-      max-height: 200px;
-      border-radius: 4px;
-    }
-    .image-preview-remove {
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      background-color: #b22222;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 12px;
-    }
-    /* Индикатор прикрепленного изображения */
-    .image-attached-indicator {
-      position: absolute;
-      bottom: calc(100% + 5px);
-      right: 60px;
-      font-size: 12px;
-      color: #888;
-      background-color: rgba(255, 255, 255, 0.7);
-      padding: 2px 8px;
-      border-radius: 4px;
-      display: none;
-    }
-    body.dark-mode .image-attached-indicator {
-      background-color: rgba(0, 0, 0, 0.5);
-      color: #aaa;
-    }
-    .image-attached-indicator.visible {
-      display: block;
     }
   </style>
 </head>
@@ -626,10 +553,7 @@
         </div>
         <div class="palych-input-area">
           <div class="thinking-indicator" id="thinkingIndicator">Палыч думает...</div>
-          <div class="image-attached-indicator" id="imageAttachedIndicator">Изображение прикреплено</div>
           <textarea class="palych-input" id="palychInput" placeholder="Введите ваш вопрос..."></textarea>
-          <button class="palych-attach" id="palychAttach" title="Прикрепить изображение">📎</button>
-          <input type="file" id="palychFileInput" class="palych-attach-input" accept="image/*" />
           <button class="palych-send" id="palychSend">Отправить</button>
         </div>
       </div>
@@ -809,14 +733,7 @@
     const palychMessages = document.getElementById('palychMessages');
     const palychInput = document.getElementById('palychInput');
     const palychSend = document.getElementById('palychSend');
-    const palychAttach = document.getElementById('palychAttach');
-    const palychFileInput = document.getElementById('palychFileInput');
     const thinkingIndicator = document.getElementById('thinkingIndicator');
-    const imageAttachedIndicator = document.getElementById('imageAttachedIndicator');
-
-    // Глобальная переменная для хранения текущего изображения
-    let currentImage = null;
-    let isImageAttached = false;
 
     // Получаем размеры блокнота для окна Палыча
     const notepadRect = document.getElementById('notepadContainer').getBoundingClientRect();
@@ -833,23 +750,13 @@
 
     palychClose.addEventListener('click', () => {
       palychModal.classList.remove('active');
-      resetPalychState();
     });
 
     palychModal.addEventListener('click', (e) => {
       if (e.target === palychModal) {
         palychModal.classList.remove('active');
-        resetPalychState();
       }
     });
-
-    // Сброс состояния чата Палыча
-    function resetPalychState() {
-      currentImage = null;
-      isImageAttached = false;
-      updateSendButtonState();
-      imageAttachedIndicator.classList.remove('visible');
-    }
 
     // Функция для плавного вывода текста
     async function typeWriter(text, element, speed = 30) {
@@ -874,85 +781,6 @@
       });
     }
 
-    // Функция для преобразования DataURL в Blob
-    function dataURLtoBlob(dataURL) {
-      try {
-        const arr = dataURL.split(',');
-        const mime = arr[0].match(/:(.*?);/)[1];
-        const bstr = atob(arr[1]);
-        let n = bstr.length;
-        const u8arr = new Uint8Array(n);
-        
-        while (n--) {
-          u8arr[n] = bstr.charCodeAt(n);
-        }
-        
-        return new Blob([u8arr], { type: mime });
-      } catch (error) {
-        console.error('Ошибка при преобразовании DataURL в Blob:', error);
-        return null;
-      }
-    }
-
-    // Обработка вставки изображений через Ctrl+V
-    palychInput.addEventListener('paste', (e) => {
-      const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-      for (let i = 0; i < items.length; i++) {
-        if (items[i].type.indexOf('image') !== -1) {
-          e.preventDefault();
-          const blob = items[i].getAsFile();
-          const reader = new FileReader();
-          reader.onload = function(event) {
-            currentImage = event.target.result;
-            isImageAttached = true;
-            updateSendButtonState();
-            imageAttachedIndicator.classList.add('visible');
-          };
-          reader.readAsDataURL(blob);
-        }
-      }
-    });
-
-    // Обработка выбора файла
-    palychAttach.addEventListener('click', () => {
-      palychFileInput.click();
-    });
-
-    palychFileInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file && file.type.match('image.*')) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-          currentImage = event.target.result;
-          isImageAttached = true;
-          updateSendButtonState();
-          imageAttachedIndicator.classList.add('visible');
-          palychFileInput.value = ''; // Сброс значения input
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-
-    // Функция для обновления состояния кнопки отправки
-    function updateSendButtonState() {
-      palychSend.disabled = palychInput.value.trim() === '' && !isImageAttached;
-    }
-
-    // Добавление сообщения с изображением
-    function addImageMessage(imageData, sender) {
-      const messageDiv = document.createElement('div');
-      messageDiv.classList.add('message');
-      messageDiv.classList.add(sender === 'user' ? 'user-message' : 'assistant-message');
-      
-      const imageElement = document.createElement('img');
-      imageElement.src = imageData;
-      imageElement.classList.add('message-image');
-      
-      messageDiv.appendChild(imageElement);
-      palychMessages.appendChild(messageDiv);
-      messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }
-
     // Добавление текстового сообщения в чат
     function addMessage(text, sender) {
       const messageDiv = document.createElement('div');
@@ -966,20 +794,13 @@
     // Отправка сообщения Палычу
     async function sendMessageToPalych() {
       const message = palychInput.value.trim();
-      if (!message && !isImageAttached) return;
+      if (!message) return;
 
       // Добавляем сообщение пользователя в чат
-      if (message) {
-        addMessage(message, 'user');
-      }
-      if (isImageAttached && currentImage) {
-        addImageMessage(currentImage, 'user');
-      }
+      addMessage(message, 'user');
       
       palychInput.value = '';
       palychSend.disabled = true;
-      isImageAttached = false;
-      imageAttachedIndicator.classList.remove('visible');
 
       // Создаем контейнер для ответа Палыча
       const messageDiv = document.createElement('div');
@@ -991,25 +812,16 @@
       thinkingIndicator.classList.add('visible');
 
       try {
-        // Подготовка данных для отправки
-        const formData = new FormData();
-        if (message) formData.append('message', message);
-        formData.append('context', textarea.value);
-        
-        if (currentImage) {
-          // Преобразуем DataURL в Blob
-          const blob = dataURLtoBlob(currentImage);
-          if (blob) {
-            formData.append('image', blob, 'image.png');
-          } else {
-            throw new Error('Не удалось преобразовать изображение');
-          }
-        }
-
         // Отправляем запрос к бэкенду
         const response = await fetch('https://palych-backend.vercel.app/api/chat', {
           method: 'POST',
-          body: formData
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: message,
+            context: textarea.value
+          })
         });
 
         if (!response.ok) {
@@ -1020,7 +832,6 @@
         
         // Скрываем индикатор "Палыч думает..."
         thinkingIndicator.classList.remove('visible');
-        currentImage = null; // Сбрасываем текущее изображение
 
         // Добавляем ответ Палыча с эффектом печати
         if (data.response) {
@@ -1065,13 +876,10 @@
       } catch (error) {
         console.error('Ошибка при запросе к Палычу:', error);
         thinkingIndicator.classList.remove('visible');
-        currentImage = null;
-        isImageAttached = false;
-        imageAttachedIndicator.classList.remove('visible');
         messageDiv.innerHTML = '';
         await typeWriter('Извините, произошла ошибка. Палыч временно недоступен.', messageDiv, 30);
       } finally {
-        updateSendButtonState();
+        palychSend.disabled = false;
       }
     }
 
@@ -1088,11 +896,11 @@
     palychInput.addEventListener('input', function() {
       this.style.height = 'auto';
       this.style.height = (this.scrollHeight) + 'px';
-      updateSendButtonState();
+      this.parentNode.querySelector('.palych-send').disabled = this.value.trim() === '';
     });
 
     // Инициализация состояния кнопки
-    updateSendButtonState();
+    palychSend.disabled = true;
   </script>
 </body>
 </html>
