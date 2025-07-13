@@ -426,6 +426,21 @@
     .palych-close:hover {
       transform: scale(1.2);
     }
+    .palych-forget {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      margin-right: 15px;
+      opacity: 0.8;
+      font-family: monospace;
+    }
+    .palych-forget:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
     .palych-content {
       flex: 1;
       padding: 10px;
@@ -667,7 +682,10 @@
     <div class="palych-dialog">
       <div class="palych-header">
         <span>Геннадий Палыч - верный заводчанин</span>
-        <button class="palych-close" id="palychClose">×</button>
+        <div>
+          <button class="palych-forget" id="palychForget">Забыть разговор</button>
+          <button class="palych-close" id="palychClose">×</button>
+        </div>
       </div>
       <div class="palych-content">
         <div class="palych-messages" id="palychMessages">
@@ -858,6 +876,7 @@
     const palychInput = document.getElementById('palychInput');
     const palychSend = document.getElementById('palychSend');
     const thinkingIndicator = document.getElementById('thinkingIndicator');
+    const palychForget = document.getElementById('palychForget');
 
     // Восстановление диалога из localStorage
     function restoreChat() {
@@ -871,6 +890,16 @@
     // Сохранение текущего диалога
     function saveChat() {
       localStorage.setItem('palychChat', palychMessages.innerHTML);
+    }
+
+    // Очистка диалога
+    function forgetChat() {
+      palychMessages.innerHTML = `
+        <div class="message assistant-message">
+          Здравствуйте, товарищ! Я Геннадий Палыч — ваш верный помощник с завода. Чем могу помочь рабочему человеку?
+        </div>
+      `;
+      saveChat();
     }
 
     // Получаем размеры блокнота для окна Палыча
@@ -904,6 +933,8 @@
       palychModal.classList.remove('active');
       saveChat();
     });
+
+    palychForget.addEventListener('click', forgetChat);
 
     palychModal.addEventListener('click', (e) => {
       if (e.target === palychModal) {
