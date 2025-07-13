@@ -888,13 +888,26 @@
     const savedChat = localStorage.getItem('palychChat');
     if (savedChat) {
       palychMessages.innerHTML = savedChat;
+      // Очищаем кнопки из сохранённого HTML
+      palychMessages.querySelectorAll('.message button').forEach(button => button.remove());
       palychMessages.scrollTop = palychMessages.scrollHeight;
+    } else {
+      // Инициализация начального сообщения, если localStorage пуст
+      palychMessages.innerHTML = `
+        <div class="message assistant-message">
+          Здравствуйте, товарищ! Я Геннадий Палыч — ваш верный помощник с завода. Чем могу помочь рабочему человеку?
+        </div>
+      `;
     }
   }
 
   // Сохранение текущего диалога
   function saveChat() {
-    localStorage.setItem('palychChat', palychMessages.innerHTML);
+    // Сохраняем только сообщения без кнопок
+    const messagesClone = palychMessages.cloneNode(true);
+    messagesClone.querySelectorAll('button').forEach(button => button.remove());
+    messagesClone.querySelectorAll('br').forEach(br => br.remove());
+    localStorage.setItem('palychChat', messagesClone.innerHTML);
   }
 
   // Очистка диалога
@@ -904,7 +917,7 @@
         Здравствуйте, товарищ! Я Геннадий Палыч — ваш верный помощник с завода. Чем могу помочь рабочему человеку?
       </div>
     `;
-    saveChat();
+    localStorage.removeItem('palychChat');
   }
 
   // Получаем размеры блокнота для окна Палыча
@@ -1003,11 +1016,19 @@
     thinkingIndicator.classList.add('visible');
 
     try {
-      // Получаем историю сообщений
-      const messages = Array.from(palychMessages.querySelectorAll('.message')).map(msg => ({
-        role: msg.classList.contains('user-message') ? 'user' : 'assistant',
-        content: msg.textContent
-      }));
+      // Получаем историю сообщений, исключая элементы с кнопками
+      const messages = Array.from(palychMessages.querySelectorAll('.message'))
+        .filter(msg => !msg.querySelector('button')) // Исключаем сообщения с кнопками
+        .map(msg => ({
+          role: msg.classList.contains('user-message') ? 'user' : 'assistant',
+          content: msg.textContent.trim()
+        }))
+        .filter(msg => msg.content); // Убираем пустые сообщения
+
+      // Проверяем, что messages не пустой
+      if (messages.length === 0) {
+        throw new Error('No valid messages to send');
+      }
 
       // Отправляем запрос на бэкенд
       const response = await fetch('https://palych-backend-v2.vercel.app/api/ai', {
@@ -1069,7 +1090,7 @@
         errorMessage = 'На заводе авария! Сервер временно недоступен.';
       } else if (error.message.includes('429')) {
         errorMessage = 'Слишком много запросов к Палычу! Подождите немного.';
-      } else if (error.message.includes('400')) {
+      } else if (error.message.includes('400') || error.message.includes('No valid messages')) {
         errorMessage = 'Ошибка в запросе. Проверьте формат сообщения.';
       }
       
