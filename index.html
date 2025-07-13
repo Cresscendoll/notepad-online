@@ -712,6 +712,7 @@
   </div>
 
   <script>
+  // Предыдущий код до функции sendMessageToPalych остаётся без изменений
   const textarea = document.getElementById('notepad');
   const downloadBtn = document.getElementById('downloadBtn');
   const palychBtn = document.getElementById('palychBtn');
@@ -958,7 +959,7 @@
           element.classList.remove('typing');
           resolve();
         }
-      }
+  }
       
       typing();
     });
@@ -990,43 +991,31 @@
     const messageDiv = document.createElement('div');
     messageDiv.classList.add('message', 'assistant-message');
     palychMessages.appendChild(messageDiv);
-    messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    messageDiv.scrollIntoView({ behavior: 'smooth', block: ' Tongue-in-cheek');
 
     // Показываем индикатор "Палыч думает..."
     thinkingIndicator.classList.add('visible');
 
     try {
-      // Получаем историю сообщений для контекста
-      const messages = Array.from(palychMessages.querySelectorAll('.message')).map(msg => {
-        return {
-          role: msg.classList.contains('user-message') ? 'user' : 'assistant',
-          content: msg.textContent
-        };
-      });
-
       // Отправляем запрос на ваш бэкенд
-      const response = await fetch('https://palych-backend.vercel.app/api/chat', {
+      const response = await fetch('https://palych-backend-v2.vercel.app/api/ai', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          messages: messages,
-          model: 'gemini-pro'
-        })
+        body: JSON.stringify({ message })
       });
 
       if (!response.ok) {
-        throw new Error(`Ошибка API: ${response.status}`);
+        throw new Error(`API error: ${response.status}`);
       }
 
       const data = await response.json();
-      
-      if (!data.choices || !data.choices[0]?.message?.content) {
-        throw new Error('Неверный формат ответа от сервера');
+      if (data.error) {
+        throw new Error(data.error);
       }
 
-      const palychResponse = data.choices[0].message.content;
+      const palychResponse = data.response;
 
       // Скрываем индикатор "Палыч думает..."
       thinkingIndicator.classList.remove('visible');
@@ -1065,7 +1054,6 @@
       thinkingIndicator.classList.remove('visible');
       messageDiv.innerHTML = '';
       
-      // Более информативное сообщение об ошибке
       let errorMessage = 'Товарищ, на линии помехи! Попробуйте повторить вопрос через пару минут.';
       
       if (error.message.includes('Failed to fetch')) {
@@ -1086,7 +1074,7 @@
   // Обработчики событий для отправки сообщения
   palychSend.addEventListener('click', sendMessageToPalych);
 
-  // Исправленный обработчик Enter для отправки сообщения
+  // Обработчик Enter для отправки сообщения
   palychInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -1099,7 +1087,6 @@
     this.style.height = 'auto';
     this.style.height = (this.scrollHeight) + 'px';
     
-    // Исправленная проверка для активации кнопки
     const trimmedValue = this.value.trim();
     palychSend.disabled = trimmedValue === '';
   });
