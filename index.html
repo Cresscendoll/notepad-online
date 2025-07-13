@@ -977,7 +977,7 @@
       saveChat();
     }
 
-    // Отправка сообщения Палычу
+    // Отправка сообщения Палычу с реальным запросом к OpenRouter API
     async function sendMessageToPalych() {
       const message = palychInput.value.trim();
       if (!message) return;
@@ -998,48 +998,73 @@
       thinkingIndicator.classList.add('visible');
 
       try {
-        // Имитируем ответ Палыча (в реальном коде здесь должен быть fetch к API)
-        const responses = [
-          "Товарищ, я внимательно изучил ваш вопрос. Вот что я могу посоветовать...",
-          "На нашем заводе такие вопросы решали просто...",
-          "По моему опыту, лучше всего сделать так...",
-          "В мои молодые годы мы бы решили это так...",
-          "Слушайте сюда, товарищ! Я вам сейчас объясню как настоящий пролетарий..."
-        ];
-        
-        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        // Отправляем запрос к OpenRouter API
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer YOUR_OPENROUTER_API_KEY`, // Замените на ваш реальный API ключ
+            'HTTP-Referer': 'https://zmtk.my', // Ваш URL сайта
+            'X-Title': 'Центральный народный блокнот' // Название вашего приложения
+          },
+          body: JSON.stringify({
+            model: "openai/gpt-3.5-turbo", // Или другая модель
+            messages: [
+              {
+                role: "system",
+                content: "Ты - Геннадий Палыч, верный заводчанин и помощник. Отвечай как опытный рабочий с завода, используй просторечные выражения и советуй по-дружески. Будь немногословным, но мудрым."
+              },
+              {
+                role: "user",
+                content: message
+              }
+            ],
+            max_tokens: 500
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Ошибка HTTP: ${response.status}`);
+        }
+
+        const data = await response.json();
         
         // Скрываем индикатор "Палыч думает..."
         thinkingIndicator.classList.remove('visible');
 
+        // Получаем ответ от API
+        const palychResponse = data.choices[0].message.content;
+        
         // Добавляем ответ Палыча с эффектом печати
-        await typeWriter(randomResponse, messageDiv, 30);
+        await typeWriter(palychResponse, messageDiv, 30);
         
-        // Добавляем кнопку для вставки текста в блокнот
-        const insertBtn = document.createElement('button');
-        insertBtn.textContent = 'Вставить в блокнот';
-        insertBtn.style.marginTop = '10px';
-        insertBtn.style.padding = '5px 10px';
-        insertBtn.style.backgroundColor = '#b22222';
-        insertBtn.style.color = 'white';
-        insertBtn.style.border = 'none';
-        insertBtn.style.borderRadius = '4px';
-        insertBtn.style.cursor = 'pointer';
-        insertBtn.style.transition = 'background-color 0.3s';
-        
-        insertBtn.addEventListener('click', () => {
-          const suggestedText = `\n\n[Совет от Палыча: ${new Date().toLocaleString()}]\n${randomResponse}`;
-          textarea.value += suggestedText;
-          localStorage.setItem('savedText', textarea.value);
-          insertBtn.textContent = '✓ Текст добавлен';
-          insertBtn.style.backgroundColor = '#4CAF50';
-          setTimeout(() => {
-            insertBtn.remove();
-          }, 2000);
-        });
-        
-        messageDiv.appendChild(document.createElement('br'));
-        messageDiv.appendChild(insertBtn);
+        // Добавляем кнопку для вставки текста в блокнот, если ответ содержит полезную информацию
+        if (palychResponse.length > 10) { // Простая проверка, что ответ не пустой
+          const insertBtn = document.createElement('button');
+          insertBtn.textContent = 'Вставить в блокнот';
+          insertBtn.style.marginTop = '10px';
+          insertBtn.style.padding = '5px 10px';
+          insertBtn.style.backgroundColor = '#b22222';
+          insertBtn.style.color = 'white';
+          insertBtn.style.border = 'none';
+          insertBtn.style.borderRadius = '4px';
+          insertBtn.style.cursor = 'pointer';
+          insertBtn.style.transition = 'background-color 0.3s';
+          
+          insertBtn.addEventListener('click', () => {
+            const suggestedText = `\n\n[Совет от Палыча: ${new Date().toLocaleString()}]\n${palychResponse}`;
+            textarea.value += suggestedText;
+            localStorage.setItem('savedText', textarea.value);
+            insertBtn.textContent = '✓ Текст добавлен';
+            insertBtn.style.backgroundColor = '#4CAF50';
+            setTimeout(() => {
+              insertBtn.remove();
+            }, 2000);
+          });
+          
+          messageDiv.appendChild(document.createElement('br'));
+          messageDiv.appendChild(insertBtn);
+        }
         
       } catch (error) {
         console.error('Ошибка при запросе к Палычу:', error);
@@ -1051,15 +1076,6 @@
         saveChat();
       }
     }
-
-    // Обработчики событий для отправки сообщения
-    palychSend.addEventListener('click', sendMessageToPalych);
-    palychInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessageToPalych();
-      }
-    });
 
     // Автоматическое увеличение высоты textarea при вводе
     palychInput.addEventListener('input', function() {
