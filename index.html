@@ -883,48 +883,80 @@
   const thinkingIndicator = document.getElementById('thinkingIndicator');
   const palychForget = document.getElementById('palychForget');
 
+  // Массив для хранения сообщений в памяти
+  let chatHistory = [];
+
   // Восстановление диалога из localStorage
   function restoreChat() {
-    const savedChat = localStorage.getItem('palychChat');
+    const savedChat = localStorage.getItem('palychChatHistory');
     if (savedChat) {
-      palychMessages.innerHTML = savedChat;
-      // Проверяем, что все сообщения валидны
-      const messages = palychMessages.querySelectorAll('.message');
-      let isValid = true;
-      messages.forEach(msg => {
-        if (!msg.classList.contains('user-message') && !msg.classList.contains('assistant-message')) {
-          isValid = false;
+      try {
+        chatHistory = JSON.parse(savedChat);
+        // Проверяем корректность структуры данных
+        if (!Array.isArray(chatHistory)) {
+          throw new Error('Invalid chat history format');
         }
-      });
-      if (!isValid) {
-        // Если чат некорректен, сбрасываем
-        forgetChat();
-      } else {
-        // Очищаем кнопки и br из восстановленного HTML
-        palychMessages.querySelectorAll('button, br').forEach(el => el.remove());
-        palychMessages.scrollTop = palychMessages.scrollHeight;
+        
+        // Валидируем каждое сообщение
+        chatHistory = chatHistory.filter(msg => 
+          msg && 
+          typeof msg === 'object' && 
+          msg.role && 
+          ['user', 'assistant'].includes(msg.role) && 
+          msg.content && 
+          typeof msg.content === 'string'
+        );
+        
+        renderChat();
+      } catch (error) {
+        console.error('Error restoring chat:', error);
+        initializeChat();
       }
     } else {
-      forgetChat();
+      initializeChat();
     }
   }
 
-  // Сохранение текущего диалога
+  // Инициализация чата с приветствием
+  function initializeChat() {
+    chatHistory = [{
+      role: 'assistant',
+      content: 'Здравствуйте, товарищ! Я Геннадий Палыч — ваш верный помощник с завода. Чем могу помочь рабочему человеку?'
+    }];
+    renderChat();
+    saveChat();
+  }
+
+  // Отрисовка чата на основе истории
+  function renderChat() {
+    palychMessages.innerHTML = '';
+    chatHistory.forEach(msg => {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message', msg.role === 'user' ? 'user-message' : 'assistant-message');
+      messageDiv.textContent = msg.content;
+      palychMessages.appendChild(messageDiv);
+    });
+    palychMessages.scrollTop = palychMessages.scrollHeight;
+  }
+
+  // Сохранение истории чата
   function saveChat() {
-    const messagesClone = palychMessages.cloneNode(true);
-    messagesClone.querySelectorAll('button, br').forEach(el => el.remove());
-    localStorage.setItem('palychChat', messagesClone.innerHTML);
+    try {
+      localStorage.setItem('palychChatHistory', JSON.stringify(chatHistory));
+    } catch (error) {
+      console.error('Error saving chat:', error);
+    }
   }
 
   // Очистка диалога
   function forgetChat() {
-    palychMessages.innerHTML = `
-      <div class="message assistant-message">
-        Здравствуйте, товарищ! Я Геннадий Палыч — ваш верный помощник с завода. Чем могу помочь рабочему человеку?
-      </div>
-    `;
-    localStorage.removeItem('palychChat');
-    palychMessages.scrollTop = palychMessages.scrollHeight;
+    chatHistory = [{
+      role: 'assistant',
+      content: 'Здравствуйте, товарищ! Я Геннадий Палыч — ваш верный помощник с завода. Чем могу помочь рабочему человеку?'
+    }];
+    renderChat();
+    localStorage.removeItem('palychChatHistory');
+    saveChat();
   }
 
   // Получаем размеры блокнота для окна Палыча
@@ -991,14 +1023,18 @@
     });
   }
 
-  // Добавление текстового сообщения в чат
-  function addMessage(text, sender) {
+  // Добавление сообщения в историю и отрисовка
+  function addMessageToHistory(content, role) {
+    chatHistory.push({ role, content });
+    
     const messageDiv = document.createElement('div');
-    messageDiv.classList.add('message', sender === 'user' ? 'user-message' : 'assistant-message');
-    messageDiv.textContent = text;
+    messageDiv.classList.add('message', role === 'user' ? 'user-message' : 'assistant-message');
+    messageDiv.textContent = content;
     palychMessages.appendChild(messageDiv);
     messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    
     saveChat();
+    return messageDiv;
   }
 
   // Отправка сообщения Палычу
@@ -1006,8 +1042,8 @@
     const message = palychInput.value.trim();
     if (!message) return;
 
-    // Добавляем сообщение пользователя в чат
-    addMessage(message, 'user');
+    // Добавляем сообщение пользователя в историю
+    addMessageToHistory(message, 'user');
     
     palychInput.value = '';
     palychSend.disabled = true;
@@ -1022,27 +1058,18 @@
     thinkingIndicator.classList.add('visible');
 
     try {
-      // Получаем историю сообщений
-      const messages = Array.from(palychMessages.querySelectorAll('.message'))
-        .filter(msg => {
-          const isValid = (msg.classList.contains('user-message') || msg.classList.contains('assistant-message')) &&
-                          !msg.querySelector('button') &&
-                          msg.textContent.trim();
-          return isValid;
-        })
-        .map(msg => ({
-          role: msg.classList.contains('user-message') ? 'user' : 'assistant',
-          content: msg.textContent.trim()
-        }));
-
+      // Отправляем всю историю чата
+      const messagesToSend = [...chatHistory];
+      
       // Отладочный вывод
-      console.log('Sending messages:', JSON.stringify(messages, null, 2));
+      console.log('Sending messages:', JSON.stringify(messagesToSend, null, 2));
 
       // Проверяем валидность messages
-      if (messages.length === 0) {
+      if (messagesToSend.length === 0) {
         throw new Error('No valid messages to send');
       }
-      for (const msg of messages) {
+      
+      for (const msg of messagesToSend) {
         if (!msg.role || !['user', 'assistant'].includes(msg.role) || !msg.content) {
           throw new Error('Invalid message format in array');
         }
@@ -1054,7 +1081,7 @@
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ messages })
+        body: JSON.stringify({ messages: messagesToSend })
       });
 
       if (!response.ok) {
@@ -1068,6 +1095,11 @@
 
       const palychResponse = data.response;
       thinkingIndicator.classList.remove('visible');
+      
+      // Добавляем ответ в историю
+      chatHistory.push({ role: 'assistant', content: palychResponse });
+      
+      // Анимируем вывод текста
       await typeWriter(palychResponse, messageDiv, 30);
 
       // Добавляем кнопку для вставки текста в блокнот
@@ -1096,6 +1128,9 @@
       messageDiv.appendChild(document.createElement('br'));
       messageDiv.appendChild(insertBtn);
       
+      // Сохраняем обновленную историю
+      saveChat();
+      
     } catch (error) {
       console.error('Ошибка при запросе к Палычу:', error);
       thinkingIndicator.classList.remove('visible');
@@ -1112,10 +1147,13 @@
         errorMessage = 'Ошибка в запросе. Проверьте формат сообщения.';
       }
       
+      // Добавляем сообщение об ошибке в историю
+      chatHistory.push({ role: 'assistant', content: errorMessage });
+      
       await typeWriter(errorMessage, messageDiv, 30);
+      saveChat();
     } finally {
       palychSend.disabled = false;
-      saveChat();
     }
   }
 
@@ -1142,7 +1180,7 @@
   // Инициализация состояния кнопки
   palychSend.disabled = true;
 
-  // Восстановление чата при загрузке страницы
+  // Инициализация чата при загрузке страницы
   document.addEventListener('DOMContentLoaded', () => {
     restoreChat();
   });
