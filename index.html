@@ -1059,21 +1059,21 @@
   // Отправка сообщения Палычу
   async function typeWriter(text, element, speed = 20) {
   return new Promise((resolve) => {
-    // Добавим переносы строк перед каждым участником, если они идут подряд
-    const formattedText = text
-      .replace(/(?!^)(\*\*Путин:\*\*)/g, '\n$1')
-      .replace(/(?!^)(\*\*Жириновский:\*\*)/g, '\n$1')
-      .replace(/(?!^)(\*\*Коломойский:\*\*)/g, '\n$1');
+    // Жёсткий разбор: вставим маркеры перед фамилиями
+    const withBreaks = text
+      .replace(/(?!^)(\*\*Путин:\*\*)/g, '|||$1')
+      .replace(/(?!^)(\*\*Жириновский:\*\*)/g, '|||$1')
+      .replace(/(?!^)(\*\*Коломойский:\*\*)/g, '|||$1');
 
-    // Разделим на абзацы
-    const lines = formattedText.split(/\n+/).filter(line => line.trim() !== '');
-    let lineIndex = 0;
+    const parts = withBreaks.split('|||').filter(p => p.trim());
 
     element.innerHTML = '';
     element.classList.add('typing');
 
-    function typeLine() {
-      if (lineIndex >= lines.length) {
+    let partIndex = 0;
+
+    function typePart() {
+      if (partIndex >= parts.length) {
         element.classList.remove('typing');
         resolve();
         return;
@@ -1082,25 +1082,25 @@
       const paragraph = document.createElement('p');
       element.appendChild(paragraph);
 
+      const part = parts[partIndex];
       let charIndex = 0;
-      const line = lines[lineIndex];
 
       function typeChar() {
-        if (charIndex < line.length) {
-          paragraph.textContent += line.charAt(charIndex);
+        if (charIndex < part.length) {
+          paragraph.textContent += part.charAt(charIndex);
           charIndex++;
           paragraph.scrollIntoView({ behavior: 'smooth', block: 'end' });
           setTimeout(typeChar, speed);
         } else {
-          lineIndex++;
-          setTimeout(typeLine, speed * 2); // Пауза между абзацами
+          partIndex++;
+          setTimeout(typePart, speed * 2); // пауза между блоками
         }
       }
 
       typeChar();
     }
 
-    typeLine();
+    typePart();
   });
 }
 
