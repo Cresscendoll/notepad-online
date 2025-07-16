@@ -18,7 +18,6 @@ async function sendMessageToPalych(message, context = []) {
     
     console.log('Response status:', response.status);
     if (!response.ok) {
-      // Читаем тело ответа один раз
       const responseBody = await response.text();
       let errorData;
       try {
