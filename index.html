@@ -1057,7 +1057,8 @@
   }
 
   // Отправка сообщения Палычу
-  async function typeWriter(text, element, speed = 20) {
+  // Функция для плавного вывода текста
+async function typeWriter(text, element, speed = 20) {
   return new Promise((resolve) => {
     // Улучшенный разбор: обрабатываем разные форматы имён в дебатах
     const withBreaks = text
@@ -1070,8 +1071,8 @@
       // Обрабатываем конкретные имена для надёжности
       .replace(/(?!^)(Путин:|Жириновский:|Коломойский:|Зеленский:|Трамп:|Байден:)/g, '\n\n$1');
 
-    // Разбиваем на части и убираем пустые
-    const parts = withBreaks.split(/\n\n+/).filter(p => p.trim());
+    // Разбиваем на части, сохраняя пустые строки как разделители
+    const parts = withBreaks.split('\n\n').filter(p => p.trim() !== '');
 
     element.innerHTML = '';
     element.classList.add('typing');
@@ -1097,7 +1098,13 @@
 
       function typeChar() {
         if (charIndex < part.length) {
-          paragraph.textContent += part.charAt(charIndex);
+          const char = part.charAt(charIndex);
+          // Обрабатываем переносы строк внутри части
+          if (char === '\n') {
+            paragraph.appendChild(document.createElement('br'));
+          } else {
+            paragraph.appendChild(document.createTextNode(char));
+          }
           charIndex++;
           paragraph.scrollIntoView({ behavior: 'smooth', block: 'end' });
           setTimeout(typeChar, speed);
@@ -1113,7 +1120,6 @@
     typePart();
   });
 }
-
 
   // Обработчики событий для отправки сообщения
   palychSend.addEventListener('click', sendMessageToPalych);
