@@ -5,8 +5,8 @@ async function sendMessageToPalych(message, context = []) {
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}` // Добавьте эту строку
+        'Content-Type': 'application/json'
+        // API ключ должен передаваться через сервер, а не из браузера
       },
       body: JSON.stringify({
         messages: context.concat([{ 
@@ -15,14 +15,13 @@ async function sendMessageToPalych(message, context = []) {
         }])
       })
     });
-
+    
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || `HTTP error ${response.status}`);
     }
-
+    
     return await response.json();
-
   } catch (error) {
     console.error('Palych API error:', error);
     return { 
