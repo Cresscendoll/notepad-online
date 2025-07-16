@@ -10,6 +10,7 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   try {
+    console.log('Checking GROQ_API_KEY:', API_KEY ? `Key present (starts with: ${API_KEY.slice(0, 5)}...)` : 'Key missing');
     if (!API_KEY) {
       console.error('GROQ_API_KEY is not set in environment variables');
       return res.status(500).json({ error: 'API key is missing' });
@@ -31,7 +32,7 @@ module.exports = async (req, res) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Backend API error:', response.status, errorText.slice(0, 100));
+      console.error('Backend API error:', response.status, errorText);
       return res.status(response.status).json({ error: errorText || `Backend API error: ${response.status}` });
     }
 
