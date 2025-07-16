@@ -15,6 +15,9 @@ module.exports = async (req, res) => {
       return res.status(500).json({ error: 'API key is missing' });
     }
 
+    console.log('Proxying request to:', PALYCH_API_URL);
+    console.log('Request body:', req.body);
+
     const response = await fetch(PALYCH_API_URL, {
       method: 'POST',
       headers: {
@@ -24,6 +27,8 @@ module.exports = async (req, res) => {
       body: JSON.stringify(req.body)
     });
 
+    console.log('Backend response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Backend API error:', response.status, errorText);
@@ -31,9 +36,10 @@ module.exports = async (req, res) => {
     }
 
     const data = await response.json();
+    console.log('Backend response data:', data);
     res.status(200).json(data);
   } catch (error) {
-    console.error('Proxy error:', error);
+    console.error('Proxy error:', error.message, error.stack);
     res.status(500).json({ error: error.message || 'Internal server error' });
   }
 };
