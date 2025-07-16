@@ -1002,26 +1002,31 @@
 
   // Функция для плавного вывода текста
   async function typeWriter(text, element, speed = 30) {
-    return new Promise((resolve) => {
-      let i = 0;
-      element.textContent = '';
-      element.classList.add('typing');
-      
-      function typing() {
-        if (i < text.length) {
-          element.textContent += text.charAt(i);
-          i++;
-          element.scrollIntoView({ behavior: 'smooth', block: 'end' });
-          setTimeout(typing, speed);
+  return new Promise((resolve) => {
+    let i = 0;
+    element.innerHTML = '';
+    element.classList.add('typing');
+
+    function typing() {
+      if (i < text.length) {
+        const char = text.charAt(i);
+        if (char === '\n') {
+          element.innerHTML += '<br><br>'; // Двойной перенос строки для абзаца
         } else {
-          element.classList.remove('typing');
-          resolve();
+          element.innerHTML += char;
         }
+        i++;
+        element.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        setTimeout(typing, speed);
+      } else {
+        element.classList.remove('typing');
+        resolve();
       }
-      
-      typing();
-    });
-  }
+    }
+
+    typing();
+  });
+}
 
   // Добавление сообщения в историю и отрисовка
   function addMessageToHistory(content, role) {
