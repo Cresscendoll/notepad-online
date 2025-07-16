@@ -720,265 +720,341 @@
 
   <script src="js/palych.js"></script>
 <script>
+  // === Конфигурация приложения ===
+  const AppConfig = {
+    defaultDarkMode: true,
+    chatHistoryKey: 'palychChatHistory',
+    textStorageKey: 'savedText',
+    filename: 'central_narodny_blocknot.txt',
+    typingSpeed: 20
+  };
+
+  // === Инициализация элементов ===
+  const elements = {
+    // Блокнот
+    textarea: document.getElementById('notepad'),
+    downloadBtn: document.getElementById('downloadBtn'),
+    palychBtn: document.getElementById('palychBtn'),
+    switcher: document.getElementById('switcher'),
+    body: document.body,
+    container: document.getElementById('notepadContainer'),
+    switchSound: document.getElementById('switchSound'),
+    timeGirl: document.getElementById('timeGirl'),
+    
+    // Таймер
+    timerDisplay: document.getElementById('timerDisplay'),
+    resetBtn: document.getElementById('resetBtn'),
+    pauseBtn: document.getElementById('pauseBtn'),
+    startBtn: document.getElementById('startBtn'),
+    timerContainer: document.getElementById('timerContainer'),
+    startSound: document.getElementById('startSound'),
+    pauseSound: document.getElementById('pauseSound'),
+    resetSound: document.getElementById('resetSound'),
+    
+    // Чат Палыча
+    palychModal: document.getElementById('palychModal'),
+    palychClose: document.getElementById('palychClose'),
+    palychMessages: document.getElementById('palychMessages'),
+    palychInput: document.getElementById('palychInput'),
+    palychSend: document.getElementById('palychSend'),
+    thinkingIndicator: document.getElementById('thinkingIndicator'),
+    palychForget: document.getElementById('palychForget'),
+    videoWrapper: document.getElementById('videoWrapper')
+  };
+
+  // === Состояние приложения ===
+  const state = {
+    isDark: AppConfig.defaultDarkMode,
+    chatHistory: [],
+    timer: {
+      elapsedSeconds: 0,
+      running: false,
+      interval: null
+    }
+  };
+
   // === Блокнот ===
-  const textarea = document.getElementById('notepad');
-  const downloadBtn = document.getElementById('downloadBtn');
-  const palychBtn = document.getElementById('palychBtn');
-  const switcher = document.getElementById('switcher');
-  const body = document.body;
-  const container = document.getElementById('notepadContainer');
-  const switchSound = document.getElementById('switchSound');
-  const timeGirl = document.getElementById('timeGirl');
+  function initNotepad() {
+    // Восстановление сохраненного текста
+    elements.textarea.value = localStorage.getItem(AppConfig.textStorageKey) || '';
+    
+    // Автосохранение при вводе
+    elements.textarea.addEventListener('input', () => {
+      localStorage.setItem(AppConfig.textStorageKey, elements.textarea.value);
+    });
+    
+    // Скачивание файла
+    elements.downloadBtn.addEventListener('click', downloadTextFile);
+    
+    // Переключатель темы
+    elements.switcher.addEventListener('click', toggleTheme);
+    
+    // Установка начальной темы
+    updateTheme();
+  }
 
-  let isDark = true;
-  body.classList.add('dark-mode');
-  container.classList.add('dark-paper');
-
-  textarea.value = localStorage.getItem('savedText') || '';
-
-  textarea.addEventListener('input', () => {
-    localStorage.setItem('savedText', textarea.value);
-  });
-
-  downloadBtn.addEventListener('click', () => {
-    const text = textarea.value;
+  function downloadTextFile() {
+    const text = elements.textarea.value;
     const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'central_narodny_blocknot.txt';
+    a.download = AppConfig.filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  });
+  }
+
+  function toggleTheme() {
+    // Анимация переключателя
+    elements.switcher.classList.add('pulled');
+    setTimeout(() => elements.switcher.classList.remove('pulled'), 200);
+    
+    // Звук переключения
+    elements.switchSound.currentTime = 0;
+    elements.switchSound.play();
+    
+    // Изменение темы
+    state.isDark = !state.isDark;
+    updateTheme();
+  }
+
+  function updateTheme() {
+    elements.body.classList.toggle('dark-mode', state.isDark);
+    elements.container.classList.toggle('dark-paper', state.isDark);
+  }
 
   function toggleVideo() {
-    const videoBox = document.getElementById('videoWrapper');
-    videoBox.classList.toggle('active');
-    if (videoBox.classList.contains('active')) {
-      const video = videoBox.querySelector('video');
+    elements.videoWrapper.classList.toggle('active');
+    if (elements.videoWrapper.classList.contains('active')) {
+      const video = elements.videoWrapper.querySelector('video');
       video.currentTime = 0;
       video.play();
     }
   }
 
-  switcher.addEventListener('click', () => {
-    switcher.classList.add('pulled');
-    setTimeout(() => switcher.classList.remove('pulled'), 200);
-    switchSound.currentTime = 0;
-    switchSound.play();
-    isDark = !isDark;
-    body.classList.toggle('dark-mode', isDark);
-    container.classList.toggle('dark-paper', isDark);
-  });
-
   // === Таймер ===
-  const timerDisplay = document.getElementById('timerDisplay');
-  const resetBtn = document.getElementById('resetBtn');
-  const pauseBtn = document.getElementById('pauseBtn');
-  const startBtn = document.getElementById('startBtn');
-  const timerContainer = document.getElementById('timerContainer');
-  const startSound = document.getElementById('startSound');
-  const pauseSound = document.getElementById('pauseSound');
-  const resetSound = document.getElementById('resetSound');
+  function initTimer() {
+    // Форматирование времени
+    const formatTime = (seconds) => {
+      const hrs = Math.floor(seconds / 3600);
+      const mins = Math.floor((seconds % 3600) / 60);
+      const secs = seconds % 60;
+      return [hrs, mins, secs].map(n => String(n).padStart(2, '0')).join(':');
+    };
 
-  let elapsedSeconds = 0;
-  let running = false;
-  let timerInterval = null;
+    // Обновление отображения таймера
+    const updateTimerDisplay = () => {
+      elements.timerDisplay.textContent = formatTime(state.timer.elapsedSeconds);
+    };
 
-  function showTimeGirl() {
-    timeGirl.classList.add('visible');
-  }
+    // Показать/скрыть девочку с часами
+    const showTimeGirl = () => elements.timeGirl.classList.add('visible');
+    const hideTimeGirl = () => elements.timeGirl.classList.remove('visible');
 
-  function hideTimeGirl() {
-    timeGirl.classList.remove('visible');
-  }
+    // Обработчики событий для таймера
+    elements.timerContainer.addEventListener('mouseenter', showTimeGirl);
+    elements.timerContainer.addEventListener('mouseleave', hideTimeGirl);
+    
+    [elements.startBtn, elements.pauseBtn, elements.resetBtn].forEach(btn => {
+      btn.addEventListener('mouseenter', showTimeGirl);
+      btn.addEventListener('mouseleave', hideTimeGirl);
+    });
 
-  timerContainer.addEventListener('mouseenter', showTimeGirl);
-  timerContainer.addEventListener('mouseleave', hideTimeGirl);
-  [startBtn, pauseBtn, resetBtn].forEach(btn => {
-    btn.addEventListener('mouseenter', showTimeGirl);
-    btn.addEventListener('mouseleave', hideTimeGirl);
-  });
+    // Управление таймером
+    const startTimer = () => {
+      if (state.timer.running) return;
+      state.timer.running = true;
+      elements.startBtn.disabled = true;
+      elements.pauseBtn.disabled = false;
+      elements.startSound.currentTime = 0;
+      elements.startSound.play();
+      
+      state.timer.interval = setInterval(() => {
+        state.timer.elapsedSeconds++;
+        updateTimerDisplay();
+      }, 1000);
+    };
 
-  function formatTime(seconds) {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    return [hrs, mins, secs].map(n => String(n).padStart(2, '0')).join(':');
-  }
+    const pauseTimer = () => {
+      if (!state.timer.running) return;
+      state.timer.running = false;
+      elements.startBtn.disabled = false;
+      elements.pauseBtn.disabled = true;
+      elements.pauseSound.currentTime = 0;
+      elements.pauseSound.play();
+      clearInterval(state.timer.interval);
+    };
 
-  function updateTimerDisplay() {
-    timerDisplay.textContent = formatTime(elapsedSeconds);
-  }
-
-  function startTimer() {
-    if (running) return;
-    running = true;
-    startBtn.disabled = true;
-    pauseBtn.disabled = false;
-    startSound.currentTime = 0;
-    startSound.play();
-    timerInterval = setInterval(() => {
-      elapsedSeconds++;
+    const resetTimer = () => {
+      if (state.timer.running) pauseTimer();
+      state.timer.elapsedSeconds = 0;
+      elements.resetSound.currentTime = 0;
+      elements.resetSound.play();
       updateTimerDisplay();
-    }, 1000);
-  }
+    };
 
-  function pauseTimer() {
-    if (!running) return;
-    running = false;
-    startBtn.disabled = false;
-    pauseBtn.disabled = true;
-    pauseSound.currentTime = 0;
-    pauseSound.play();
-    clearInterval(timerInterval);
-  }
-
-  function resetTimer() {
-    if (running) pauseTimer();
-    elapsedSeconds = 0;
-    resetSound.currentTime = 0;
-    resetSound.play();
+    // Назначение обработчиков
+    elements.startBtn.addEventListener('click', startTimer);
+    elements.pauseBtn.addEventListener('click', pauseTimer);
+    elements.resetBtn.addEventListener('click', resetTimer);
+    
+    // Инициализация отображения
     updateTimerDisplay();
   }
 
-  startBtn.addEventListener('click', startTimer);
-  pauseBtn.addEventListener('click', pauseTimer);
-  resetBtn.addEventListener('click', resetTimer);
-  updateTimerDisplay();
-
-  // === Палыч ===
-  const palychModal = document.getElementById('palychModal');
-  const palychClose = document.getElementById('palychClose');
-  const palychMessages = document.getElementById('palychMessages');
-  const palychInput = document.getElementById('palychInput');
-  const palychSend = document.getElementById('palychSend');
-  const thinkingIndicator = document.getElementById('thinkingIndicator');
-  const palychForget = document.getElementById('palychForget');
-
-  let chatHistory = [];
+  // === Чат Палыча ===
+  function initPalychChat() {
+    // Восстановление истории чата
+    restoreChat();
+    
+    // Обработчики событий
+    elements.palychInput.addEventListener('keydown', handleChatInputKeydown);
+    elements.palychSend.addEventListener('click', sendPalychMessage);
+    elements.palychBtn.addEventListener('click', openPalychModal);
+    elements.palychClose.addEventListener('click', closePalychModal);
+    elements.palychForget.addEventListener('click', forgetChatHistory);
+    elements.palychModal.addEventListener('click', handleModalClick);
+    elements.palychInput.addEventListener('input', adjustInputHeight);
+    
+    // Инициализация высоты поля ввода
+    adjustInputHeight();
+  }
 
   function restoreChat() {
     try {
-      const saved = JSON.parse(localStorage.getItem('palychChatHistory') || '[]');
-      chatHistory = Array.isArray(saved) ? saved : [];
-    } catch { chatHistory = []; }
-    if (!chatHistory.length) {
-      chatHistory.push({
+      const saved = localStorage.getItem(AppConfig.chatHistoryKey);
+      state.chatHistory = saved ? JSON.parse(saved) : [{
         role: 'assistant',
         content: 'Здравствуй! Я Владимир Вольфович. Спрашивай — не бойся!'
-      });
+      }];
+    } catch (e) {
+      state.chatHistory = [{
+        role: 'assistant',
+        content: 'Здравствуй! Я Владимир Вольфович. Спрашивай — не бойся!'
+      }];
     }
     renderChat();
-    saveChat();
   }
 
   function saveChat() {
-    localStorage.setItem('palychChatHistory', JSON.stringify(chatHistory));
+    localStorage.setItem(AppConfig.chatHistoryKey, JSON.stringify(state.chatHistory));
   }
 
   function renderChat() {
-    palychMessages.innerHTML = '';
-    for (const msg of chatHistory) {
+    elements.palychMessages.innerHTML = '';
+    state.chatHistory.forEach(msg => {
       const div = document.createElement('div');
-      div.className = 'message ' + (msg.role === 'user' ? 'user-message' : 'assistant-message');
+      div.className = `message ${msg.role}-message`;
       div.textContent = msg.content;
-      palychMessages.appendChild(div);
-    }
-    palychMessages.scrollTop = palychMessages.scrollHeight;
+      elements.palychMessages.appendChild(div);
+    });
+    elements.palychMessages.scrollTop = elements.palychMessages.scrollHeight;
   }
 
-  function addMessageToHistory(content, role) {
-    chatHistory.push({ role, content });
-    const div = document.createElement('div');
-    div.className = 'message ' + (role === 'user' ? 'user-message' : 'assistant-message');
-    div.textContent = content;
-    palychMessages.appendChild(div);
-    div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  function addMessage(role, content) {
+    state.chatHistory.push({ role, content });
     saveChat();
-    return div;
+    renderChat();
   }
 
-  async function typeWriter(text, element, speed = 20) {
-    const chunks = text.split(/\n{2,}/).filter(x => x.trim());
-    element.innerHTML = '';
+  async function typeMessage(element, text) {
+    element.textContent = '';
     element.classList.add('typing');
-    for (const chunk of chunks) {
-      const p = document.createElement('p');
-      element.appendChild(p);
-      for (let i = 0; i < chunk.length; i++) {
-        p.textContent += chunk[i];
-        await new Promise(r => setTimeout(r, speed));
-      }
-      await new Promise(r => setTimeout(r, speed * 3));
+    
+    for (let i = 0; i < text.length; i++) {
+      element.textContent += text[i];
+      await new Promise(r => setTimeout(r, AppConfig.typingSpeed));
     }
+    
     element.classList.remove('typing');
   }
 
   async function sendPalychMessage() {
-    const content = palychInput.value.trim();
-    if (!content) return;
+    const message = elements.palychInput.value.trim();
+    if (!message) return;
 
-    const userDiv = addMessageToHistory(content, 'user');
-    palychInput.value = '';
-    palychInput.style.height = '40px';
-    palychSend.disabled = true;
-    thinkingIndicator.classList.add('visible');
+    // Добавление сообщения пользователя
+    addMessage('user', message);
+    elements.palychInput.value = '';
+    elements.palychSend.disabled = true;
+    elements.thinkingIndicator.classList.add('visible');
 
     try {
-      const res = await sendMessageToPalych(content, chatHistory);
-      const reply = res.response || res.text || "Палыч молчит...";
-      const botDiv = addMessageToHistory('', 'assistant');
-      await typeWriter(reply, botDiv);
-    } catch (e) {
-      addMessageToHistory("Ошибка соединения с Палычем.", 'assistant');
-      console.error(e);
+      // Создание элемента для ответа
+      const botMessage = document.createElement('div');
+      botMessage.className = 'message assistant-message';
+      elements.palychMessages.appendChild(botMessage);
+      
+      // Отправка запроса на сервер
+      const response = await sendMessageToPalych(message, state.chatHistory);
+      const reply = response.response || "Палыч молчит...";
+      
+      // Анимация набора текста
+      await typeMessage(botMessage, reply);
+      
+      // Сохранение ответа в историю
+      addMessage('assistant', reply);
+    } catch (error) {
+      addMessage('assistant', "Ошибка соединения с Палычем.");
+      console.error('Chat error:', error);
     }
 
-    thinkingIndicator.classList.remove('visible');
-    palychSend.disabled = false;
+    // Сброс состояния
+    elements.thinkingIndicator.classList.remove('visible');
+    elements.palychSend.disabled = false;
+    adjustInputHeight();
   }
 
-  palychInput.addEventListener('input', () => {
-    palychInput.style.height = 'auto';
-    palychInput.style.height = palychInput.scrollHeight + 'px';
-    palychSend.disabled = !palychInput.value.trim();
-  });
-
-  palychInput.addEventListener('keydown', e => {
+  function handleChatInputKeydown(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendPalychMessage();
     }
-  });
+  }
 
-  palychSend.addEventListener('click', sendPalychMessage);
-  palychBtn.addEventListener('click', () => {
-    palychModal.classList.add('active');
-    palychInput.focus();
+  function openPalychModal() {
+    elements.palychModal.classList.add('active');
+    elements.palychInput.focus();
     restoreChat();
-  });
+  }
 
-  palychClose.addEventListener('click', () => {
-    palychModal.classList.remove('active');
+  function closePalychModal() {
+    elements.palychModal.classList.remove('active');
     saveChat();
-  });
+  }
 
-  palychForget.addEventListener('click', () => {
-    chatHistory = [];
-    restoreChat();
-  });
+  function forgetChatHistory() {
+    state.chatHistory = [{
+      role: 'assistant',
+      content: 'Здравствуй! Я Владимир Вольфович. Спрашивай — не бойся!'
+    }];
+    saveChat();
+    renderChat();
+  }
 
-  palychModal.addEventListener('click', (e) => {
-    if (e.target === palychModal) {
-      palychModal.classList.remove('active');
-      saveChat();
+  function handleModalClick(e) {
+    if (e.target === elements.palychModal) {
+      closePalychModal();
     }
-  });
+  }
 
-  document.addEventListener('DOMContentLoaded', restoreChat);
+  function adjustInputHeight() {
+    elements.palychInput.style.height = 'auto';
+    elements.palychInput.style.height = elements.palychInput.scrollHeight + 'px';
+    elements.palychSend.disabled = !elements.palychInput.value.trim();
+  }
+
+  // === Инициализация приложения ===
+  document.addEventListener('DOMContentLoaded', () => {
+    initNotepad();
+    initTimer();
+    initPalychChat();
+    
+    // Инициализация кнопки пасхалки
+    document.querySelector('.easter-button').addEventListener('click', toggleVideo);
+  });
 </script>
 
 </body>
