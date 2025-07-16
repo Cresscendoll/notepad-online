@@ -5,28 +5,29 @@ async function sendMessageToPalych(message, context = []) {
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}` // Добавьте эту строку
       },
       body: JSON.stringify({
-        messages: [
-          ...context.filter(msg => msg.role && msg.content),
-          { role: 'user', content: message }
-        ]
+        messages: context.concat([{ 
+          role: 'user', 
+          content: message 
+        }])
       })
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => null);
-      throw new Error(error?.message || `HTTP error ${response.status}`);
+      const errorData = await response.json();
+      throw new Error(errorData.error || `HTTP error ${response.status}`);
     }
 
     return await response.json();
 
   } catch (error) {
-    console.error('Ошибка API:', error.message);
+    console.error('Palych API error:', error);
     return { 
-      error: "Сервер временно недоступен. Попробуйте позже.",
-      status: error.message.includes('500') ? 'server_error' : 'connection_error'
+      error: "Ошибка соединения с сервером",
+      status: 500
     };
   }
 }
