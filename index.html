@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <title>Блокнот онлайн — Центральный народный блокнот</title>
   <link rel="canonical" href="https://zmtk.my" />
-  <meta name="description" content="Онлайн блокнот. ИИ Палыч всегда на связи, если нужна помощь. Удобный и бесплатный, без регистрации. Просто пиши и возвращайся, товарищ!" />
+  <meta name="description" content="Онлайн блокнот. Владимир Вольфович всегда на связи, если нужна помощь. Удобный и бесплатный, без регистрации. Просто пиши и возвращайся, товарищ!" />
   <meta name="keywords" content="блокнот онлайн, онлайн блокнот, заметки, записать текст, текстовый блокнот, notepad online" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <meta property="og:title" content="Блокнот онлайн — Центральный народный блокнот" />
@@ -616,7 +616,7 @@
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-5px); }
     }
-    /* Индикатор "Палыч думает..." */
+    /* Индикатор "Вольфыч думает..." */
     .thinking-indicator {
       position: absolute;
       bottom: calc(100% + 5px);
@@ -662,11 +662,11 @@
         <div class="header-text">
           <nav><a href="about.html" title="О проекте">О проекте</a></nav>
           <h1 style="color: black;">Онлайн блокнот</h1>
-          <p style="color: black;">ИИ Палыч всегда на связи, если нужна помощь. Просто пиши — и получишь совет, как в добрые советские времена.</p>
+          <p style="color: black;">ЖирикGPT всегда на связи, если нужна помощь. Просто пиши — и получишь совет, как в добрые советские времена.</p>
         </div>
         <textarea id="notepad" placeholder="Пиши свою заметку в наш онлайн-блокнот — всё сохранится!"></textarea>
         <div class="button-row">
-          <button class="palych-button" id="palychBtn" title="Вызвать Палыча для помощи">Вызвать Палыча</button>
+          <button class="palych-button" id="palychBtn" title="Вызвать Палыча для помощи">Вызвать Жириновского</button>
           <button class="download-button" id="downloadBtn" title="Скачать файл с заметками">Скачать</button>
         </div>
       </div>
@@ -687,7 +687,7 @@
   <div class="palych-modal" id="palychModal">
     <div class="palych-dialog">
       <div class="palych-header">
-        <span>Геннадий Палыч - верный заводчанин</span>
+        <span>Владимир Жириновский - депутат и лидер партии ЛДПР</span>
         <div>
           <button class="palych-forget" id="palychForget">Забыть разговор</button>
           <button class="palych-close" id="palychClose">×</button>
@@ -696,11 +696,11 @@
       <div class="palych-content">
         <div class="palych-messages" id="palychMessages">
           <div class="message assistant-message">
-            Здравствуйте, товарищ! Я Геннадий Палыч — ваш верный помощник с завода. Чем могу помочь рабочему человеку?
+            Здравствуй! Я дядя Вова — ваш верный помощник. Чем могу помочь рабочему человеку?
           </div>
         </div>
         <div class="palych-input-area">
-          <div class="thinking-indicator" id="thinkingIndicator">Палыч думает...</div>
+          <div class="thinking-indicator" id="thinkingIndicator">Вольфыч думает...</div>
           <textarea class="palych-input" id="palychInput" placeholder="Введите ваш вопрос..."></textarea>
           <button class="palych-send" id="palychSend">Отправить</button>
         </div>
