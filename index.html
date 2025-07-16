@@ -1059,13 +1059,19 @@
   // Отправка сообщения Палычу
   async function typeWriter(text, element, speed = 20) {
   return new Promise((resolve) => {
-    // Жёсткий разбор: вставим маркеры перед фамилиями
+    // Улучшенный разбор: обрабатываем разные форматы имён в дебатах
     const withBreaks = text
-      .replace(/(?!^)(\*\*Путин:\*\*)/g, '|||$1')
-      .replace(/(?!^)(\*\*Жириновский:\*\*)/g, '|||$1')
-      .replace(/(?!^)(\*\*Коломойский:\*\*)/g, '|||$1');
+      // Обрабатываем жирные имена с двоеточием
+      .replace(/(?!^)(\*\*[А-Яа-яёЁ]+:\*\*)/g, '\n\n$1')
+      // Обрабатываем обычные имена с двоеточием
+      .replace(/(?!^)([А-Яа-яёЁ]+:(?!\d))/g, '\n\n$1')
+      // Обрабатываем имена в кавычках
+      .replace(/(?!^)("[А-Яа-яёЁ]+":)/g, '\n\n$1')
+      // Обрабатываем конкретные имена для надёжности
+      .replace(/(?!^)(Путин:|Жириновский:|Коломойский:|Зеленский:|Трамп:|Байден:)/g, '\n\n$1');
 
-    const parts = withBreaks.split('|||').filter(p => p.trim());
+    // Разбиваем на части и убираем пустые
+    const parts = withBreaks.split(/\n\n+/).filter(p => p.trim());
 
     element.innerHTML = '';
     element.classList.add('typing');
@@ -1080,6 +1086,10 @@
       }
 
       const paragraph = document.createElement('p');
+      // Добавляем отступ для новых реплик (кроме первой)
+      if (partIndex > 0) {
+        paragraph.style.marginTop = '15px';
+      }
       element.appendChild(paragraph);
 
       const part = parts[partIndex];
@@ -1093,7 +1103,7 @@
           setTimeout(typeChar, speed);
         } else {
           partIndex++;
-          setTimeout(typePart, speed * 2); // пауза между блоками
+          setTimeout(typePart, speed * 3); // увеличенная пауза между репликами
         }
       }
 
