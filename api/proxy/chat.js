@@ -2,7 +2,7 @@ const fetch = require('node-fetch');
 
 module.exports = async (req, res) => {
   const PALYCH_API_URL = 'https://palych-backend-v2.vercel.app/api/chat';
-  const API_KEY = process.env.PALYCH_API_KEY;
+  const API_KEY = process.env.GROQ_API_KEY;
 
   // Настройка CORS
   res.setHeader('Access-Control-Allow-Origin', 'https://zmtk.my');
@@ -11,7 +11,7 @@ module.exports = async (req, res) => {
 
   try {
     if (!API_KEY) {
-      console.error('PALYCH_API_KEY is not set in environment variables');
+      console.error('GROQ_API_KEY is not set in environment variables');
       return res.status(500).json({ error: 'API key is missing' });
     }
 
@@ -31,7 +31,7 @@ module.exports = async (req, res) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Backend API error:', response.status, errorText);
+      console.error('Backend API error:', response.status, errorText.slice(0, 100));
       return res.status(response.status).json({ error: errorText || `Backend API error: ${response.status}` });
     }
 
