@@ -900,6 +900,7 @@
         content: 'Здравствуй! Я Владимир Вольфович. Спрашивай — не бойся!'
       }];
     } catch (e) {
+      console.error('Failed to restore chat history:', e);
       state.chatHistory = [{
         role: 'assistant',
         content: 'Здравствуй! Я Владимир Вольфович. Спрашивай — не бойся!'
@@ -909,7 +910,11 @@
   }
 
   function saveChat() {
-    localStorage.setItem(AppConfig.chatHistoryKey, JSON.stringify(state.chatHistory));
+    try {
+      localStorage.setItem(AppConfig.chatHistoryKey, JSON.stringify(state.chatHistory));
+    } catch (e) {
+      console.error('Failed to save chat history:', e);
+    }
   }
 
   function renderChat() {
@@ -917,22 +922,57 @@
     state.chatHistory.forEach(msg => {
       const div = document.createElement('div');
       div.className = `message ${msg.role}-message`;
-      
-      // Очистка от лишних переносов в конце и форматирование
-      const cleanContent = formatMessageText(msg.content);
-      div.innerHTML = cleanContent;
-      
+      div.innerHTML = marked.parse(msg.content); // Используем marked для Markdown
       elements.palychMessages.appendChild(div);
     });
     elements.palychMessages.scrollTop = elements.palychMessages.scrollHeight;
   }
 
-  function formatMessageText(text) {
-    return text
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Жирный текст
-      .replace(/\n{2,}/g, '\n') // Заменяем множественные переносы на один
-      .replace(/(\n)+$/g, '')   // Удаляем все переносы в конце
-      .replace(/\n/g, '<br>');  // Заменяем оставшиеся переносы на <br>
+  async function sendPalychMessage() {
+    const message = elements.palychInput.value.trim();
+    if (!message) return;
+
+    // Проверяем тип сообщения
+    if (typeof message !== 'string') {
+      console.error('Invalid message type:', typeof message);
+      addMessage('assistant', 'Ошибка: Сообщение должно быть строкой');
+      return;
+    }
+
+    addMessage('user', message);
+    elements.palychInput.value = '';
+    elements.palychSend.disabled = true;
+    elements.thinkingIndicator.classList.add('visible');
+
+    try {
+      const botMessage = document.createElement('div');
+      botMessage.className = 'message assistant-message';
+      elements.palychMessages.appendChild(botMessage);
+
+      console.log('Sending to Palych:', { message, context: state.chatHistory });
+      const response = await sendMessageToPalych(message, state.chatHistory);
+
+      elements.thinkingIndicator.classList.remove('visible');
+      elements.palychSend.disabled = false;
+
+      // Проверяем структуру ответа
+      if (response.error) {
+        console.error('API error response:', response);
+        addMessage('assistant', `Ошибка: ${response.error}`);
+        return;
+      }
+
+      const reply = response.content || 'Палыч молчит...';
+      await typeMessage(botMessage, reply);
+      addMessage('assistant', reply);
+    } catch (error) {
+      console.error('sendPalychMessage error:', error, error.stack);
+      addMessage('assistant', 'Ошибка соединения с Палычем.');
+      elements.thinkingIndicator.classList.remove('visible');
+      elements.palychSend.disabled = false;
+    }
+
+    adjustInputHeight();
   }
 
   function addMessage(role, content) {
@@ -946,14 +986,12 @@
   async function typeMessage(element, text) {
     element.innerHTML = '';
     element.classList.add('typing');
-    
-    const formattedText = formatMessageText(text);
+
+    const formattedText = marked.parse(text);
     let buffer = '';
     
     for (let i = 0; i < formattedText.length; i++) {
       buffer += formattedText[i];
-      
-      // Обновляем содержимое каждые 10 символов для производительности
       if (i % 10 === 0 || i === formattedText.length - 1) {
         element.innerHTML = buffer;
         await new Promise(r => setTimeout(r, AppConfig.typingSpeed));
@@ -961,35 +999,6 @@
     }
     
     element.classList.remove('typing');
-  }
-
-  async function sendPalychMessage() {
-    const message = elements.palychInput.value.trim();
-    if (!message) return;
-
-    addMessage('user', message);
-    elements.palychInput.value = '';
-    elements.palychSend.disabled = true;
-    elements.thinkingIndicator.classList.add('visible');
-
-    try {
-      const botMessage = document.createElement('div');
-      botMessage.className = 'message assistant-message';
-      elements.palychMessages.appendChild(botMessage);
-      
-      const response = await sendMessageToPalych(message, state.chatHistory);
-      const reply = response.response || "Палыч молчит...";
-      
-      await typeMessage(botMessage, reply);
-      addMessage('assistant', reply);
-    } catch (error) {
-      addMessage('assistant', "Ошибка соединения с Палычем.");
-      console.error('Chat error:', error);
-    }
-
-    elements.thinkingIndicator.classList.remove('visible');
-    elements.palychSend.disabled = false;
-    adjustInputHeight();
   }
 
   function handleChatInputKeydown(e) {
@@ -1013,7 +1022,7 @@
   function forgetChatHistory() {
     state.chatHistory = [{
       role: 'assistant',
-      content: 'Здравствуй! Я Владимир Вольфович. Спрашивай — не бойся!'
+      content: 'Здравствуй! Я Владимир Вольфович. А это Геннадий Палыч. Говори, с чем пришел?'
     }];
     saveChat();
     renderChat();
