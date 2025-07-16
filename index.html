@@ -757,6 +757,15 @@
     videoWrapper: document.getElementById('videoWrapper')
   };
 
+  // === Проверка элементов ===
+  function checkElements() {
+    Object.entries(elements).forEach(([key, element]) => {
+      if (!element) {
+        console.error(`Element ${key} not found in DOM`);
+      }
+    });
+  }
+
   // === Состояние приложения ===
   const state = {
     isDark: AppConfig.defaultDarkMode,
@@ -770,6 +779,10 @@
 
   // === Блокнот ===
   function initNotepad() {
+    if (!elements.textarea || !elements.downloadBtn || !elements.switcher || !elements.container) {
+      console.error('Notepad initialization failed: missing elements');
+      return;
+    }
     elements.textarea.value = localStorage.getItem(AppConfig.textStorageKey) || '';
     
     elements.textarea.addEventListener('input', () => {
@@ -809,6 +822,10 @@
   }
 
   function toggleVideo() {
+    if (!elements.videoWrapper) {
+      console.error('Video wrapper not found');
+      return;
+    }
     elements.videoWrapper.classList.toggle('active');
     if (elements.videoWrapper.classList.contains('active')) {
       const video = elements.videoWrapper.querySelector('video');
@@ -819,6 +836,10 @@
 
   // === Таймер ===
   function initTimer() {
+    if (!elements.timerDisplay || !elements.timerContainer || !elements.startBtn || !elements.pauseBtn || !elements.resetBtn) {
+      console.error('Timer initialization failed: missing elements');
+      return;
+    }
     const formatTime = (seconds) => {
       const hrs = Math.floor(seconds / 3600);
       const mins = Math.floor((seconds % 3600) / 60);
@@ -881,10 +902,18 @@
 
   // === Чат Палыча ===
   function initPalychChat() {
+    if (!elements.palychBtn || !elements.palychModal || !elements.palychInput || !elements.palychSend || !elements.palychClose || !elements.palychForget || !elements.palychMessages) {
+      console.error('Palych chat initialization failed: missing elements');
+      return;
+    }
     restoreChat();
+    console.log('Binding click event to palychBtn');
+    elements.palychBtn.addEventListener('click', () => {
+      console.log('palychBtn clicked');
+      openPalychModal();
+    });
     elements.palychInput.addEventListener('keydown', handleChatInputKeydown);
     elements.palychSend.addEventListener('click', sendPalychMessage);
-    elements.palychBtn.addEventListener('click', openPalychModal);
     elements.palychClose.addEventListener('click', closePalychModal);
     elements.palychForget.addEventListener('click', forgetChatHistory);
     elements.palychModal.addEventListener('click', handleModalClick);
@@ -1005,6 +1034,7 @@
   }
 
   function openPalychModal() {
+    console.log('Opening Palych modal');
     elements.palychModal.classList.add('active');
     elements.palychInput.focus();
     restoreChat();
@@ -1038,10 +1068,17 @@
 
   // === Инициализация приложения ===
   document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing app');
+    checkElements();
     initNotepad();
     initTimer();
     initPalychChat();
-    document.querySelector('.easter-button').addEventListener('click', toggleVideo);
+    const easterButton = document.querySelector('.easter-button');
+    if (easterButton) {
+      easterButton.addEventListener('click', toggleVideo);
+    } else {
+      console.error('Easter button not found');
+    }
   });
 </script>
 
