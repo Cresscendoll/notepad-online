@@ -1,5 +1,5 @@
 async function sendMessageToPalych(message, context = []) {
-  const API_URL = '/api/proxy/chat'; // Убедитесь, что это соответствует вашему домену
+  const API_URL = '/api/proxy/chat';
 
   try {
     console.log('Sending request to proxy:', { message, context });
@@ -22,7 +22,10 @@ async function sendMessageToPalych(message, context = []) {
       try {
         errorData = await response.json();
       } catch (e) {
-        errorData = { error: `Server returned ${response.status}: ${await response.text().slice(0, 100)}` };
+        // Если JSON не удалось распарсить, читаем текст ответа
+        const errorText = await response.text();
+        console.error('Non-JSON response:', errorText.slice(0, 100));
+        errorData = { error: `Server error: ${response.status} ${errorText.slice(0, 100)}` };
       }
       throw new Error(errorData.error || `HTTP error ${response.status}`);
     }
