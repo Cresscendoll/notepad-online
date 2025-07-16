@@ -1060,20 +1060,17 @@
   // Функция для плавного вывода текста
 async function typeWriter(text, element, speed = 20) {
   return new Promise((resolve) => {
-    // Улучшенный разбор: обрабатываем разные форматы имён в дебатах
-    const withBreaks = text
-      // Обрабатываем жирные имена с двоеточием
-      .replace(/(?!^)(\*\*[А-Яа-яёЁ]+:\*\*)/g, '\n\n$1')
-      // Обрабатываем обычные имена с двоеточием
-      .replace(/(?!^)([А-Яа-яёЁ]+:(?!\d))/g, '\n\n$1')
-      // Обрабатываем имена в кавычках
-      .replace(/(?!^)("[А-Яа-яёЁ]+":)/g, '\n\n$1')
-      // Обрабатываем конкретные имена для надёжности
-      .replace(/(?!^)(Путин:|Жириновский:|Коломойский:|Зеленский:|Трамп:|Байден:)/g, '\n\n$1');
+    // Улучшенное разбиение на реплики:
+    // 1. Разделяем по строкам с жирными именами (**Имя:**)
+    // 2. Разделяем по строкам с обычными именами (Имя:)
+    // 3. Добавляем двойной перенос строки перед каждой новой репликой
+    const formattedText = text
+      .replace(/(\*\*[А-Яа-яёЁA-Za-z]+:\*\*)/g, '\n\n$1')
+      .replace(/([А-Яа-яёЁA-Za-z]+:)/g, '\n\n$1')
+      .replace(/\n{3,}/g, '\n\n'); // Удаляем лишние переносы
 
-    // Разбиваем на части, сохраняя пустые строки как разделители
-    const parts = withBreaks.split('\n\n').filter(p => p.trim() !== '');
-
+    const parts = formattedText.split('\n\n').filter(p => p.trim() !== '');
+    
     element.innerHTML = '';
     element.classList.add('typing');
 
@@ -1086,31 +1083,26 @@ async function typeWriter(text, element, speed = 20) {
         return;
       }
 
-      const paragraph = document.createElement('p');
-      // Добавляем отступ для новых реплик (кроме первой)
-      if (partIndex > 0) {
-        paragraph.style.marginTop = '15px';
+      const part = parts[partIndex];
+      const isNewSpeaker = part.match(/^(\*\*.+:\*\*|.+:)/);
+      
+      const paragraph = document.createElement('div');
+      if (isNewSpeaker && partIndex > 0) {
+        paragraph.style.marginTop = '15px'; // Добавляем отступ для новой реплики
       }
       element.appendChild(paragraph);
 
-      const part = parts[partIndex];
       let charIndex = 0;
 
       function typeChar() {
         if (charIndex < part.length) {
-          const char = part.charAt(charIndex);
-          // Обрабатываем переносы строк внутри части
-          if (char === '\n') {
-            paragraph.appendChild(document.createElement('br'));
-          } else {
-            paragraph.appendChild(document.createTextNode(char));
-          }
+          paragraph.textContent += part.charAt(charIndex);
           charIndex++;
           paragraph.scrollIntoView({ behavior: 'smooth', block: 'end' });
           setTimeout(typeChar, speed);
         } else {
           partIndex++;
-          setTimeout(typePart, speed * 3); // увеличенная пауза между репликами
+          setTimeout(typePart, speed * 2);
         }
       }
 
@@ -1120,17 +1112,6 @@ async function typeWriter(text, element, speed = 20) {
     typePart();
   });
 }
-
-  // Обработчики событий для отправки сообщения
-  palychSend.addEventListener('click', sendMessageToPalych);
-
-  // Обработчик Enter для отправки сообщения
-  palychInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessageToPalych();
-    }
-  });
 
   // Автоматическое увеличение высоты textarea при вводе
   palychInput.addEventListener('input', function() {
