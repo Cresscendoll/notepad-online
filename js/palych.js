@@ -1,57 +1,32 @@
 async function sendMessageToPalych(message, context = []) {
-  // Добавляем таймаут для запроса (30 секунд)
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000);
-
+  const API_URL = 'https://palych-backend-v2.vercel.app/api/chat';
+  
   try {
-    // Формируем полный контекст сообщений
-    const messages = [
-      ...context.filter(msg => msg.role && msg.content), // Фильтруем некорректные сообщения
-      { role: 'user', content: message }
-    ];
-
-    const response = await fetch('https://palych-backend-v2.vercel.app/api/chat', {
+    const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ messages }),
-      signal: controller.signal
+      body: JSON.stringify({
+        messages: [
+          ...context.filter(msg => msg.role && msg.content),
+          { role: 'user', content: message }
+        ]
+      })
     });
 
-    clearTimeout(timeoutId); // Отменяем таймаут при успешном ответе
-
-    // Проверяем статус ответа
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        errorData.error?.message || 
-        `HTTP error! status: ${response.status}`
-      );
+      const error = await response.json().catch(() => null);
+      throw new Error(error?.message || `HTTP error ${response.status}`);
     }
 
-    const data = await response.json();
-    
-    // Дополнительная проверка структуры ответа
-    if (!data || typeof data !== 'object') {
-      throw new Error('Invalid response format from server');
-    }
-
-    return data;
+    return await response.json();
 
   } catch (error) {
-    clearTimeout(timeoutId); // Очищаем таймаут при ошибке
-    
-    console.error('Palych API error:', error);
-    
-    // Возвращаем более информативное сообщение об ошибке
+    console.error('Ошибка API:', error.message);
     return { 
-      error: error.message.includes('aborted') 
-        ? "Превышено время ожидания ответа от сервера" 
-        : error.message.includes('Failed to fetch')
-        ? "Ошибка соединения с сервером"
-        : "Произошла ошибка при обработке вашего запроса",
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: "Сервер временно недоступен. Попробуйте позже.",
+      status: error.message.includes('500') ? 'server_error' : 'connection_error'
     };
   }
 }
