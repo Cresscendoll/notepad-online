@@ -1,6 +1,6 @@
 async function sendMessageToPalych(message, context) {
   try {
-    const response = await fetch('https://your-backend-url.vercel.app/api', {
+    const response = await fetch('https://palych-backend-v2.vercel.app/api/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
