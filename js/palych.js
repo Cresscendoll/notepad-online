@@ -18,14 +18,14 @@ async function sendMessageToPalych(message, context = []) {
     
     console.log('Response status:', response.status);
     if (!response.ok) {
+      // Читаем тело ответа один раз
+      const responseBody = await response.text();
       let errorData;
       try {
-        errorData = await response.json();
+        errorData = JSON.parse(responseBody);
       } catch (e) {
-        // Если JSON не удалось распарсить, читаем текст ответа
-        const errorText = await response.text();
-        console.error('Non-JSON response:', errorText.slice(0, 100));
-        errorData = { error: `Server error: ${response.status} ${errorText.slice(0, 100)}` };
+        console.error('Non-JSON response:', responseBody.slice(0, 100));
+        errorData = { error: `Server error: ${response.status} ${responseBody.slice(0, 100)}` };
       }
       throw new Error(errorData.error || `HTTP error ${response.status}`);
     }
@@ -34,7 +34,7 @@ async function sendMessageToPalych(message, context = []) {
     console.log('Response data:', data);
     return data;
   } catch (error) {
-    console.error('Palych API error:', error, error.stack);
+    console.error('Palych API error:', error.message, error.stack);
     return { 
       error: error.message || 'Ошибка соединения с сервером',
       status: 500
