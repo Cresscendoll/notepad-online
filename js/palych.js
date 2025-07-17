@@ -2,7 +2,8 @@ async function sendMessageToPalych(message, context = []) {
   const API_URL = 'https://palych-backend-v2.vercel.app/api/chat';
 
   try {
-    console.log('Sending request to proxy:', { message, context });
+    console.log('📤 Отправка в API:', { message, context });
+
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
@@ -15,27 +16,25 @@ async function sendMessageToPalych(message, context = []) {
         }])
       })
     });
+
+    console.log('📥 Статус ответа:', response.status);
     
-    console.log('Response status:', response.status);
-    if (!response.ok) {
-      const responseBody = await response.text();
-      let errorData;
-      try {
-        errorData = JSON.parse(responseBody);
-      } catch (e) {
-        console.error('Non-JSON response:', responseBody.slice(0, 100));
-        errorData = { error: `Server error: ${response.status} ${responseBody.slice(0, 100)}` };
-      }
-      throw new Error(errorData.error || `HTTP error ${response.status}`);
+    const result = await response.json();
+    console.log('📥 Данные ответа:', result);
+
+    if (!response.ok || !result.response) {
+      throw new Error(result.error || 'Пустой ответ от Палыча');
     }
-    
-    const data = await response.json();
-    console.log('Response data:', data);
-    return data;
+
+    return {
+      response: result.response,
+      usage: result.usage || {}
+    };
+
   } catch (error) {
-    console.error('Palych API error:', error.message, error.stack);
-    return { 
-      error: error.message || 'Ошибка соединения с сервером',
+    console.error('❌ Ошибка запроса к Палычу:', error.message);
+    return {
+      error: error.message || 'Ошибка соединения с Палычем',
       status: 500
     };
   }
