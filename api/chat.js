@@ -1,16 +1,16 @@
-const fetch = require('node-fetch');
-
+// api/chat.js
+const { fetch } = require('undici'); // или node-fetch@2
 module.exports = async (req, res) => {
   const API_KEY = process.env.GROQ_API_KEY;
   const BACKEND_API_URL = 'https://palych-backend-v2.vercel.app/api/chat';
 
-  // Обработка CORS
-  res.setHeader('Access-Control-Allow-Origin', '*'); // или ограничить
+  // CORS для SSR-режима Vercel — по желанию
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
-    return res.status(200).end(); // Ответ preflight
+    return res.status(200).end();
   }
 
   if (req.method !== 'POST') {
@@ -27,20 +27,13 @@ module.exports = async (req, res) => {
       body: JSON.stringify(req.body),
     });
 
-    // 💡 Сохраняем данные сразу
-    const status = proxyRes.status;
-    const contentType = proxyRes.headers.get('content-type') || '';
-
-    let data;
-    if (contentType.includes('application/json')) {
-      data = await proxyRes.json();
-    } else {
-      const text = await proxyRes.text();
-      data = { error: 'Не JSON ответ от сервера', raw: text };
+    const text = await proxyRes.text(); // ⚠️ читаем как текст
+    try {
+      const json = JSON.parse(text); // ⚠️ и пытаемся распарсить
+      return res.status(proxyRes.status).json(json);
+    } catch {
+      return res.status(proxyRes.status).send(text);
     }
-
-    res.status(status).json(data);
-
   } catch (error) {
     console.error('❌ Proxy error:', error.message);
     res.status(500).json({ error: 'Proxy failed: ' + error.message });
