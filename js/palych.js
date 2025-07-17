@@ -1,11 +1,12 @@
 async function sendMessageToPalych(message, context = []) {
-  const API_URL = 'https://palych-backend-v2.vercel.app/api/chat';
+  // 🛠️ Используй локальный API на том же домене, где размещён frontend
+  const API_URL = '/api/chat';
 
   try {
     console.log('📤 Отправка в API:', { message, context });
 
     const limitedContext = context
-      .filter(msg => msg.role === 'user') // можно добавить 'assistant'
+      .filter(msg => msg.role === 'user') // или оставить assistant, если нужно
       .slice(-2); // последние 2 сообщения
 
     const response = await fetch(API_URL, {
