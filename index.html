@@ -982,13 +982,15 @@
 
       console.log('Sending to Palych:', { message, context: state.chatHistory });
       const response = await sendMessageToPalych(message, state.chatHistory);
-
+           if (response.response) {
+        document.querySelector('#palych-output').innerText = response.response;
+     }
       if (response.error) {
         console.error('API error response:', response);
         addMessage('assistant', `Ошибка: ${response.error}`);
         elements.thinkingIndicator.classList.remove('visible');
         elements.palychSend.disabled = false;
-        return;
+       return;
       }
 
       const reply = response.content || 'Палыч молчит...';
