@@ -1,5 +1,5 @@
 async function sendMessageToPalych(message, context = []) {
-  const API_URL = '/api/chat'; // ⚠️ относительный путь — работает только если frontend и backend на одном домене
+  const API_URL = 'https://palych-backend-v2.vercel.app/api/chat';
 
   try {
     console.log('📤 Отправка в API:', { message, context });
