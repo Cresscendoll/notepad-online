@@ -659,58 +659,71 @@
   <!-- Девочка с часами -->
   <img src="/images/timegirl.png" alt="Девочка показывает на часы" class="time-girl" id="timeGirl" />
 
-  <div class="notepad-section">
-    <img src="/images/left.png" alt="Левое изображение" class="side-image" />
-    <div class="container-wrapper">
-      <div class="container" id="notepadContainer">
-        <div class="header-text">
-          <nav><a href="about.html" title="О проекте">О проекте</a></nav>
-          <h1 style="color: black;">Онлайн блокнот</h1>
-          <p style="color: black;">ЖирикGPT всегда на связи, если нужна помощь. Просто пиши — и получишь совет, как в добрые советские времена.</p>
-        </div>
-        <textarea id="notepad" placeholder="Пиши свою заметку в наш онлайн-блокнот — всё сохранится!"></textarea>
-        <div class="button-row">
-          <button class="palych-button" id="palychBtn" title="Вызвать Палыча для помощи">Вызвать Жириновского</button>
-          <button class="download-button" id="downloadBtn" title="Скачать файл с заметками">Скачать</button>
-        </div>
+  <!-- Блокнот и кнопки -->
+<div class="notepad-section">
+  <img src="/images/left.png" alt="Левое изображение" class="side-image" />
+  <div class="container-wrapper">
+    <div class="container" id="notepadContainer">
+      <div class="header-text">
+        <nav><a href="about.html" title="О проекте">О проекте</a></nav>
+        <h1 style="color: black;">Онлайн блокнот</h1>
+        <p style="color: black;">
+          ЖирикGPT всегда на связи, если нужна помощь. Просто пиши —
+          и получишь совет, как в добрые советские времена.
+        </p>
       </div>
-    </div>
-    <img src="/images/right.png" alt="Правое изображение" class="side-image" />
-  </div>
 
-  <div id="timerContainer" aria-label="Секундомер">
-    <div id="timerDisplay">00:00:00</div>
-    <div class="timer-buttons">
-      <button id="resetBtn" type="button">Сброс</button>
-      <button id="pauseBtn" type="button" disabled>Пауза</button>
-      <button id="startBtn" type="button">Запустить</button>
-    </div>
-  </div>
+      <textarea id="notepad" placeholder="Пиши свою заметку в наш онлайн-блокнот — всё сохранится!"></textarea>
 
-  <!-- Модальное окно Палыча -->
-  <div class="palych-modal" id="palychModal">
-    <div class="palych-dialog">
-      <div class="palych-header">
-        <span>Владимир Жириновский - депутат и лидер партии ЛДПР</span>
-        <div>
-          <button class="palych-forget" id="palychForget">Забыть разговор</button>
-          <button class="palych-close" id="palychClose">×</button>
-        </div>
-      </div>
-      <div class="palych-content">
-        <div class="palych-messages" id="palychMessages">
-          <div class="message assistant-message">
-            Здравствуй! Я дядя Вова — ваш верный помощник. Чем могу помочь рабочему человеку?
-          </div>
-        </div>
-        <div class="palych-input-area">
-          <div class="thinking-indicator" id="thinkingIndicator">Вольфыч думает...</div>
-          <textarea class="palych-input" id="palychInput" placeholder="Введите ваш вопрос..."></textarea>
-          <button class="palych-send" id="palychSend">Отправить</button>
-        </div>
+      <div class="button-row">
+        <button class="palych-button" id="palychBtn" title="Вызвать Палыча для помощи">
+          Вызвать Жириновского
+        </button>
+        <button class="download-button" id="downloadBtn" title="Скачать файл с заметками">
+          Скачать
+        </button>
       </div>
     </div>
   </div>
+  <img src="/images/right.png" alt="Правое изображение" class="side-image" />
+</div>
+
+<!-- Таймер -->
+<div id="timerContainer" aria-label="Секундомер">
+  <div id="timerDisplay">00:00:00</div>
+  <div class="timer-buttons">
+    <button id="resetBtn" type="button">Сброс</button>
+    <button id="pauseBtn" type="button" disabled>Пауза</button>
+    <button id="startBtn" type="button">Запустить</button>
+  </div>
+</div>
+
+<!-- Модальное окно Палыча -->
+<div class="palych-modal" id="palychModal">
+  <div class="palych-dialog">
+    <div class="palych-header">
+      <span>Владимир Жириновский — депутат и лидер партии ЛДПР</span>
+      <div>
+        <button class="palych-forget" id="palychForget">Забыть разговор</button>
+        <button class="palych-close" id="palychClose">×</button>
+      </div>
+    </div>
+
+    <div class="palych-content">
+      <div class="palych-messages" id="palychMessages">
+        <div class="message assistant-message">
+          Здравствуй! Я дядя Вова — ваш верный помощник. Чем могу помочь рабочему человеку?
+        </div>
+      </div>
+
+      <div class="palych-input-area">
+        <div class="thinking-indicator" id="thinkingIndicator">Вольфыч думает...</div>
+        <textarea class="palych-input" id="palychInput" placeholder="Введите ваш вопрос..."></textarea>
+        <button class="palych-send" id="palychSend">Отправить</button>
+      </div>
+    </div>
+  </div>
+</div>
 
   <button class="easter-button" onclick="toggleVideo()">?</button>
 
