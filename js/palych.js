@@ -10,20 +10,28 @@ async function sendMessageToPalych(message, context = []) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        messages: context.concat([{ 
-          role: 'user', 
-          content: message 
-        }])
+        messages: [...context, { role: 'user', content: message }]
       })
     });
 
     console.log('📥 Статус ответа:', response.status);
-    
-    const result = await response.json();
+
+    let result;
+    try {
+      result = await response.json();
+    } catch (parseError) {
+      console.error('⚠️ Не удалось распарсить JSON:', parseError);
+      throw new Error('Невалидный JSON от сервера');
+    }
+
     console.log('📥 Данные ответа:', result);
 
-    if (!response.ok || !result.response) {
-      throw new Error(result.error || 'Пустой ответ от Палыча');
+    if (!response.ok) {
+      throw new Error(result?.error || `Ошибка HTTP ${response.status}`);
+    }
+
+    if (!result.response) {
+      throw new Error('Пустой ответ от Палыча');
     }
 
     return {
