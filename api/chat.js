@@ -1,10 +1,7 @@
-// api/chat.js
-const { fetch } = require('undici'); // или node-fetch@2
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   const API_KEY = process.env.GROQ_API_KEY;
   const BACKEND_API_URL = 'https://palych-backend-v2.vercel.app/api/chat';
 
-  // CORS для SSR-режима Vercel — по желанию
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -27,15 +24,10 @@ module.exports = async (req, res) => {
       body: JSON.stringify(req.body),
     });
 
-    const text = await proxyRes.text(); // ⚠️ читаем как текст
-    try {
-      const json = JSON.parse(text); // ⚠️ и пытаемся распарсить
-      return res.status(proxyRes.status).json(json);
-    } catch {
-      return res.status(proxyRes.status).send(text);
-    }
+    const data = await proxyRes.json();
+    res.status(proxyRes.status).json(data);
   } catch (error) {
     console.error('❌ Proxy error:', error.message);
     res.status(500).json({ error: 'Proxy failed: ' + error.message });
   }
-};
+}
