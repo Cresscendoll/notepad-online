@@ -1,5 +1,8 @@
 async function sendMessageToPalych(message, context = []) {
-  const API_URL = 'https://palych-backend-v2.vercel.app/api/chat';
+  const isLocal = window.location.hostname === 'localhost';
+  const API_URL = isLocal
+    ? '/api/chat' // локальная разработка
+    : 'https://palych-backend-v2.vercel.app/api/chat'; // продакшн
 
   try {
     console.log('📤 Отправка в API:', { message, context });
@@ -20,14 +23,12 @@ async function sendMessageToPalych(message, context = []) {
 
     console.log('📥 Статус ответа:', response.status);
 
-    // Обрабатываем ошибки до попытки чтения тела
     if (!response.ok) {
       const errorText = await response.text();
       console.error('❌ Ошибка от сервера:', errorText);
       throw new Error(errorText || `Ошибка HTTP ${response.status}`);
     }
 
-    // Только один раз читаем тело ответа
     const result = await response.json();
     console.log('📥 Данные ответа:', result);
 
