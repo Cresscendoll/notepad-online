@@ -6,8 +6,13 @@ module.exports = async (req, res) => {
 
   // Настройка CORS
   res.setHeader('Access-Control-Allow-Origin', 'https://zmtk.my');
-  res.setHeader('Access-Control-Allow-Methods', 'POST');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Ответ на preflight-запрос
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
 
   try {
     console.log('Checking GROQ_API_KEY:', API_KEY ? `Key present (starts with: ${API_KEY.slice(0, 5)}...)` : 'Key missing');
