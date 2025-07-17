@@ -1,3 +1,27 @@
+// Обёртка с повторной попыткой при 401
+async function sendMessageWithRetry(message, context = [], retries = 1, delayMs = 400) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const result = await sendMessageToPalych(message, context);
+      if (result?.error?.includes('Неверный API ключ')) {
+        throw new Error(result.error);
+      }
+      return result;
+    } catch (err) {
+      console.warn(`🔁 Попытка ${attempt + 1} не удалась:`, err.message);
+      if (attempt < retries) {
+        await new Promise(res => setTimeout(res, delayMs));
+      } else {
+        return {
+          error: 'После нескольких попыток ключ всё ещё не работает',
+          status: 401
+        };
+      }
+    }
+  }
+}
+
+// Основная функция отправки
 async function sendMessageToPalych(message, context = []) {
   const isLocal = window.location.hostname === 'localhost';
   const API_URL = isLocal
