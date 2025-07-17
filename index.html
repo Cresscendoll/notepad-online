@@ -723,7 +723,7 @@
 
   <script src="js/palych.js"></script>
 <script>
-  // === Конфигурация приложения ===
+  // === Конфигурация ===
   const AppConfig = {
     defaultDarkMode: true,
     chatHistoryKey: 'palychChatHistory',
@@ -732,11 +732,10 @@
     typingSpeed: 20
   };
 
-  // === Инициализация элементов ===
+  // === DOM элементы ===
   const elements = {
     textarea: document.getElementById('notepad'),
     downloadBtn: document.getElementById('downloadBtn'),
-    palychBtn: document.getElementById('palychBtn'),
     switcher: document.getElementById('switcher'),
     body: document.body,
     container: document.getElementById('notepadContainer'),
@@ -760,16 +759,6 @@
     videoWrapper: document.getElementById('videoWrapper')
   };
 
-  // === Проверка элементов ===
-  function checkElements() {
-    Object.entries(elements).forEach(([key, element]) => {
-      if (!element) {
-        console.error(`Element ${key} not found in DOM`);
-      }
-    });
-  }
-
-  // === Состояние приложения ===
   const state = {
     isDark: AppConfig.defaultDarkMode,
     chatHistory: [],
@@ -780,18 +769,21 @@
     }
   };
 
-  // === Блокнот ===
+  function checkElements() {
+    Object.entries(elements).forEach(([key, element]) => {
+      if (!element) {
+        console.error(`❌ Не найден элемент: ${key}`);
+      }
+    });
+  }
+
+  // === Текстовый редактор ===
   function initNotepad() {
-    if (!elements.textarea || !elements.downloadBtn || !elements.switcher || !elements.container) {
-      console.error('Notepad initialization failed: missing elements');
-      return;
-    }
+    if (!elements.textarea) return;
     elements.textarea.value = localStorage.getItem(AppConfig.textStorageKey) || '';
-    
     elements.textarea.addEventListener('input', () => {
       localStorage.setItem(AppConfig.textStorageKey, elements.textarea.value);
     });
-    
     elements.downloadBtn.addEventListener('click', downloadTextFile);
     elements.switcher.addEventListener('click', toggleTheme);
     updateTheme();
@@ -813,7 +805,6 @@
   function toggleTheme() {
     elements.switcher.classList.add('pulled');
     setTimeout(() => elements.switcher.classList.remove('pulled'), 200);
-    elements.switchSound.currentTime = 0;
     elements.switchSound.play();
     state.isDark = !state.isDark;
     updateTheme();
@@ -824,129 +815,97 @@
     elements.container.classList.toggle('dark-paper', state.isDark);
   }
 
-  function toggleVideo() {
-    if (!elements.videoWrapper) {
-      console.error('Video wrapper not found');
-      return;
-    }
-    elements.videoWrapper.classList.toggle('active');
-    if (elements.videoWrapper.classList.contains('active')) {
-      const video = elements.videoWrapper.querySelector('video');
-      video.currentTime = 0;
-      video.play();
-    }
-  }
-
   // === Таймер ===
   function initTimer() {
-    if (!elements.timerDisplay || !elements.timerContainer || !elements.startBtn || !elements.pauseBtn || !elements.resetBtn) {
-      console.error('Timer initialization failed: missing elements');
-      return;
-    }
-    const formatTime = (seconds) => {
-      const hrs = Math.floor(seconds / 3600);
-      const mins = Math.floor((seconds % 3600) / 60);
-      const secs = seconds % 60;
-      return [hrs, mins, secs].map(n => String(n).padStart(2, '0')).join(':');
-    };
+    const formatTime = (s) => [Math.floor(s / 3600), Math.floor((s % 3600) / 60), s % 60]
+      .map(n => n.toString().padStart(2, '0')).join(':');
 
-    const updateTimerDisplay = () => {
+    const updateDisplay = () => {
       elements.timerDisplay.textContent = formatTime(state.timer.elapsedSeconds);
     };
 
-    const showTimeGirl = () => elements.timeGirl.classList.add('visible');
-    const hideTimeGirl = () => elements.timeGirl.classList.remove('visible');
-
-    elements.timerContainer.addEventListener('mouseenter', showTimeGirl);
-    elements.timerContainer.addEventListener('mouseleave', hideTimeGirl);
-    
-    [elements.startBtn, elements.pauseBtn, elements.resetBtn].forEach(btn => {
-      btn.addEventListener('mouseenter', showTimeGirl);
-      btn.addEventListener('mouseleave', hideTimeGirl);
-    });
-
-    const startTimer = () => {
+    const start = () => {
       if (state.timer.running) return;
       state.timer.running = true;
       elements.startBtn.disabled = true;
       elements.pauseBtn.disabled = false;
-      elements.startSound.currentTime = 0;
       elements.startSound.play();
-      
       state.timer.interval = setInterval(() => {
         state.timer.elapsedSeconds++;
-        updateTimerDisplay();
+        updateDisplay();
       }, 1000);
     };
 
-    const pauseTimer = () => {
+    const pause = () => {
       if (!state.timer.running) return;
       state.timer.running = false;
       elements.startBtn.disabled = false;
       elements.pauseBtn.disabled = true;
-      elements.pauseSound.currentTime = 0;
       elements.pauseSound.play();
       clearInterval(state.timer.interval);
     };
 
-    const resetTimer = () => {
-      if (state.timer.running) pauseTimer();
+    const reset = () => {
+      pause();
       state.timer.elapsedSeconds = 0;
-      elements.resetSound.currentTime = 0;
       elements.resetSound.play();
-      updateTimerDisplay();
+      updateDisplay();
     };
 
-    elements.startBtn.addEventListener('click', startTimer);
-    elements.pauseBtn.addEventListener('click', pauseTimer);
-    elements.resetBtn.addEventListener('click', resetTimer);
-    updateTimerDisplay();
+    elements.startBtn.addEventListener('click', start);
+    elements.pauseBtn.addEventListener('click', pause);
+    elements.resetBtn.addEventListener('click', reset);
+    updateDisplay();
   }
 
-  // === Чат Палыча ===
+  // === Чат с Палычем ===
   function initPalychChat() {
-    if (!elements.palychBtn || !elements.palychModal || !elements.palychInput || !elements.palychSend || !elements.palychClose || !elements.palychForget || !elements.palychMessages) {
-      console.error('Palych chat initialization failed: missing elements');
-      return;
-    }
     restoreChat();
-    console.log('Binding click event to palychBtn');
-    elements.palychBtn.addEventListener('click', () => {
-      console.log('palychBtn clicked');
-      openPalychModal();
-    });
-    elements.palychInput.addEventListener('keydown', handleChatInputKeydown);
-    elements.palychSend.addEventListener('click', sendPalychMessage);
+    elements.palychBtn.addEventListener('click', openPalychModal);
     elements.palychClose.addEventListener('click', closePalychModal);
+    elements.palychSend.addEventListener('click', sendPalychMessage);
+    elements.palychInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendPalychMessage();
+      }
+    });
     elements.palychForget.addEventListener('click', forgetChatHistory);
-    elements.palychModal.addEventListener('click', handleModalClick);
+    elements.palychModal.addEventListener('click', e => {
+      if (e.target === elements.palychModal) closePalychModal();
+    });
     elements.palychInput.addEventListener('input', adjustInputHeight);
     adjustInputHeight();
   }
 
+  function openPalychModal() {
+    elements.palychModal.classList.add('active');
+    elements.palychInput.focus();
+    renderChat();
+  }
+
+  function closePalychModal() {
+    elements.palychModal.classList.remove('active');
+    saveChat();
+  }
+
+  function adjustInputHeight() {
+    elements.palychInput.style.height = 'auto';
+    elements.palychInput.style.height = elements.palychInput.scrollHeight + 'px';
+    elements.palychSend.disabled = !elements.palychInput.value.trim();
+  }
+
   function restoreChat() {
-    try {
-      const saved = localStorage.getItem(AppConfig.chatHistoryKey);
-      state.chatHistory = saved ? JSON.parse(saved) : [{
-        role: 'assistant',
-        content: 'Здравствуй! Я Владимир Вольфович. Спрашивай — не бойся!'
-      }];
-    } catch (e) {
-      console.error('Failed to restore chat history:', e);
-      state.chatHistory = [{
-        role: 'assistant',
-        content: 'Здравствуй! Я Владимир Вольфович. Спрашивай — не бойся!'
-      }];
-    }
+    const saved = localStorage.getItem(AppConfig.chatHistoryKey);
+    state.chatHistory = saved ? JSON.parse(saved) : [{
+      role: 'assistant',
+      content: 'Здравствуй! Я Владимир Вольфович. Спрашивай — не бойся!'
+    }];
     renderChat();
   }
 
   function saveChat() {
-    try {
-      localStorage.setItem(AppConfig.chatHistoryKey, JSON.stringify(state.chatHistory));
-    } catch (e) {
-      console.error('Failed to save chat history:', e);
-    }
+    localStorage.setItem(AppConfig.chatHistoryKey, JSON.stringify(state.chatHistory));
   }
 
   function renderChat() {
@@ -964,126 +923,50 @@
     const message = elements.palychInput.value.trim();
     if (!message) return;
 
-    if (typeof message !== 'string') {
-      console.error('Invalid message type:', typeof message);
-      addMessage('assistant', 'Ошибка: Сообщение должно быть строкой');
-      return;
-    }
-
     addMessage('user', message);
     elements.palychInput.value = '';
     elements.palychSend.disabled = true;
     elements.thinkingIndicator.classList.add('visible');
 
     try {
-      const botMessage = document.createElement('div');
-      botMessage.className = 'message assistant-message';
-      elements.palychMessages.appendChild(botMessage);
-
-      console.log('Sending to Palych:', { message, context: state.chatHistory });
       const response = await sendMessageToPalych(message, state.chatHistory);
-           if (response.response) {
-        document.querySelector('#palych-output').innerText = response.response;
-     }
       if (response.error) {
-        console.error('API error response:', response);
         addMessage('assistant', `Ошибка: ${response.error}`);
-        elements.thinkingIndicator.classList.remove('visible');
-        elements.palychSend.disabled = false;
-       return;
+        return;
       }
 
-      const reply = response.content || 'Палыч молчит...';
-      await typeMessage(botMessage, reply);
+      const reply = response.response || 'Палыч молчит...';
       addMessage('assistant', reply);
-    } catch (error) {
-      console.error('sendPalychMessage error:', error, error.stack);
-      addMessage('assistant', `Ошибка соединения с Палычем: ${error.message}`);
+    } catch (err) {
+      addMessage('assistant', `Ошибка: ${err.message}`);
+    } finally {
       elements.thinkingIndicator.classList.remove('visible');
       elements.palychSend.disabled = false;
+      adjustInputHeight();
     }
-
-    adjustInputHeight();
   }
 
   function addMessage(role, content) {
-    const cleanContent = content.replace(/<[^>]*>?/gm, '');
-    state.chatHistory.push({ role, content: cleanContent });
+    state.chatHistory.push({ role, content });
     saveChat();
     renderChat();
   }
 
-  async function typeMessage(element, text) {
-    element.innerHTML = '';
-    element.classList.add('typing');
-
-    const formattedText = marked.parse(text);
-    let buffer = '';
-    
-    for (let i = 0; i < formattedText.length; i++) {
-      buffer += formattedText[i];
-      if (i % 10 === 0 || i === formattedText.length - 1) {
-        element.innerHTML = buffer;
-        await new Promise(r => setTimeout(r, AppConfig.typingSpeed));
-      }
-    }
-    
-    element.classList.remove('typing');
-  }
-
-  function handleChatInputKeydown(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendPalychMessage();
-    }
-  }
-
-  function openPalychModal() {
-    console.log('Opening Palych modal');
-    elements.palychModal.classList.add('active');
-    elements.palychInput.focus();
-    restoreChat();
-  }
-
-  function closePalychModal() {
-    elements.palychModal.classList.remove('active');
-    saveChat();
-  }
-
-  function forgetChatHistory() {
-    state.chatHistory = [{
-      role: 'assistant',
-      content: 'Здравствуй! Я Владимир Вольфович. Спрашивай — не бойся!'
-    }];
-    saveChat();
-    renderChat();
-  }
-
-  function handleModalClick(e) {
-    if (e.target === elements.palychModal) {
-      closePalychModal();
-    }
-  }
-
-  function adjustInputHeight() {
-    elements.palychInput.style.height = 'auto';
-    elements.palychInput.style.height = elements.palychInput.scrollHeight + 'px';
-    elements.palychSend.disabled = !elements.palychInput.value.trim();
-  }
-
-  // === Инициализация приложения ===
+  // === Инициализация ===
   document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, initializing app');
     checkElements();
     initNotepad();
     initTimer();
     initPalychChat();
     const easterButton = document.querySelector('.easter-button');
-    if (easterButton) {
-      easterButton.addEventListener('click', toggleVideo);
-    } else {
-      console.error('Easter button not found');
-    }
+    if (easterButton) easterButton.addEventListener('click', () => {
+      elements.videoWrapper?.classList.toggle('active');
+      const video = elements.videoWrapper?.querySelector('video');
+      if (video && elements.videoWrapper.classList.contains('active')) {
+        video.currentTime = 0;
+        video.play();
+      }
+    });
   });
 </script>
 
