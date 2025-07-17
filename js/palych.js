@@ -1,5 +1,5 @@
 async function sendMessageToPalych(message, context = []) {
-  const API_URL = '/api/proxy/chat';
+  const API_URL = 'https://palych-backend-v2.vercel.app/api/chat';
 
   try {
     console.log('Sending request to proxy:', { message, context });
