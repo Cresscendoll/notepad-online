@@ -747,30 +747,35 @@
 
   // === DOM элементы ===
   const elements = {
-    textarea: document.getElementById('notepad'),
-    downloadBtn: document.getElementById('downloadBtn'),
-    switcher: document.getElementById('switcher'),
-    body: document.body,
-    container: document.getElementById('notepadContainer'),
-    switchSound: document.getElementById('switchSound'),
-    timeGirl: document.getElementById('timeGirl'),
-    timerDisplay: document.getElementById('timerDisplay'),
-    resetBtn: document.getElementById('resetBtn'),
-    pauseBtn: document.getElementById('pauseBtn'),
-    startBtn: document.getElementById('startBtn'),
-    timerContainer: document.getElementById('timerContainer'),
-    startSound: document.getElementById('startSound'),
-    pauseSound: document.getElementById('pauseSound'),
-    resetSound: document.getElementById('resetSound'),
-    palychModal: document.getElementById('palychModal'),
-    palychClose: document.getElementById('palychClose'),
-    palychMessages: document.getElementById('palychMessages'),
-    palychInput: document.getElementById('palychInput'),
-    palychSend: document.getElementById('palychSend'),
-    thinkingIndicator: document.getElementById('thinkingIndicator'),
-    palychForget: document.getElementById('palychForget'),
-    videoWrapper: document.getElementById('videoWrapper')
-  };
+  textarea: document.getElementById('notepad'),
+  downloadBtn: document.getElementById('downloadBtn'),
+  switcher: document.getElementById('switcher'),
+  body: document.body,
+  container: document.getElementById('notepadContainer'),
+  switchSound: document.getElementById('switchSound'),
+  timeGirl: document.getElementById('timeGirl'),
+  timerDisplay: document.getElementById('timerDisplay'),
+  resetBtn: document.getElementById('resetBtn'),
+  pauseBtn: document.getElementById('pauseBtn'),
+  startBtn: document.getElementById('startBtn'),
+  timerContainer: document.getElementById('timerContainer'),
+  startSound: document.getElementById('startSound'),
+  pauseSound: document.getElementById('pauseSound'),
+  resetSound: document.getElementById('resetSound'),
+
+  // 🔧 ВАЖНО: ЭТО НУЖНО ДОБАВИТЬ
+  palychBtn: document.getElementById('palychBtn'),
+
+  palychModal: document.getElementById('palychModal'),
+  palychClose: document.getElementById('palychClose'),
+  palychMessages: document.getElementById('palychMessages'),
+  palychInput: document.getElementById('palychInput'),
+  palychSend: document.getElementById('palychSend'),
+  thinkingIndicator: document.getElementById('thinkingIndicator'),
+  palychForget: document.getElementById('palychForget'),
+  videoWrapper: document.getElementById('videoWrapper')
+};
+
 
   const state = {
     isDark: AppConfig.defaultDarkMode,
