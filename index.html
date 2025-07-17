@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <head>
   <meta charset="UTF-8" />
   <title>Блокнот онлайн — Центральный народный блокнот</title>
   <link rel="canonical" href="https://zmtk.my" />
@@ -483,6 +482,7 @@
       max-width: 90%;
       word-wrap: break-word;
       font-size: 14px;
+      white-space: pre-line; /* Добавлено для правильного отображения переносов строк */
     }
     @media (min-width: 768px) {
       .message {
@@ -747,35 +747,31 @@
 
   // === DOM элементы ===
   const elements = {
-  textarea: document.getElementById('notepad'),
-  downloadBtn: document.getElementById('downloadBtn'),
-  switcher: document.getElementById('switcher'),
-  body: document.body,
-  container: document.getElementById('notepadContainer'),
-  switchSound: document.getElementById('switchSound'),
-  timeGirl: document.getElementById('timeGirl'),
-  timerDisplay: document.getElementById('timerDisplay'),
-  resetBtn: document.getElementById('resetBtn'),
-  pauseBtn: document.getElementById('pauseBtn'),
-  startBtn: document.getElementById('startBtn'),
-  timerContainer: document.getElementById('timerContainer'),
-  startSound: document.getElementById('startSound'),
-  pauseSound: document.getElementById('pauseSound'),
-  resetSound: document.getElementById('resetSound'),
-
-  // 🔧 ВАЖНО: ЭТО НУЖНО ДОБАВИТЬ
-  palychBtn: document.getElementById('palychBtn'),
-
-  palychModal: document.getElementById('palychModal'),
-  palychClose: document.getElementById('palychClose'),
-  palychMessages: document.getElementById('palychMessages'),
-  palychInput: document.getElementById('palychInput'),
-  palychSend: document.getElementById('palychSend'),
-  thinkingIndicator: document.getElementById('thinkingIndicator'),
-  palychForget: document.getElementById('palychForget'),
-  videoWrapper: document.getElementById('videoWrapper')
-};
-
+    textarea: document.getElementById('notepad'),
+    downloadBtn: document.getElementById('downloadBtn'),
+    switcher: document.getElementById('switcher'),
+    body: document.body,
+    container: document.getElementById('notepadContainer'),
+    switchSound: document.getElementById('switchSound'),
+    timeGirl: document.getElementById('timeGirl'),
+    timerDisplay: document.getElementById('timerDisplay'),
+    resetBtn: document.getElementById('resetBtn'),
+    pauseBtn: document.getElementById('pauseBtn'),
+    startBtn: document.getElementById('startBtn'),
+    timerContainer: document.getElementById('timerContainer'),
+    startSound: document.getElementById('startSound'),
+    pauseSound: document.getElementById('pauseSound'),
+    resetSound: document.getElementById('resetSound'),
+    palychBtn: document.getElementById('palychBtn'),
+    palychModal: document.getElementById('palychModal'),
+    palychClose: document.getElementById('palychClose'),
+    palychMessages: document.getElementById('palychMessages'),
+    palychInput: document.getElementById('palychInput'),
+    palychSend: document.getElementById('palychSend'),
+    thinkingIndicator: document.getElementById('thinkingIndicator'),
+    palychForget: document.getElementById('palychForget'),
+    videoWrapper: document.getElementById('videoWrapper')
+  };
 
   const state = {
     isDark: AppConfig.defaultDarkMode,
@@ -931,7 +927,11 @@
     state.chatHistory.forEach(msg => {
       const div = document.createElement('div');
       div.className = `message ${msg.role}-message`;
-      div.innerHTML = marked.parse(msg.content);
+      
+      // Обработка переносов строк перед применением marked
+      const processedContent = msg.content.replace(/\n/g, '<br>');
+      div.innerHTML = marked.parse(processedContent);
+      
       elements.palychMessages.appendChild(div);
     });
     elements.palychMessages.scrollTop = elements.palychMessages.scrollHeight;
@@ -966,6 +966,15 @@
 
   function addMessage(role, content) {
     state.chatHistory.push({ role, content });
+    saveChat();
+    renderChat();
+  }
+
+  function forgetChatHistory() {
+    state.chatHistory = [{
+      role: 'assistant',
+      content: 'Здравствуй! Я Владимир Вольфович. Спрашивай — не бойся!'
+    }];
     saveChat();
     renderChat();
   }
