@@ -928,8 +928,12 @@
       const div = document.createElement('div');
       div.className = `message ${msg.role}-message`;
       
-      // Обработка переносов строк перед применением marked
-      const processedContent = msg.content.replace(/\n/g, '<br>');
+      // Обработка переносов строк и удаление лишних \n символов
+      const processedContent = msg.content
+        .replace(/\\n/g, '\n')  // Заменяем экранированные \n на реальные переносы
+        .replace(/\n+$/, '')    // Удаляем все переносы строк в конце
+        .replace(/\n/g, '<br>'); // Заменяем переносы на HTML теги
+      
       div.innerHTML = marked.parse(processedContent);
       
       elements.palychMessages.appendChild(div);
