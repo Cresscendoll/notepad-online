@@ -1,9 +1,9 @@
-async function sendMessageToPalych(message) {
+async function sendMessageToZhirinovsky(message) {
   const API_URL = window.location.hostname === 'localhost'
     ? '/api/chat'
     : 'https://palych-backend-v2.vercel.app/api/chat';
 
-  console.log('📤 Отправка темы:', message);
+  console.log('📤 Отправка сообщения Жириновскому:', message);
 
   const res = await fetch(API_URL, {
     method: 'POST',
