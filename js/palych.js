@@ -1,14 +1,10 @@
-// Обёртка с повторной попыткой при 401
+// Обёртка с повторной попыткой только при 401
 async function sendMessageWithRetry(message, context = [], retries = 1, delayMs = 400) {
   for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      const result = await sendMessageToPalych(message, context);
-      if (result?.error?.includes('Неверный API ключ')) {
-        throw new Error(result.error);
-      }
-      return result;
-    } catch (err) {
-      console.warn(`🔁 Попытка ${attempt + 1} не удалась:`, err.message);
+    const result = await sendMessageToPalych(message, context);
+
+    if (result.status === 401) {
+      console.warn(`🔁 Попытка ${attempt + 1} не удалась (401):`, result.error);
       if (attempt < retries) {
         await new Promise(res => setTimeout(res, delayMs));
       } else {
@@ -17,22 +13,25 @@ async function sendMessageWithRetry(message, context = [], retries = 1, delayMs 
           status: 401
         };
       }
+    } else {
+      return result;
     }
   }
 }
 
-// Основная функция отправки
+// Основная функция отправки сообщения в API Палыча
 async function sendMessageToPalych(message, context = []) {
   const isLocal = window.location.hostname === 'localhost';
   const API_URL = isLocal
-    ? '/api/chat' // локальная разработка
-    : 'https://palych-backend-v2.vercel.app/api/chat'; // продакшн
+    ? '/api/chat' // для локальной разработки
+    : 'https://palych-backend-v2.vercel.app/api/chat'; // в продакшн
 
   try {
     console.log('📤 Отправка в API:', { message, context });
 
+    // Можно подстроить фильтрацию: например, убрать assistant, если мешает
     const limitedContext = context
-      .filter(msg => msg.role === 'user') // можно оставить 'assistant', если нужно
+      .filter(msg => msg.role === 'user' || msg.role === 'assistant')
       .slice(-2);
 
     const response = await fetch(API_URL, {
@@ -47,17 +46,32 @@ async function sendMessageToPalych(message, context = []) {
 
     console.log('📥 Статус ответа:', response.status);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ Ошибка от сервера:', errorText);
-      throw new Error(errorText || `Ошибка HTTP ${response.status}`);
+    const text = await response.text();
+    let result = {};
+
+    try {
+      result = JSON.parse(text);
+    } catch (jsonErr) {
+      console.error('❌ Невалидный JSON:', text);
+      return {
+        error: 'Невалидный JSON от API',
+        status: response.status
+      };
     }
 
-    const result = await response.json();
-    console.log('📥 Данные ответа:', result);
+    if (!response.ok) {
+      console.error('❌ Ошибка от сервера:', result);
+      return {
+        error: result.error || 'Ошибка от сервера',
+        status: response.status
+      };
+    }
 
     if (!result.response) {
-      throw new Error('Пустой ответ от Палыча');
+      return {
+        error: 'Пустой ответ от Палыча',
+        status: response.status
+      };
     }
 
     if (result.usage) {
@@ -66,7 +80,8 @@ async function sendMessageToPalych(message, context = []) {
 
     return {
       response: result.response,
-      usage: result.usage || {}
+      usage: result.usage || {},
+      status: response.status
     };
 
   } catch (error) {
