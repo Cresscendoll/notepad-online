@@ -13,8 +13,10 @@ async function sendMessageToPalych(message) {
 
   const json = await res.json();
   if (!res.ok) {
-    return { error: json.error || 'Ошибка от сервера', status: res.status };
+    console.error('❌ Ошибка от сервера:', json);
+    return { error: json.error || 'Ошибка', status: res.status };
   }
 
+  console.log('📊 Ответ от Жириновского:', json.response, '— токены:', json.usage);
   return { response: json.response, usage: json.usage, status: 200 };
 }
