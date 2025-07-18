@@ -159,7 +159,7 @@
       background-color: #777;
       opacity: 1;
     }
-    button.palych-button {
+    button.zhirinovsky-button {
       background-color: #b22222;
       color: #fff;
       border: none;
@@ -172,7 +172,7 @@
       user-select: none;
       font-family: monospace;
     }
-    button.palych-button:hover {
+    button.zhirinovsky-button:hover {
       background-color: #cc3333;
       opacity: 1;
     }
@@ -359,8 +359,8 @@
     .time-girl.visible {
       right: 0;
     }
-    /* Стили для модального окна Палыча */
-    .palych-modal {
+    /* Стили для модального окна Жириновского */
+    .zhirinovsky-modal {
       display: none;
       position: fixed;
       top: 0;
@@ -372,10 +372,10 @@
       justify-content: center;
       align-items: center;
     }
-    .palych-modal.active {
+    .zhirinovsky-modal.active {
       display: flex;
     }
-    .palych-dialog {
+    .zhirinovsky-dialog {
       background-color: #fff;
       border-radius: 8px;
       width: 95%;
@@ -390,20 +390,20 @@
       margin: 10px;
     }
     @media (min-width: 768px) {
-      .palych-dialog {
+      .zhirinovsky-dialog {
         width: 800px;
         margin: 0;
       }
     }
-    .palych-modal.active .palych-dialog {
+    .zhirinovsky-modal.active .zhirinovsky-dialog {
       transform: translateY(0);
       opacity: 1;
     }
-    body.dark-mode .palych-dialog {
+    body.dark-mode .zhirinovsky-dialog {
       background-color: #333;
       color: #fff;
     }
-    .palych-header {
+    .zhirinovsky-header {
       background-color: #b22222;
       color: white;
       padding: 12px 15px;
@@ -414,12 +414,12 @@
       align-items: center;
     }
     @media (min-width: 768px) {
-      .palych-header {
+      .zhirinovsky-header {
         font-size: 18px;
         padding: 15px;
       }
     }
-    .palych-close {
+    .zhirinovsky-close {
       background: none;
       border: none;
       color: white;
@@ -428,14 +428,14 @@
       transition: transform 0.2s;
     }
     @media (min-width: 768px) {
-      .palych-close {
+      .zhirinovsky-close {
         font-size: 24px;
       }
     }
-    .palych-close:hover {
+    .zhirinovsky-close:hover {
       transform: scale(1.2);
     }
-    .palych-forget {
+    .zhirinovsky-forget {
       background: none;
       border: none;
       color: white;
@@ -446,11 +446,11 @@
       opacity: 0.8;
       font-family: monospace;
     }
-    .palych-forget:hover {
+    .zhirinovsky-forget:hover {
       opacity: 1;
       text-decoration: underline;
     }
-    .palych-content {
+    .zhirinovsky-content {
       flex: 1;
       padding: 10px;
       display: flex;
@@ -458,11 +458,11 @@
       height: calc(100% - 60px);
     }
     @media (min-width: 768px) {
-      .palych-content {
+      .zhirinovsky-content {
         padding: 15px;
       }
     }
-    .palych-messages {
+    .zhirinovsky-messages {
       flex: 1;
       overflow-y: auto;
       margin-bottom: 10px;
@@ -470,7 +470,7 @@
       scroll-behavior: smooth;
     }
     @media (min-width: 768px) {
-      .palych-messages {
+      .zhirinovsky-messages {
         margin-bottom: 15px;
         padding-bottom: 15px;
       }
@@ -482,7 +482,7 @@
       max-width: 90%;
       word-wrap: break-word;
       font-size: 14px;
-      white-space: pre-line; /* Добавлено для правильного отображения переносов строк */
+      white-space: pre-line;
     }
     @media (min-width: 768px) {
       .message {
@@ -523,19 +523,19 @@
     @keyframes blink {
       50% { opacity: 0; }
     }
-    .palych-input-area {
+    .zhirinovsky-input-area {
       display: flex;
       gap: 8px;
       padding-top: 8px;
       position: relative;
     }
     @media (min-width: 768px) {
-      .palych-input-area {
+      .zhirinovsky-input-area {
         gap: 10px;
         padding-top: 10px;
       }
     }
-    .palych-input {
+    .zhirinovsky-input {
       flex: 1;
       padding: 8px;
       border: 1px solid #ccc;
@@ -547,22 +547,22 @@
       font-size: 14px;
     }
     @media (min-width: 768px) {
-      .palych-input {
+      .zhirinovsky-input {
         padding: 10px;
         min-height: 50px;
         font-size: 16px;
       }
     }
-    .palych-input:focus {
+    .zhirinovsky-input:focus {
       border-color: #b22222;
       outline: none;
     }
-    body.dark-mode .palych-input {
+    body.dark-mode .zhirinovsky-input {
       background-color: #444;
       color: #fff;
       border-color: #666;
     }
-    .palych-send {
+    .zhirinovsky-send {
       background-color: #b22222;
       color: white;
       border: none;
@@ -575,16 +575,16 @@
       font-size: 14px;
     }
     @media (min-width: 768px) {
-      .palych-send {
+      .zhirinovsky-send {
         padding: 0 20px;
         height: 50px;
         font-size: 16px;
       }
     }
-    .palych-send:hover {
+    .zhirinovsky-send:hover {
       background-color: #cc3333;
     }
-    .palych-send:disabled {
+    .zhirinovsky-send:disabled {
       background-color: #777;
       cursor: not-allowed;
     }
@@ -676,7 +676,7 @@
       <textarea id="notepad" placeholder="Пиши свою заметку в наш онлайн-блокнот — всё сохранится!"></textarea>
 
       <div class="button-row">
-        <button class="palych-button" id="palychBtn" title="Вызвать Жириновского для помощи">
+        <button class="zhirinovsky-button" id="zhirinovskyBtn" title="Вызвать Жириновского для помощи">
           Вызвать Жириновского
         </button>
         <button class="download-button" id="downloadBtn" title="Скачать файл с заметками">
@@ -698,28 +698,28 @@
   </div>
 </div>
 
-<!-- Модальное окно Палыча -->
-<div class="palych-modal" id="palychModal">
-  <div class="palych-dialog">
-    <div class="palych-header">
+<!-- Модальное окно Жириновского -->
+<div class="zhirinovsky-modal" id="zhirinovskyModal">
+  <div class="zhirinovsky-dialog">
+    <div class="zhirinovsky-header">
       <span>Владимир Жириновский — депутат и лидер партии ЛДПР</span>
       <div>
-        <button class="palych-forget" id="palychForget">Забыть разговор</button>
-        <button class="palych-close" id="palychClose">×</button>
+        <button class="zhirinovsky-forget" id="zhirinovskyForget">Забыть разговор</button>
+        <button class="zhirinovsky-close" id="zhirinovskyClose">×</button>
       </div>
     </div>
 
-    <div class="palych-content">
-      <div class="palych-messages" id="palychMessages">
+    <div class="zhirinovsky-content">
+      <div class="zhirinovsky-messages" id="zhirinovskyMessages">
         <div class="message assistant-message">
-          Здравствуй! Я дядя Вова — ваш верный помощник. Чем могу помочь рабочему человеку?
+          Здравствуй! Я Владимир Вольфович Жириновский. Спрашивай — не бойся!
         </div>
       </div>
 
-      <div class="palych-input-area">
+      <div class="zhirinovsky-input-area">
         <div class="thinking-indicator" id="thinkingIndicator">Вольфыч думает...</div>
-        <textarea class="palych-input" id="palychInput" placeholder="Введите ваш вопрос..."></textarea>
-        <button class="palych-send" id="palychSend">Отправить</button>
+        <textarea class="zhirinovsky-input" id="zhirinovskyInput" placeholder="Введите ваш вопрос..."></textarea>
+        <button class="zhirinovsky-send" id="zhirinovskySend">Отправить</button>
       </div>
     </div>
   </div>
@@ -734,12 +734,12 @@
     </video>
   </div>
 
-  <script src="js/palych.js"></script>
+  <script src="js/zhirinovsky.js"></script>
 <script>
   // === Конфигурация ===
   const AppConfig = {
     defaultDarkMode: true,
-    chatHistoryKey: 'palychChatHistory',
+    chatHistoryKey: 'zhirinovskyChatHistory',
     textStorageKey: 'savedText',
     filename: 'central_narodny_blocknot.txt',
     typingSpeed: 20
@@ -762,14 +762,14 @@
     startSound: document.getElementById('startSound'),
     pauseSound: document.getElementById('pauseSound'),
     resetSound: document.getElementById('resetSound'),
-    palychBtn: document.getElementById('palychBtn'),
-    palychModal: document.getElementById('palychModal'),
-    palychClose: document.getElementById('palychClose'),
-    palychMessages: document.getElementById('palychMessages'),
-    palychInput: document.getElementById('palychInput'),
-    palychSend: document.getElementById('palychSend'),
+    zhirinovskyBtn: document.getElementById('zhirinovskyBtn'),
+    zhirinovskyModal: document.getElementById('zhirinovskyModal'),
+    zhirinovskyClose: document.getElementById('zhirinovskyClose'),
+    zhirinovskyMessages: document.getElementById('zhirinovskyMessages'),
+    zhirinovskyInput: document.getElementById('zhirinovskyInput'),
+    zhirinovskySend: document.getElementById('zhirinovskySend'),
     thinkingIndicator: document.getElementById('thinkingIndicator'),
-    palychForget: document.getElementById('palychForget'),
+    zhirinovskyForget: document.getElementById('zhirinovskyForget'),
     videoWrapper: document.getElementById('videoWrapper')
   };
 
@@ -872,48 +872,48 @@
     updateDisplay();
   }
 
-  // === Чат с Палычем ===
+  // === Чат с Жириновским ===
   function initZhirinovskyChat() {
     restoreChat();
-    elements.palychBtn.addEventListener('click', openZhirinovskyModal);
-    elements.palychClose.addEventListener('click', closeZhirinovskyModal);
-    elements.palychSend.addEventListener('click', sendZhirinovskyMessage);
-    elements.palychInput.addEventListener('keydown', e => {
+    elements.zhirinovskyBtn.addEventListener('click', openZhirinovskyModal);
+    elements.zhirinovskyClose.addEventListener('click', closeZhirinovskyModal);
+    elements.zhirinovskySend.addEventListener('click', sendZhirinovskyMessage);
+    elements.zhirinovskyInput.addEventListener('keydown', e => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        sendPalychMessage();
+        sendZhirinovskyMessage();
       }
     });
-    elements.palychForget.addEventListener('click', forgetChatHistory);
-    elements.palychModal.addEventListener('click', e => {
-      if (e.target === elements.palychModal) closePalychModal();
+    elements.zhirinovskyForget.addEventListener('click', forgetChatHistory);
+    elements.zhirinovskyModal.addEventListener('click', e => {
+      if (e.target === elements.zhirinovskyModal) closeZhirinovskyModal();
     });
-    elements.palychInput.addEventListener('input', adjustInputHeight);
+    elements.zhirinovskyInput.addEventListener('input', adjustInputHeight);
     adjustInputHeight();
   }
 
   function openZhirinovskyModal() {
-    elements.palychModal.classList.add('active');
-    elements.palychInput.focus();
+    elements.zhirinovskyModal.classList.add('active');
+    elements.zhirinovskyInput.focus();
     renderChat();
   }
 
   function closeZhirinovskyModal() {
-    elements.palychModal.classList.remove('active');
+    elements.zhirinovskyModal.classList.remove('active');
     saveChat();
   }
 
   function adjustInputHeight() {
-    elements.palychInput.style.height = 'auto';
-    elements.palychInput.style.height = elements.palychInput.scrollHeight + 'px';
-    elements.palychSend.disabled = !elements.palychInput.value.trim();
+    elements.zhirinovskyInput.style.height = 'auto';
+    elements.zhirinovskyInput.style.height = elements.zhirinovskyInput.scrollHeight + 'px';
+    elements.zhirinovskySend.disabled = !elements.zhirinovskyInput.value.trim();
   }
 
   function restoreChat() {
     const saved = localStorage.getItem(AppConfig.chatHistoryKey);
     state.chatHistory = saved ? JSON.parse(saved) : [{
       role: 'assistant',
-      content: 'Здравствуй! Я Владимир Вольфович. Спрашивай — не бойся!'
+      content: 'Здравствуй! Я Владимир Вольфович Жириновский. Спрашивай — не бойся!'
     }];
     renderChat();
   }
@@ -923,57 +923,56 @@
   }
 
   function renderChat() {
-    elements.palychMessages.innerHTML = '';
+    elements.zhirinovskyMessages.innerHTML = '';
     state.chatHistory.forEach(msg => {
       const div = document.createElement('div');
       div.className = `message ${msg.role}-message`;
 
       if (msg.role === 'assistant') {
-      const label = document.createElement('div');
-      label.textContent = 'Жириновский говорит:';
-      label.style.fontWeight = 'bold';
-      label.style.marginBottom = '3px';
-      label.style.fontSize = '13px';
-      label.style.color = '#b22222';
-      div.prepend(label);
-    }
+        const label = document.createElement('div');
+        label.textContent = 'Жириновский говорит:';
+        label.style.fontWeight = 'bold';
+        label.style.marginBottom = '3px';
+        label.style.fontSize = '13px';
+        label.style.color = '#b22222';
+        div.prepend(label);
+      }
       
-      // Обработка переносов строк и удаление лишних \n символов
       const processedContent = msg.content
-        .replace(/\\n/g, '\n')  // Заменяем экранированные \n на реальные переносы
-        .replace(/\n+$/, '')    // Удаляем все переносы строк в конце
-        .replace(/\n/g, '<br>'); // Заменяем переносы на HTML теги
+        .replace(/\\n/g, '\n')
+        .replace(/\n+$/, '')
+        .replace(/\n/g, '<br>');
       
       div.innerHTML = marked.parse(processedContent);
       
-      elements.palychMessages.appendChild(div);
+      elements.zhirinovskyMessages.appendChild(div);
     });
-    elements.palychMessages.scrollTop = elements.palychMessages.scrollHeight;
+    elements.zhirinovskyMessages.scrollTop = elements.zhirinovskyMessages.scrollHeight;
   }
 
   async function sendZhirinovskyMessage() {
-    const message = elements.palychInput.value.trim();
+    const message = elements.zhirinovskyInput.value.trim();
     if (!message) return;
 
     addMessage('user', message);
-    elements.palychInput.value = '';
-    elements.palychSend.disabled = true;
+    elements.zhirinovskyInput.value = '';
+    elements.zhirinovskySend.disabled = true;
     elements.thinkingIndicator.classList.add('visible');
 
     try {
-      const response = await sendMessageToPalych(message, state.chatHistory);
+      const response = await sendMessageToZhirinovsky(message, state.chatHistory);
       if (response.error) {
         addMessage('assistant', `Ошибка: ${response.error}`);
         return;
       }
 
-      const reply = response.response || 'Палыч молчит...';
+      const reply = response.response || 'Жириновский молчит...';
       addMessage('assistant', reply);
     } catch (err) {
       addMessage('assistant', `Ошибка: ${err.message}`);
     } finally {
       elements.thinkingIndicator.classList.remove('visible');
-      elements.palychSend.disabled = false;
+      elements.zhirinovskySend.disabled = false;
       adjustInputHeight();
     }
   }
@@ -987,7 +986,7 @@
   function forgetChatHistory() {
     state.chatHistory = [{
       role: 'assistant',
-      content: 'Здравствуй! Я дядя Вова. Спрашивай — не бойся!'
+      content: 'Здравствуй! Я Владимир Вольфович Жириновский. Спрашивай — не бойся!'
     }];
     saveChat();
     renderChat();
@@ -998,7 +997,7 @@
     checkElements();
     initNotepad();
     initTimer();
-    initPalychChat();
+    initZhirinovskyChat();
     const easterButton = document.querySelector('.easter-button');
     if (easterButton) easterButton.addEventListener('click', () => {
       elements.videoWrapper?.classList.toggle('active');
