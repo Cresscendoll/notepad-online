@@ -1,94 +1,49 @@
-// Обёртка с повторной попыткой только при 401
+// Оптимизированное p alych.js — только Жириновский
+
 async function sendMessageWithRetry(message, context = [], retries = 1, delayMs = 400) {
   for (let attempt = 0; attempt <= retries; attempt++) {
     const result = await sendMessageToPalych(message, context);
-
     if (result.status === 401) {
-      console.warn(`🔁 Попытка ${attempt + 1} не удалась (401):`, result.error);
+      console.warn(`🔁 Попытка ${attempt + 1} провалилась (401):`, result.error);
       if (attempt < retries) {
-        await new Promise(res => setTimeout(res, delayMs));
+        await new Promise(r => setTimeout(r, delayMs));
       } else {
-        return {
-          error: 'После нескольких попыток ключ всё ещё не работает',
-          status: 401
-        };
+        return { error: 'Ключ не работает после попыток', status: 401 };
       }
-    } else {
-      return result;
-    }
+    } else return result;
   }
 }
 
-// Основная функция отправки сообщения в API Палыча
 async function sendMessageToPalych(message, context = []) {
-  const isLocal = window.location.hostname === 'localhost';
-  const API_URL = isLocal
-    ? '/api/chat' // для локальной разработки
-    : 'https://palych-backend-v2.vercel.app/api/chat'; // в продакшн
+  const API_URL = window.location.hostname === 'localhost'
+    ? '/api/chat'
+    : 'https://palych-backend-v2.vercel.app/api/chat';
+  console.log('📤 API отправка:', { message, context });
 
-  try {
-    console.log('📤 Отправка в API:', { message, context });
+  const contextMsgs = context
+    .filter(msg => msg.role === 'user')
+    .slice(-5);
 
-    // Ограничим контекст только пользовательскими сообщениями (Жириновский — один)
-    const limitedContext = context
-      .filter(msg => msg.role === 'user')
-      .slice(-5);
+  const body = { messages: [...contextMsgs, { role: 'user', content: message }] };
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
 
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        messages: [...limitedContext, { role: 'user', content: message }]
-      })
-    });
-
-    console.log('📥 Статус ответа:', response.status);
-
-    const text = await response.text();
-    let result = {};
-
-    try {
-      result = JSON.parse(text);
-    } catch (jsonErr) {
-      console.error('❌ Невалидный JSON:', text);
-      return {
-        error: 'Невалидный JSON от API',
-        status: response.status
-      };
-    }
-
-    if (!response.ok) {
-      console.error('❌ Ошибка от сервера:', result);
-      return {
-        error: result.error || 'Ошибка от сервера',
-        status: response.status
-      };
-    }
-
-    if (!result.response) {
-      return {
-        error: 'Пустой ответ от Палыча',
-        status: response.status
-      };
-    }
-
-    if (result.usage) {
-      console.log('📊 Использование токенов:', result.usage);
-    }
-
-    return {
-      response: result.response,
-      usage: result.usage || {},
-      status: response.status
-    };
-
-  } catch (error) {
-    console.error('❌ Ошибка запроса к Палычу:', error.message);
-    return {
-      error: error.message || 'Ошибка соединения с Палычем',
-      status: 500
-    };
+  const text = await res.text();
+  let json;
+  try { json = JSON.parse(text); } catch {
+    return { error: 'Невалидный JSON от API', status: res.status };
   }
+
+  if (!res.ok) {
+    return { error: json.error || 'Ошибка от сервера', status: res.status };
+  }
+  if (!json.response) {
+    return { error: 'Пустой ответ от Жириновского', status: res.status };
+  }
+
+  console.log('📊 Токены:', json.usage);
+  return { response: json.response, usage: json.usage, status: res.status };
 }
