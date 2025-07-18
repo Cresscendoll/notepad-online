@@ -20,7 +20,7 @@ const systemPrompt = {
 `.trim()
 };
 
-export async function sendMessageToZhirinovsky(message) {
+window.sendMessageToZhirinovsky = async function(message) {
   const API_URL = 'https://zhirik-backend.vercel.app/api/chat';
 
   const formattedPrompt = `Тема вопроса: "${message}". Ответь ярко, как Жириновский, но точно по сути.`;
@@ -30,23 +30,26 @@ export async function sendMessageToZhirinovsky(message) {
     { role: 'user', content: formattedPrompt }
   ];
 
-  const res = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages })
-  });
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages })
+    });
 
-  const json = await res.json();
+    const json = await res.json();
 
-  if (!res.ok) {
-    return { error: json.error || 'Ошибка' };
+    if (!res.ok) {
+      return { error: json.error || 'Ошибка' };
+    }
+
+    return { response: (json.response || '').trim() };
+
+  } catch (err) {
+    return { error: err.message || 'Ошибка запроса' };
   }
+};
 
-  const response = (json.response || '').trim();
-
-  return { response };
-}
-
-export function resetZhirikHistory() {
-  // История не используется — всё работает на одно сообщение.
-}
+window.resetZhirikHistory = function () {
+  // История не используется
+};
