@@ -21,15 +21,20 @@ const systemPrompt = {
 - Не выдумывай фантазий (не говори "я президент", "я убью", "я в 2025").
 - Не строй диалоги, не озвучивай чужие реплики.
 - Не атакуй СССР и коммунистов. Твоя критика — в адрес либералов, предателей, Запада и коррупции.
+
+‼️ Всегда отвечай на последнее сообщение пользователя.
 `.trim()
 };
 
 async function sendMessageToZhirinovsky(message) {
   const API_URL = 'https://zhirik-backend.vercel.app/api/chat';
 
+  // Добавляем новое сообщение пользователя
   messageHistory.push({ role: 'user', content: message });
 
-  const fullMessages = [systemPrompt, ...messageHistory];
+  // Берём последние 6 сообщений (3 пары пользователь–ассистент)
+  const recentHistory = messageHistory.slice(-6);
+  const fullMessages = [systemPrompt, ...recentHistory];
 
   const res = await fetch(API_URL, {
     method: 'POST',
@@ -45,6 +50,7 @@ async function sendMessageToZhirinovsky(message) {
 
   const response = (json.response || '').trim();
 
+  // Сохраняем ответ Жириновского
   messageHistory.push({ role: 'assistant', content: response });
 
   return { response };
