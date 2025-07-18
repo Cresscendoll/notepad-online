@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   const API_KEY = process.env.GROQ_API_KEY;
-  const BACKEND_API_URL = 'https://palych-backend-v2.vercel.app/api/chat';
+  const BACKEND_API_URL = 'https://zhirik-backend.vercel.app/api/chat'; // ← исправлено!
 
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
