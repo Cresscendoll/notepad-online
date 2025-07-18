@@ -19,20 +19,20 @@ async function sendMessageWithRetry(message, context = [], retries = 1, delayMs 
   }
 }
 
-// Основная функция отправки сообщения в API Жириновского
+// Основная функция отправки сообщения в API Палыча
 async function sendMessageToPalych(message, context = []) {
   const isLocal = window.location.hostname === 'localhost';
   const API_URL = isLocal
-    ? '/api/chat'
-    : 'https://palych-backend-v2.vercel.app/api/chat';
+    ? '/api/chat' // для локальной разработки
+    : 'https://palych-backend-v2.vercel.app/api/chat'; // в продакшн
 
   try {
     console.log('📤 Отправка в API:', { message, context });
 
-    // Только последние 2 сообщения пользователя
+    // Ограничим контекст только пользовательскими сообщениями (Жириновский — один)
     const limitedContext = context
       .filter(msg => msg.role === 'user')
-      .slice(-2);
+      .slice(-5);
 
     const response = await fetch(API_URL, {
       method: 'POST',
@@ -69,7 +69,7 @@ async function sendMessageToPalych(message, context = []) {
 
     if (!result.response) {
       return {
-        error: 'Пустой ответ от Жириновского',
+        error: 'Пустой ответ от Палыча',
         status: response.status
       };
     }
@@ -85,9 +85,9 @@ async function sendMessageToPalych(message, context = []) {
     };
 
   } catch (error) {
-    console.error('❌ Ошибка запроса к Жириновскому:', error.message);
+    console.error('❌ Ошибка запроса к Палычу:', error.message);
     return {
-      error: error.message || 'Ошибка соединения с API',
+      error: error.message || 'Ошибка соединения с Палычем',
       status: 500
     };
   }
