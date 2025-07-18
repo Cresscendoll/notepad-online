@@ -960,7 +960,7 @@
     elements.thinkingIndicator.classList.add('visible');
 
     try {
-      const response = await sendMessageToZhirinovsky(message, state.chatHistory);
+      const response = await sendMessageToZhirinovsky(message);
       if (response.error) {
         addMessage('assistant', `Ошибка: ${response.error}`);
         return;
