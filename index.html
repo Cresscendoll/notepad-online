@@ -927,6 +927,16 @@
     state.chatHistory.forEach(msg => {
       const div = document.createElement('div');
       div.className = `message ${msg.role}-message`;
+
+      if (msg.role === 'assistant') {
+      const label = document.createElement('div');
+      label.textContent = 'Жириновский говорит:';
+      label.style.fontWeight = 'bold';
+      label.style.marginBottom = '3px';
+      label.style.fontSize = '13px';
+      label.style.color = '#b22222';
+      div.prepend(label);
+    }
       
       // Обработка переносов строк и удаление лишних \n символов
       const processedContent = msg.content
