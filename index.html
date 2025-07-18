@@ -676,7 +676,7 @@
       <textarea id="notepad" placeholder="Пиши свою заметку в наш онлайн-блокнот — всё сохранится!"></textarea>
 
       <div class="button-row">
-        <button class="palych-button" id="palychBtn" title="Вызвать Палыча для помощи">
+        <button class="palych-button" id="palychBtn" title="Вызвать Жириновского для помощи">
           Вызвать Жириновского
         </button>
         <button class="download-button" id="downloadBtn" title="Скачать файл с заметками">
@@ -873,11 +873,11 @@
   }
 
   // === Чат с Палычем ===
-  function initPalychChat() {
+  function initZhirinovskyChat() {
     restoreChat();
-    elements.palychBtn.addEventListener('click', openPalychModal);
-    elements.palychClose.addEventListener('click', closePalychModal);
-    elements.palychSend.addEventListener('click', sendPalychMessage);
+    elements.palychBtn.addEventListener('click', openZhirinovskyModal);
+    elements.palychClose.addEventListener('click', closeZhirinovskyModal);
+    elements.palychSend.addEventListener('click', sendZhirinovskyMessage);
     elements.palychInput.addEventListener('keydown', e => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -892,13 +892,13 @@
     adjustInputHeight();
   }
 
-  function openPalychModal() {
+  function openZhirinovskyModal() {
     elements.palychModal.classList.add('active');
     elements.palychInput.focus();
     renderChat();
   }
 
-  function closePalychModal() {
+  function closeZhirinovskyModal() {
     elements.palychModal.classList.remove('active');
     saveChat();
   }
@@ -951,7 +951,7 @@
     elements.palychMessages.scrollTop = elements.palychMessages.scrollHeight;
   }
 
-  async function sendPalychMessage() {
+  async function sendZhirinovskyMessage() {
     const message = elements.palychInput.value.trim();
     if (!message) return;
 
@@ -987,7 +987,7 @@
   function forgetChatHistory() {
     state.chatHistory = [{
       role: 'assistant',
-      content: 'Здравствуй! Я Владимир Вольфович. Спрашивай — не бойся!'
+      content: 'Здравствуй! Я дядя Вова. Спрашивай — не бойся!'
     }];
     saveChat();
     renderChat();
