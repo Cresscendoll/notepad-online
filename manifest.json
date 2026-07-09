@@ -1,6 +1,6 @@
 {
-  "name": "Центральный народный блокнот",
-  "short_name": "Народный блокнот",
+  "name": "Блокнот онлайн",
+  "short_name": "Блокнот",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#fefdf9",

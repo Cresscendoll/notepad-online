@@ -2,16 +2,16 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Блокнот онлайн — Центральный народный блокнот</title>
+  <title>Блокнот онлайн</title>
 
   <link rel="canonical" href="https://zmtk.my" />
 
-  <meta name="description" content="Блокнот онлайн для заметок — бесплатный, удобный, быстрый. Центральный народный блокнот для всех трудящихся. Пиши, сохраняй, возвращайся!" />
+  <meta name="description" content="Блокнот онлайн для заметок — бесплатный, удобный, быстрый. Пиши, сохраняй, возвращайся!" />
   <meta name="keywords" content="блокнот онлайн, онлайн блокнот, заметки, записать текст, текстовый блокнот, notepad online" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <meta property="og:title" content="Блокнот онлайн — Центральный народный блокнот" />
-  <meta property="og:description" content="Простой и бесплатный блокнот онлайн. Быстрые заметки без регистрации. Центральный народный блокнот для трудового народа." />
+  <meta property="og:title" content="Блокнот онлайн" />
+  <meta property="og:description" content="Простой и бесплатный блокнот онлайн. Быстрые заметки без регистрации." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://zmtk.my" />
   <meta property="og:image" content="https://zmtk.my/preview.png" />
@@ -439,8 +439,8 @@
       <div class="container" id="notepadContainer">
         <div class="header-text">
           <nav><a href="about.html" title="О проекте">О проекте</a></nav>
-          <h1>Блокнот онлайн — Центральный народный блокнот</h1>
-          <p>Удобный бесплатный блокнот онлайн для заметок. Никакой регистрации. Просто пиши, сохраняй и возвращайся, товарищ!</p>
+          <h1>Блокнот онлайн</h1>
+          <p>Удобный бесплатный блокнот онлайн для заметок. Никакой регистрации. Просто пиши, сохраняй и возвращайся!</p>
         </div>
         <textarea id="notepad" placeholder="Пиши свою заметку в наш онлайн-блокнот — всё сохранится!"></textarea>
         <div class="button-row">
@@ -471,7 +471,7 @@
       <div class="palych-content">
         <div class="palych-messages" id="palychMessages">
           <div class="message assistant-message">
-            Здравствуйте, товарищ! Я Палыч — ваш искусственный интеллект помощник. Чем могу помочь?
+            Здравствуйте! Я Палыч — ваш искусственный интеллект помощник. Чем могу помочь?
           </div>
         </div>
         <div class="palych-loading" id="palychLoading">
@@ -490,7 +490,7 @@
   <div class="video-wrapper" id="videoWrapper">
     <video controls>
       <source src="/video/easteregg.mp4" type="video/mp4" />
-      Ваш браузер не поддерживает видео. Установите Chrome, товарищ!
+      Ваш браузер не поддерживает видео.
     </video>
   </div>
 
@@ -524,7 +524,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'central_narodny_blocknot.txt';
+      a.download = 'notepad.txt';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
